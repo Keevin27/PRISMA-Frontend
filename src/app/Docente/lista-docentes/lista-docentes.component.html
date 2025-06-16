@@ -1,0 +1,21 @@
+<h2>Docentes</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Dui</th>
+            <th>Correo</th>
+            <th>Telefono</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor=" let docente of docentes">
+            <td>{{docente.nombre}}</td>
+            <td>{{docente.apellido}}</td>
+            <td>{{docente.dui}}</td>
+            <td>{{docente.correo}}</td>
+            <td>{{docente.telefono}}</td>
+        </tr>
+    </tbody>
+</table>
