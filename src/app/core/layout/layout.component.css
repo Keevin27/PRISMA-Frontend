@@ -1,0 +1,36 @@
+:root {
+  --sidebar-wide: 250px;
+  --topbar-height: 56px;
+}
+
+/* ----- contenido por defecto (sidebar cerrado) ----- */
+.main-content {
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+}
+
+/* ----- cuando el sidebar está ABIERTO ----- */
+.main-content.shift {
+  margin-left: var(--sidebar-wide);
+}
+
+/* ----- Topbar ----- */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--topbar-height);
+  background-color: #0d6efd;
+  color: #fff;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+}
+
+/* ----- área debajo de la topbar ----- */
+.page-content {
+  padding: 1rem;
+  padding-top: calc(var(--topbar-height) + 1rem);
+}

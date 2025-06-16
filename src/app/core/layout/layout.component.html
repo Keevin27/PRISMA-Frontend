@@ -1,0 +1,14 @@
+<app-sidebar #sidenav></app-sidebar>
+
+<main class="main-content" [class.shift]="sidenav.isOpen">
+  <header class="topbar d-flex align-items-center px-3">
+    <button class="btn p-0 border-0 bg-transparent me-3" (click)="sidenav.toggle()">
+      <i class="bi bi-list fs-3"></i>
+    </button>
+    <h1 class="h5 mb-0">PRISMA</h1>
+  </header>
+
+  <section class="page-content">
+    <router-outlet></router-outlet>
+  </section>
+</main>
