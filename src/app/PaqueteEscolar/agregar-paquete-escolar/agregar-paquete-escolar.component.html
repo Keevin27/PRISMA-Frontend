@@ -1,0 +1,35 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/paquetesescolares"
+                        class="text-decoration-none text-secondary">Paquetes Escolares</a></li>
+                <li class=" breadcrumb-item active" aria-current="page">Agregar Paquetes Escolares</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Agregar Paquete Escolar</h2>
+</div>
+
+<div class="col-md-6 offset-md-3">
+
+    <form (ngSubmit)="onSubmit()" method="post">
+
+        <div class="form-group">
+            <label for="docente_nombres" class="form-label">Nombre del paquete escolar:</label>
+            <input type="text" class="form-control" id="nombre_paquete" [(ngModel)]="paqueteescolar.nombre_paquete"
+                name="nombre" required>
+        </div>
+        <div class="row justify-content-center text-center mt-4">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+            <div class="col-auto">
+                <a class="btn btn-danger" routerLink="/paquetesescolares">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>

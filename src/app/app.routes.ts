@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './core/layout/layout.component';
+import { PaqueteEscolarComponent } from './PaqueteEscolar/paquete-escolar/paquete-escolar.component';
+import { AgregarPaqueteEscolarComponent } from './PaqueteEscolar/agregar-paquete-escolar/agregar-paquete-escolar.component';
 
 export const routes: Routes = [
   {
@@ -9,7 +11,13 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./PaqueteEscolar/paquete-escolar/paquete-escolar.component').then((m) => m.PaqueteEscolarComponent),
+          import('./home/home.component').then((m) => m.HomeComponent),
+      },
+      {
+        path: 'paquetesescolares', component:PaqueteEscolarComponent,
+      },
+      {
+        path: 'paquetesescolares/agregar-paqueteescolar', component:AgregarPaqueteEscolarComponent,
       },
       {
         path: 'home',

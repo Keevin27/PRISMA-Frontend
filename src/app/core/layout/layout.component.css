@@ -22,7 +22,7 @@
   left: 0;
   right: 0;
   height: var(--topbar-height);
-  background-color: #0d6efd;
+  background-color: #212529;
   color: #fff;
   z-index: 1100;
   display: flex;
