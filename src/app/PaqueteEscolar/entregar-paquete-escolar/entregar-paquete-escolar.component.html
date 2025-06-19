@@ -1,0 +1,76 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                <li class=" breadcrumb-item active" aria-current="page">Entrega de Paquetes Escolares</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Entrega de Paquetes Escolares</h2>
+</div>
+
+<div class="container">
+
+    <!-- Formulario de Selección de Paquete -->
+    <div class="d-flex justify-content-center align-items-center mb-2">
+        <form th:action="@{/entregasPaquetes/seccion/{id}(id=${id})}" method="get" class="needs-validation" novalidate>
+            <div class="input-group mt-2">
+                <select [(ngModel)]="idGradoSeleccionado" name="grado" class="form-select me-2" required
+                    (change)="GradoSeleccionado()">
+                    <option value="" disabled>Seleccione un grado para entregar</option>
+                    <option *ngFor="let grado of grados" [value]="grado.id_grado">{{ grado.nombre_grado }} "{{
+                        grado.seccion }}"</option>
+                </select>
+
+                <select [(ngModel)]="paqueteSeleccionado" name="tipoPaquete" class="form-select me-2" required>
+                    <option value="" disabled>Seleccione tipo de paquete para entregar</option>
+                    <option *ngFor="let paq of paquetesaEntregar" [ngValue]="paq">{{ paq.nombre_paquete }}</option>
+                </select>
+
+
+                <button type="submit" class="btn btn-primary me-2" id="btn-generar" [disabled]="!paqueteSeleccionado" (click)="generarListaEntrega()" 
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir a la lista para marcar entrega">
+                <i class="bi bi-plus-lg"></i>  Añadir a la lista</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Encabezado de la Tabla -->
+    <div class="d-flex justify-content-end mb-2" th:if="${alumnos} and ${tipoPaquete != null}">
+        <a routerLink="/entregar-paquetes-escolares/imprimir" class="btn btn-dark me-1" data-bs-toggle="tooltip"
+            data-bs-placement="top" title="Imprimir la lista de entrega para completar manualmente" target="_blank"
+            onclick="openInPopup(this.routerLink); return false;">
+            <i class="bi bi-printer"></i> Imprimir
+        </a>
+    </div>
+    <h2>Listado de alumnos</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr class="align-middle">
+                <th>NIE</th>
+                <th>Apellido</th>
+                <th>Nombre</th>
+                <th>Género</th>
+                <th *ngFor ="let a of paquetesEntregados">{{ a.nombre_paquete }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (alu of alumnos; track alu.idAlumno){
+            <tr class="align-middle">
+                <td>{{ alu.nie }}</td>
+                <td>{{ alu.apellido_alumno }}</td>
+                <td>{{ alu.nombre_alumno }}</td>
+                <td>{{ alu.sexo_a }}</td>
+                <td *ngFor="let p of paquetesEntregados"><input type="checkbox" [checked]="tieneAsignacion(alu, p)"></td>
+            </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+<script>
+    function openInPopup(url) {
+        window.open(url, 'popup', 'width=800,height=600');
+    }
+</script>

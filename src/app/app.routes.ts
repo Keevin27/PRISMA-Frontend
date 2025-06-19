@@ -4,6 +4,7 @@ import { PaqueteEscolarComponent } from './PaqueteEscolar/paquete-escolar/paquet
 import { AgregarPaqueteEscolarComponent } from './PaqueteEscolar/agregar-paquete-escolar/agregar-paquete-escolar.component';
 import { AsistenciaListaComponent } from './AsistenciaAlumno/asistencia-lista/asistencia-lista.component';
 import { AgregarAsistenciaComponent } from './AsistenciaAlumno/agregar-asistencia/agregar-asistencia.component';
+import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paquete-escolar/entregar-paquete-escolar.component';
 
 export const routes: Routes = [
   {
@@ -28,6 +29,9 @@ export const routes: Routes = [
         path: 'asistenciaalumno/asistencia-lista', component:AsistenciaListaComponent,
       },
       
+      {
+        path: 'entrega-paquetes-escolares', component:EntregarPaqueteEscolarComponent,
+      },
       {
         path: 'home',
         loadComponent: () =>
