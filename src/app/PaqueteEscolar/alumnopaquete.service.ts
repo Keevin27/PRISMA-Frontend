@@ -19,4 +19,7 @@ export class AlumnopaqueteService {
   obtenerAsignacionesDePaquetes(idgrado:string):Observable<Alumnopaquete[]>{
     return this.httpClient.get<Alumnopaquete[]>(`${this.baseURL}-filtro-grado/${idgrado}`)
   }
+  actualizarAlumnoPaquete(id:number, alupaq: Alumnopaquete):Observable<Object>{
+    return this.httpClient.put(`${this.baseURL}/${id}`, alupaq);
+  }
 }
