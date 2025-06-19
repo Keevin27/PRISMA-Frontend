@@ -1,0 +1,70 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class=" breadcrumb-item active" aria-current="page">Asistencia de alumno</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Asistencia de alumnos</h2>
+
+<form (ngSubmit)="onSubmit()" method="post">
+
+     <div class="container">
+    	
+        <div class="d-flex justify-content-end align-items-center mb-2">
+            <button class="btn btn-primary me-2" type="submit" data-bs-toggle="tooltip" data-bs-placement="top">
+                <i class="bi bi-plus-lg"></i> Guardar asistencia
+            </button>
+        </div>
+<div class="d-flex justify-content-end align-items-center mb-2">
+            <button class="btn btn-primary me-2" [routerLink]="'/asistenciaalumno/asistencia-lista'"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Reporte de asistencia">
+                <i class="bi bi-plus-lg"></i> Reporte de asistencia
+            </button>
+        </div>
+        <!-- Tabla de Asistencia de alumno -->
+        <h2>Listado de Asistencia</h2>
+        <br><br>
+        <input type="date" id="fechaAsistencia" name="fechaAsistencia" class="input-group-addon">
+        <br><br>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr class="align-middle">
+                     <th style="text-align: center;">NIE</th>
+                   
+                    <th style="text-align: center;">Nombre</th>
+                    <th style="text-align: center;">Apellido</th>
+                    <th style="text-align: center;">Estado asistencia</th>
+
+                    
+                    
+                </tr>
+            </thead>
+            <!-- aqui irian los alumnos -->
+            <tbody>
+                <tr *ngFor="let asistenciaAlumno of asistenciaAlumnos">
+                    <th scope="row"> {{asistenciaAlumno.alumno.nie}}</th> 
+                    
+                    <th scope="row"> {{asistenciaAlumno.alumno.nombre_alumno}}</th> 
+                    <th scope="row"> {{asistenciaAlumno.alumno.apellido_alumno}}</th> 
+                    <th scope="row"> <select name="estado_asistencia" id="estado_asistencia" class="form-select" aria-label="Default select example">
+                    <option value="Asistencia">Asistencia</option>
+                    <option value="Inasistencia">Inasistencia</option>
+                    <option value="Permiso">Permiso</option>
+                    </select>
+                    </th>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+
+
+</form>
+    
+
+   

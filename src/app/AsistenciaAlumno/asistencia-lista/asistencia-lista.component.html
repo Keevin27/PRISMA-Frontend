@@ -1,0 +1,40 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class=" breadcrumb-item active" aria-current="page">Asistencia de alumno</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Reporte de asistencia</h2>
+
+    <div class="container">
+        
+
+        <!-- Tabla de Asistencia de alumno -->
+        <h2>Listado de Asistencia de alumno</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr class="align-middle">
+                    <th style="text-align: center;">ID</th>
+                    <th style="text-align: center;">Estado de asistencia</th>
+                    <th style="text-align: center;">Fecha de asistencia</th>
+                    <th style="text-align: center;">Alumno</th>
+
+                    
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let asistenciaAlumno of asistenciaAlumnos">
+                    <th scope="row"> {{asistenciaAlumno.id_asistencia}}</th> 
+                    <th scope="row"> {{asistenciaAlumno.estado_asistencia}}</th> 
+                    <th scope="row"> {{asistenciaAlumno.fecha_asistencia}}</th> 
+                    <th scope="row"> {{asistenciaAlumno.alumno.nie}}</th> 
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
