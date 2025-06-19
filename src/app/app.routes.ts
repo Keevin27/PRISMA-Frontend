@@ -3,6 +3,8 @@ import { LayoutComponent } from './core/layout/layout.component';
 import { PaqueteEscolarComponent } from './PaqueteEscolar/paquete-escolar/paquete-escolar.component';
 import { AgregarPaqueteEscolarComponent } from './PaqueteEscolar/agregar-paquete-escolar/agregar-paquete-escolar.component';
 import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paquete-escolar/entregar-paquete-escolar.component';
+import { AgregarDocenteComponent } from './Docente/agregar-docente/agregar-docente.component';
+import { ActualizarDocenteComponent } from './Docente/actualizar-docente/actualizar-docente.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +31,17 @@ export const routes: Routes = [
           import('./home/home.component').then(m => m.HomeComponent),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'docentes',
+        loadComponent: () =>
+          import('./Docente/lista-docentes/lista-docentes.component').then(m => m.ListaDocentesComponent),
+      },
+      {
+        path: 'docentes/agregarDocente', component:AgregarDocenteComponent
+      },
+      {
+        path: 'docentes/:dui', component:ActualizarDocenteComponent
+      }
     ],
   },
 ];
