@@ -15,6 +15,9 @@ export class PaqueteEscolarService {
   obtenerListaDePaquetes():Observable<PaqueteEscolar[]>{
     return this.httpClient.get<PaqueteEscolar[]>(`${this.baseURL}`);
   }
+  obtenerListaDePaquetesActivos():Observable<PaqueteEscolar[]>{
+    return this.httpClient.get<PaqueteEscolar[]>(`${this.baseURL}-activos`);
+  }
   agregarPaquete(paqueteescolar:PaqueteEscolar):Observable<Object>{
     return this.httpClient.post(`${this.baseURL}`,paqueteescolar)
   }

@@ -16,23 +16,25 @@
     <div class="d-flex justify-content-center align-items-center mb-2">
         <form th:action="@{/entregasPaquetes/seccion/{id}(id=${id})}" method="get" class="needs-validation" novalidate>
             <div class="input-group mt-2">
-                <select [(ngModel)]="paqueteSeleccionadoId" name="tipoPaquete" class="form-select me-2" required>
-                    <option value="">Seleccione tipo de paquete para entregar</option>
-                    @for (paq of paquetesescolares; track paq.id_paquete_e) {
-                    <option [value]="paq.id_paquete_e">{{ paq.nombre_paquete }}</option>
-                    }
+                <select [(ngModel)]="idGradoSeleccionado" name="grado" class="form-select me-2" required
+                    (change)="GradoSeleccionado()">
+                    <option value="" disabled>Seleccione un grado para entregar</option>
+                    <option *ngFor="let grado of grados" [value]="grado.id_grado">{{ grado.nombre_grado }} "{{
+                        grado.seccion }}"</option>
+                </select>
+
+                <select [(ngModel)]="paqueteSeleccionado" name="tipoPaquete" class="form-select me-2" required>
+                    <option value="" disabled>Seleccione tipo de paquete para entregar</option>
+                    <option *ngFor="let paq of paquetesaEntregar" [ngValue]="paq">{{ paq.nombre_paquete }}</option>
                 </select>
 
 
-                <button type="submit" class="btn btn-primary me-2" id="btn-generar" disabled data-bs-toggle="tooltip"
-                    data-bs-placement="top" title="Añadir a la lista para marcar entrega"><i class="bi bi-plus-lg"></i>
-                    Añadir a la lista</button>
+                <button type="submit" class="btn btn-primary me-2" id="btn-generar" [disabled]="!paqueteSeleccionado" (click)="generarListaEntrega()" 
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir a la lista para marcar entrega">
+                <i class="bi bi-plus-lg"></i>  Añadir a la lista</button>
             </div>
         </form>
     </div>
-
-    <input type="hidden" name="id" th:value="${id}" id="id" />
-    <input type="hidden" name="tipoPaquete" th:value="${tipoPaquete}" />
 
     <!-- Encabezado de la Tabla -->
     <div class="d-flex justify-content-end mb-2" th:if="${alumnos} and ${tipoPaquete != null}">
@@ -50,6 +52,7 @@
                 <th>Apellido</th>
                 <th>Nombre</th>
                 <th>Género</th>
+                <th *ngFor ="let a of paquetesEntregados">{{ a.nombre_paquete }}</th>
             </tr>
         </thead>
         <tbody>
@@ -59,6 +62,7 @@
                 <td>{{ alu.apellido_alumno }}</td>
                 <td>{{ alu.nombre_alumno }}</td>
                 <td>{{ alu.sexo_a }}</td>
+                <td *ngFor="let p of paquetesEntregados"><input type="checkbox" [checked]="tieneAsignacion(alu, p)"></td>
             </tr>
             }
 

@@ -14,4 +14,7 @@ export class AlumnoService {
     obtenerListaDeAlumnos():Observable<Alumno[]>{
       return this.httpClient.get<Alumno[]>(`${this.baseURL}`);
     }
+    obtenerListaDeAlumnosPorGrado(grado:string):Observable<Alumno[]>{
+      return this.httpClient.get<Alumno[]>(`${this.baseURL}/${grado}`);
+    }
 }
