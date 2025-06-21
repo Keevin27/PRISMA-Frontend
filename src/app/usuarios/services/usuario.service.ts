@@ -20,7 +20,7 @@ export class UsuarioService {
     return this.http.post<Usuario>(this.apiUrl, usuario);
   }
 
-  actualizar(id: number, usuario: Usuario): Observable<Usuario> {
+  actualizar(id: number, usuario: any) {
     return this.http.put<Usuario>(`${this.apiUrl}/${id}`, usuario);
   }
 

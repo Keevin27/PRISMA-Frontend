@@ -17,7 +17,13 @@ export class UsuarioListComponent implements OnInit {
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 
   ngOnInit(): void {
-    this.usuarioService.listar().subscribe(data => this.usuarios = data);
+    this.usuarioService.listar().subscribe(data => {
+      // Mapea cada usuario para asignar 'rol' con el primer rol del arreglo roles
+      this.usuarios = data.map((u: any) => ({
+        ...u,
+        rol: (u.roles && u.roles.length > 0) ? u.roles[0] : null
+      }));
+    });
   }
 
   eliminarUsuario(id: number) {
@@ -32,9 +38,13 @@ export class UsuarioListComponent implements OnInit {
     this.router.navigate(['/usuarios/nuevo']);
   }
 
-  getNombresRoles(usuario: Usuario): string {
-  return usuario.roles && usuario.roles.length > 0
-    ? usuario.roles.map(r => r.nombre).join(', ')
-    : 'Sin rol';
-}
+  getNombreRol(usuario: Usuario): string {
+    if (!usuario.rol) return '';
+    return this.formatearNombreRol(usuario.rol.nombre);
+  }
+
+  formatearNombreRol(nombre: string): string {
+    // Elimina el prefijo "ROLE_" y pone en mayúscula la primera letra
+    return nombre.replace('ROLE_', '').toLowerCase().replace(/^\w/, c => c.toUpperCase());
+  }
 }

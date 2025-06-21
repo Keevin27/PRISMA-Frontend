@@ -20,39 +20,35 @@ export class UsuarioFormComponent implements OnInit {
     correoUsuario: '',
     passwordUsuario: '',
     usuarioActivo: true,
-    roles: [],
+    rol: null
   };
 
-  rolesDisponibles: Rol[] = []; // lista para el select
-  isEdit = false;
+  rolesDisponibles: Rol[] = [];
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private usuarioService: UsuarioService,
-    private rolService: RolService // inyectar
+    private rolService: RolService
   ) {}
 
   ngOnInit(): void {
     this.rolService.listar().subscribe(roles => this.rolesDisponibles = roles);
-
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEdit = true;
-      this.usuarioService.listar().subscribe(users => {
-        const u = users.find(x => x.idUsuario === +id);
-        if (u) this.usuario = u;
-      });
-    }
   }
 
   guardar() {
-    if (this.isEdit && this.usuario.idUsuario) {
-      this.usuarioService.actualizar(this.usuario.idUsuario, this.usuario)
-        .subscribe(() => this.router.navigate(['/usuarios']));
-    } else {
-      this.usuarioService.crear(this.usuario)
-        .subscribe(() => this.router.navigate(['/usuarios']));
+    if (!this.usuario.rol) {
+      alert('Debe seleccionar un rol');
+      return;
     }
+
+    const usuarioEnviar: any = {
+      correoUsuario: this.usuario.correoUsuario,
+      passwordUsuario: this.usuario.passwordUsuario,
+      usuarioActivo: this.usuario.usuarioActivo,
+      roles: [this.usuario.rol]
+    };
+
+    this.usuarioService.crear(usuarioEnviar)
+      .subscribe(() => this.router.navigate(['/usuarios']));
   }
 }

@@ -3,11 +3,6 @@
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
     <h1 class="text-start col-lg-3"></h1>
     <div class="d-flex gap-2">
-      <a class="btn btn-secondary"
-         data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir listado actual" target="_blank"
-         onclick="openInPopup(this.href); return false;">
-        <i class="bi bi-printer"></i> Imprimir
-      </a>
       <a class="btn btn-primary"
          data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar un nuevo usuario"
          (click)="nuevoUsuario()">
@@ -22,7 +17,7 @@
         <tr>
           <th>Correo</th>
           <th>Activo</th>
-          <th>Roles</th>
+          <th>Rol</th>
           <th style="width: 15%; text-align: center;">Acciones</th>
         </tr>
       </thead>
@@ -30,12 +25,11 @@
         <tr *ngFor="let u of usuarios">
           <td>{{ u.correoUsuario }}</td>
           <td>{{ u.usuarioActivo ? 'Sí' : 'No' }}</td>
-          <td>{{ getNombresRoles(u) }}</td>
+          <td>{{ getNombreRol(u) }}</td>
           <td>
             <div class="d-flex justify-content-left">
               <button class="btn btn-primary btn-sm mx-1"
-                      data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"
-                      (click)="editarUsuario(u)">
+                      data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
                 <i class="bi bi-pencil-square"></i>
               </button>
               <button class="btn btn-danger btn-sm mx-1"

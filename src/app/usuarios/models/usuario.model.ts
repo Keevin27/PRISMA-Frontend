@@ -6,5 +6,5 @@ export interface Usuario {
   passwordUsuario: string;
   fechaRegistro?: Date;
   usuarioActivo: boolean;
-  roles: Rol[];
+  rol: Rol | null;
 }
