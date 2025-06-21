@@ -5,6 +5,7 @@ import { AgregarPaqueteEscolarComponent } from './PaqueteEscolar/agregar-paquete
 import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paquete-escolar/entregar-paquete-escolar.component';
 import { AgregarDocenteComponent } from './Docente/agregar-docente/agregar-docente.component';
 import { ActualizarDocenteComponent } from './Docente/actualizar-docente/actualizar-docente.component';
+import { LoginComponent } from './Auth/Login/login.component';
 
 export const routes: Routes = [
   {
@@ -30,7 +31,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./home/home.component').then(m => m.HomeComponent),
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: 'login', pathMatch: 'full' },
       {
         path: 'docentes',
         loadComponent: () =>
@@ -41,7 +42,8 @@ export const routes: Routes = [
       },
       {
         path: 'docentes/:dui', component:ActualizarDocenteComponent
-      }
+      },
+      { path: 'login', component: LoginComponent }
     ],
   },
 ];

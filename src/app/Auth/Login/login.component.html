@@ -1,0 +1,36 @@
+<div class="login-container">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2>Iniciar Sesión</h2>
+
+    <label>Correo</label>
+    <input type="email" formControlName="correo" />
+
+    <label>Contraseña</label>
+    <input type="password" formControlName="password" />
+
+    <button type="submit" [disabled]="form.invalid">Entrar</button>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </form>
+</div>
+
+<style>
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+}
+input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+button {
+  padding: 0.5rem 1rem;
+}
+.error {
+  color: red;
+}
+</style>
