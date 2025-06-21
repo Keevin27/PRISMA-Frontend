@@ -10,6 +10,7 @@ import { AuthService } from '../auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
   templateUrl: '../Login/login.component.html',
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   form = this.fb.group({
