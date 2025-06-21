@@ -3,6 +3,7 @@ import { LayoutComponent } from './core/layout/layout.component';
 import { PaqueteEscolarComponent } from './PaqueteEscolar/paquete-escolar/paquete-escolar.component';
 import { AgregarPaqueteEscolarComponent } from './PaqueteEscolar/agregar-paquete-escolar/agregar-paquete-escolar.component';
 import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paquete-escolar/entregar-paquete-escolar.component';
+import { AgregarAlumnoComponent } from './Alumno/agregar-alumno/agregar-alumno.component';
 
 export const routes: Routes = [
   {
@@ -23,6 +24,11 @@ export const routes: Routes = [
       {
         path: 'entrega-paquetes-escolares', component:EntregarPaqueteEscolarComponent,
       },
+
+      {
+        path: 'agregar-alumno', component:AgregarAlumnoComponent,
+      },
+
       {
         path: 'home',
         loadComponent: () =>

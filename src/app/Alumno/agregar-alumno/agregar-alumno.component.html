@@ -1,0 +1,170 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/alumnos" class="text-decoration-none text-secondary">Gestión
+                        de Alumnos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ isEditing ? 'Editar' : 'Agregar' }} Alumno
+                </li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">{{ isEditing ? 'Editar' : 'Agregar' }} Alumno</h2>
+</div>
+<div class="col-md-8 offset-md-2">
+    <form (ngSubmit)="onSubmit()" method="post">
+
+        <!-- NIE -->
+        <div class="form-group mb-3">
+            <label for="nie" class="form-label">NIE: *</label>
+            <input type="text" class="form-control" id="nie" [(ngModel)]="alumno.nie" name="nie" required maxlength="7"
+                pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+
+        <!-- Nombres -->
+        <div class="form-group mb-3">
+            <label for="nombres" class="form-label">Nombres: *</label>
+            <input type="text" class="form-control" id="nombres" [(ngModel)]="alumno.nombre_alumno" name="nombres"
+                required>
+        </div>
+
+        <!-- Apellidos -->
+        <div class="form-group mb-3">
+            <label for="apellidos" class="form-label">Apellidos: *</label>
+            <input type="text" class="form-control" id="apellidos" [(ngModel)]="alumno.apellido_alumno" name="apellidos"
+                required>
+        </div>
+
+        <!-- Dirección -->
+        <div class="form-group mb-3">
+            <label for="direccion" class="form-label">Dirección:</label>
+            <input type="text" class="form-control" id="direccion" [(ngModel)]="alumno.direccion_a" name="direccion">
+        </div>
+
+        <!-- Correo electrónico -->
+        <div class="form-group mb-3">
+            <label for="correo" class="form-label">Correo electrónico:</label>
+            <input type="email" class="form-control" id="correo" [(ngModel)]="alumno.correo_alumno" name="correo">
+        </div>
+
+        <!-- Grado -->
+        <div class="form-group mb-3">
+            <label for="grado" class="form-label">Grado: *</label>
+            <select class="form-select" id="grado" [(ngModel)]="alumno.grado" name="grado" required>
+                <option value="">Seleccione un grado</option>
+                <option *ngFor="let grado of grados" [ngValue]="grado">
+                    {{ grado.nombre_grado }} - {{ grado.seccion }}
+                </option>
+            </select>
+        </div>
+
+
+        <!-- Fecha de Nacimiento -->
+        <div class="form-group mb-3">
+             <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento:</label>
+            <input type="date" class="form-control" id="fecha_nacimiento" [(ngModel)]="alumno.fecha_nacimiento_alumno"
+                name="fecha_nacimiento" min="1900-01-01" max="2024-12-31">
+        </div>
+
+        <!-- Género -->
+        <div class="form-group mb-3">
+            <label for="genero" class="form-label">Género:</label>
+            <select class="form-select" id="genero" [(ngModel)]="alumno.sexo_a" name="genero">
+                <option *ngFor="let sexo of sexos" [value]="sexo.value">
+                    {{ sexo.label }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group mb-3">
+            <label for="telefono" class="form-label">Teléfono:</label>
+            <input type="tel" class="form-control" id="telefono" [(ngModel)]="alumno.telefono_alumno" name="telefono"
+                placeholder="0000-0000" pattern="\d{4}-\d{4}" maxlength="9"
+                oninput="this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(\d{4})/, '$1-$2').substring(0, 9)">
+        </div>
+
+        <!-- Enfermedad -->
+        <div class="form-group mb-3">
+            <label for="enfermedad" class="form-label">Enfermedad:</label>
+            <input type="text" class="form-control" id="enfermedad" [(ngModel)]="alumno.enfermedades" name="enfermedad">
+        </div>
+
+        <!-- Medicamento -->
+        <div class="form-group mb-3">
+            <label for="medicamento" class="form-label">Medicamento:</label>
+            <input type="text" class="form-control" id="medicamento" [(ngModel)]="alumno.medicamento"
+                name="medicamento">
+        </div>
+
+        <!-- Vive con -->
+        <div class="form-group mb-3">
+            <label for="viveCon" class="form-label">Vive con:</label>
+            <select class="form-select" id="viveCon" [(ngModel)]="alumno.vive_con" name="viveCon">
+                <option *ngFor="let opcion of viveConOpciones" [value]="opcion.value">
+                    {{ opcion.label }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Estado del Alumno -->
+        <div class="form-group mb-3">
+            <label for="estado" class="form-label">Estado del Alumno:</label>
+            <select class="form-select" id="estado" [(ngModel)]="alumno.estado_alumno" name="estado">
+                <option [value]="true">Activo</option>
+                <option [value]="false">Inactivo</option>
+            </select>
+        </div>
+
+        <!-- DUI Encargado -->
+        <div class="form-group mb-3">
+             <label for="dui" class="form-label">DUI del Encargado:</label>
+             <input type="text" class="form-control" id="dui" [(ngModel)]="alumno.dui_encargado" name="dui"
+                placeholder="00000000-0" maxlength="10"
+                oninput="this.value = this.value.replace(/\D/g, '').replace(/(\d{8})(\d{1})/, '$1-$2').substring(0, 10)">
+        </div>
+
+        <!-- Parentesco -->
+        <div class="form-group mb-3">
+            <label for="parentesco" class="form-label">Parentesco:</label>
+            <select class="form-select" id="parentesco" [(ngModel)]="alumno.parentezco_encargado" name="parentesco">
+                <option *ngFor="let parentesco of parentescos" [value]="parentesco.value">
+                    {{ parentesco.label }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Teléfono del Encargado -->
+        <div class="form-group mb-3">
+            <label for="telefono_encargado" class="form-label">Teléfono del Encargado:</label>
+            <input type="tel" class="form-control" id="telefono_encargado" [(ngModel)]="alumno.telefono_encargado"
+                name="telefono_encargado" placeholder="0000-0000" pattern="\d{4}-\d{4}" maxlength="9"
+                oninput="this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(\d{4})/, '$1-$2').substring(0, 9)">
+        </div>
+
+        <!-- Correo del Encargado -->
+        <div class="form-group mb-3">
+            <label for="correo_encargado" class="form-label">Correo del Encargado:</label>
+            <input type="email" class="form-control" id="correo_encargado" [(ngModel)]="alumno.correo_encargado"
+                name="correo_encargado">
+        </div>
+
+        <!-- Lugar de trabajo -->
+        <div class="form-group mb-3">
+            <label for="lugar_trabajo" class="form-label">Lugar de trabajo del Encargado:</label>
+            <input type="text" class="form-control" id="lugar_trabajo" [(ngModel)]="alumno.lugar_de_trabajo"
+                name="lugar_trabajo">
+        </div>
+
+        <div class="row justify-content-center text-center mt-4">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+            <div class="col-auto">
+                <a class="btn btn-danger" routerLink="/alumnos">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
