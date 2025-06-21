@@ -1,0 +1,41 @@
+<div class="container my-4 py-5">
+  <h2>{{ isEdit ? 'Editar' : 'Crear' }} Usuario</h2>
+
+  <form (ngSubmit)="guardar()" class="row g-3 needs-validation" novalidate>
+
+    <div class="col-md-6">
+      <label for="correo" class="form-label">Correo</label>
+      <input type="email" id="correo" class="form-control" [(ngModel)]="usuario.correoUsuario" name="correo" required />
+      <div class="invalid-feedback">El correo es requerido.</div>
+    </div>
+
+    <div class="col-md-6">
+      <label for="password" class="form-label">Contraseña</label>
+      <input type="password" id="password" class="form-control" [(ngModel)]="usuario.passwordUsuario" name="password" [required]="!isEdit" />
+      <div class="invalid-feedback">La contraseña es requerida.</div>
+    </div>
+
+    <div class="col-md-3 d-flex align-items-center">
+      <div class="form-check mt-3">
+        <input type="checkbox" id="activo" class="form-check-input" [(ngModel)]="usuario.usuarioActivo" name="activo" />
+        <label for="activo" class="form-check-label">Activo</label>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <label for="rolesSelect" class="form-label">Roles</label>
+      <select id="rolesSelect" class="form-select" multiple size="5" [(ngModel)]="usuario.roles" name="roles" required>
+        <option *ngFor="let rol of rolesDisponibles" [ngValue]="rol">{{ rol.nombre }}</option>
+      </select>
+      <div class="form-text">Mantén presionada la tecla Ctrl (o Cmd) para seleccionar varios roles.</div>
+      <div class="invalid-feedback">Seleccione al menos un rol.</div>
+    </div>
+
+    <div class="col-12 d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-save"></i> Guardar
+      </button>
+    </div>
+    
+  </form>
+</div>

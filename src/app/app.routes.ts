@@ -9,6 +9,8 @@ import { LoginComponent } from './Auth/Login/login.component';
 import { LoginLayoutComponent } from './layouts/login-layout/login-layout.component';
 import { AuthGuard } from './Auth/auth.guard';
 import { NoAuthGuard } from './Auth/no-auth.guard';
+import { UsuarioListComponent } from './usuarios/pages/usuario-list/usuario-list.component';
+import { UsuarioFormComponent } from './usuarios/pages/usuario-form/usuario-form.component';
 
 export const routes: Routes = [
   {
@@ -53,6 +55,10 @@ export const routes: Routes = [
         path: 'docentes/:dui',
         component: ActualizarDocenteComponent,
       },
+
+      { path: 'usuarios', component: UsuarioListComponent },
+      { path: 'usuarios/nuevo', component: UsuarioFormComponent },
+      { path: 'usuarios/editar/:id', component: UsuarioFormComponent },
     ],
   },
 
