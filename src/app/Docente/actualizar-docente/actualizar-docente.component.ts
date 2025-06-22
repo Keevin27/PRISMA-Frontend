@@ -73,7 +73,7 @@ export class ActualizarDocenteComponent implements OnInit{
     );
   }
   descargarAnexo(id?: number): void {
-    const url = `http://localhost:8080/anexos/${id}/archivo`;
+    const url = `http://localhost:8080/anexos/docente/${id}/archivo`;
     window.open(url, '_blank');
   }
   toggleAnexos(event: Event) {
