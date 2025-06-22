@@ -6,6 +6,7 @@ import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paque
 import { AgregarDocenteComponent } from './Docente/agregar-docente/agregar-docente.component';
 import { ActualizarDocenteComponent } from './Docente/actualizar-docente/actualizar-docente.component';
 import { AgregarAlumnoComponent } from './Alumno/agregar-alumno/agregar-alumno.component';
+import { ActualizarAlumnoComponent } from './Alumno/actualizar-alumno/actualizar-alumno.component';
 
 export const routes: Routes = [
   {
@@ -34,7 +35,12 @@ export const routes: Routes = [
       },
       {
         path: 'alumnos/agregarAlumno',
-        component: AgregarAlumnoComponent
+        component:AgregarAlumnoComponent
+      },
+
+      {
+        path: 'alumnos/:id',
+        component:ActualizarAlumnoComponent
       },
 
       {

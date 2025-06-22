@@ -23,7 +23,7 @@ export class AlumnoService {
 
   // Obtener alumno por ID
   obtenerAlumnoPorId(id: number): Observable<Alumno> {
-    return this.httpClient.get<Alumno>(`${this.baseURL}/alumno/${id}`);
+    return this.httpClient.get<Alumno>(`${this.baseURL}/alumnos/id/${id}`);
   }
 
   // Obtener alumno por NIE
@@ -55,5 +55,5 @@ export class AlumnoService {
   obtenerAlumnosActivos(): Observable<Alumno[]> {
     return this.httpClient.get<Alumno[]>(`${this.baseURL}/alumnos/activos`);
   }
-  
+
 }

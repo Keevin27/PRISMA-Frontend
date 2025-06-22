@@ -1,69 +1,103 @@
-<div class="container my-4 py-5">
+<div class="container-fluid my-4 py-5">
     <h2>Alumnos</h2>
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <h1 class="text-start col-lg-3"></h1>
-        <div class="d-flex gap-2">
-            <a class="btn btn-secondary" 
-                data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir listado actual" target="_blank"
-                onclick="openInPopup(this.href); return false;">
-                <i class="bi bi-printer"></i> Imprimir
-            </a>
-            <a class="btn btn-primary" data-bs-toggle="tooltip"
-                data-bs-placement="top" title="Agregar un nuevo alumno"
-                routerLink="/alumnos/agregarAlumno" routerLinkActive="active">
-                <i class="bi bi-person-plus"></i> Agregar
-            </a>
-        </div>
-    </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>NIE</th>
-                    <th>Nombre</th>
-                    <th>Apellidos</th>
-                    <th style="width: 15%; text-align: center;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let alumno of alumnos">
-                    <td>{{alumno.nie}}</td>
-                    <td>{{alumno.nombre_alumno}}</td>
-                    <td>{{alumno.apellido_alumno}}</td>
-                    <td>
-                        <div class="d-flex justify-content-left">
-                            <div>
-                                <a class="btn btn-success btn-sm mx-1"
-                                    routerLink=""
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar">
-                                    <i class="bi bi-file-earmark-text"></i>
-                                </a>
-                            </div>
-                            <a class="btn btn-primary btn-sm mx-1"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" 
-                                [routerLink]="['/alumnos', alumno.nie]">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a class="btn btn-danger btn-sm mx-1 delete-btn"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
-                                (click)="eliminarAlumno(alumno.idAlumno)">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                            <a class="btn btn-secondary btn-sm mx-1" data-bs-toggle="tooltip"
-                                data-bs-placement="top" title="Imprimir" target="_blank"
-                                [href]="'http://localhost:8080/Alu/alumnos/' + alumno.nie + '/imprimir'">
-                                <i class="bi bi-printer"></i>
-                            </a>
+    <div class="row">
+        <!-- Filtro de Alumnos - Columna Izquierda -->
+        <div class="col-lg-2 col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    <h6 class="card-title">Filtrar Alumnos</h6>
+                    <form>
+                        <div class="mb-2">
+                            <label for="filtro_anio" class="form-label small">Año:</label>
+                            <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio" [(ngModel)]="filtroAnio">
+                                <option value="">Seleccionar año...</option>
+                                <option *ngFor="let anio of aniosDisponibles" [value]="anio">{{anio}}</option>
+                            </select>
                         </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        <div class="mb-2">
+                            <label for="filtro_seccion" class="form-label small">Sección:</label>
+                            <select id="filtro_seccion" class="form-select form-select-sm" name="filtro_seccion" [(ngModel)]="filtroSeccion">
+                                <option value="">Seleccionar sección...</option>
+                                <option *ngFor="let seccion of seccionesDisponibles" [value]="seccion">{{seccion}}</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="button" class="btn btn-primary btn-sm" (click)="filtrarAlumnos()">
+                                <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-        <div class="alert alert-info alert-dismissible fade show mt-1 ms-2 mr-2" *ngIf="alumnos?.length === 0">
-            <i class="bi bi-exclamation-triangle"></i>
-            <label>No hay alumnos registrados</label>
+        <!-- Contenido Principal - Columna Derecha -->
+        <div class="col-lg-10 col-md-9">
+            <div class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
+                <div class="d-flex gap-2">
+                    <a class="btn btn-secondary" 
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir listado actual" target="_blank"
+                        onclick="openInPopup(this.href); return false;">
+                        <i class="bi bi-printer"></i> Imprimir
+                    </a>
+                    <a class="btn btn-primary" data-bs-toggle="tooltip"
+                        data-bs-placement="top" title="Agregar un nuevo alumno"
+                        routerLink="/alumnos/agregarAlumno" routerLinkActive="active">
+                        <i class="bi bi-person-plus"></i> Agregar
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>NIE</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th style="width: 15%; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let alumno of alumnos">
+                            <td>{{alumno.nie}}</td>
+                            <td>{{alumno.nombre_alumno}}</td>
+                            <td>{{alumno.apellido_alumno}}</td>
+                            <td>
+                                <div class="d-flex justify-content-left">
+                                    <div>
+                                        <a class="btn btn-success btn-sm mx-1"
+                                            routerLink=""
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                    <a class="btn btn-primary btn-sm mx-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"
+                                        [routerLink]="['/alumnos', alumno.idAlumno]">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a class="btn btn-danger btn-sm mx-1 delete-btn"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
+                                        (click)="eliminarAlumno(alumno.idAlumno)">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a class="btn btn-secondary btn-sm mx-1" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Imprimir" target="_blank"
+                                        [href]="'http://localhost:8080/Alu/alumnos/' + alumno.nie + '/imprimir'">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="alumnos?.length === 0">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <label>No hay alumnos registrados</label>
+                </div>
+            </div>
         </div>
     </div>
 </div>
