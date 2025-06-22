@@ -55,9 +55,5 @@ export class AlumnoService {
   obtenerAlumnosActivos(): Observable<Alumno[]> {
     return this.httpClient.get<Alumno[]>(`${this.baseURL}/alumnos/activos`);
   }
-
-  // Buscar alumnos por nombre o apellido
-  buscarAlumnos(termino: string): Observable<Alumno[]> {
-    return this.httpClient.get<Alumno[]>(`${this.baseURL}/alumnos/buscar/${termino}`);
-  }
+  
 }

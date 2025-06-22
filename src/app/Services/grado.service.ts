@@ -7,15 +7,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradoService {
-  private baseURL = "http://localhost:8080/Grado"
+  private baseURL = "http://localhost:8080/Grado/grados"
 
   constructor(private httpClient:HttpClient) { }
 
   obtenerGradosPorAnyo(anyo:number): Observable<Grado[]>{
-    return this.httpClient.get<Grado[]>(`${this.baseURL}/grados/${anyo}`)
+    return this.httpClient.get<Grado[]>(`${this.baseURL}/${anyo}`)
   }
 
-  obtenerListaDeGrados(): Observable<Grado[]> {
-    return this.httpClient.get<Grado[]>(`${this.baseURL}/grados`);
-  }
 }

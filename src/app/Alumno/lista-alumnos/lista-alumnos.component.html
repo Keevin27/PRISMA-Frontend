@@ -1,0 +1,89 @@
+<div class="container my-4 py-5">
+    <h2>Alumnos</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h1 class="text-start col-lg-3"></h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-secondary" 
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir listado actual" target="_blank"
+                onclick="openInPopup(this.href); return false;">
+                <i class="bi bi-printer"></i> Imprimir
+            </a>
+            <a class="btn btn-primary" data-bs-toggle="tooltip"
+                data-bs-placement="top" title="Agregar un nuevo alumno"
+                routerLink="/alumnos/agregarAlumno" routerLinkActive="active">
+                <i class="bi bi-person-plus"></i> Agregar
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>NIE</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th style="width: 15%; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let alumno of alumnos">
+                    <td>{{alumno.nie}}</td>
+                    <td>{{alumno.nombre_alumno}}</td>
+                    <td>{{alumno.apellido_alumno}}</td>
+                    <td>
+                        <div class="d-flex justify-content-left">
+                            <div>
+                                <a class="btn btn-success btn-sm mx-1"
+                                    routerLink=""
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </a>
+                            </div>
+                            <a class="btn btn-primary btn-sm mx-1"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" 
+                                [routerLink]="['/alumnos', alumno.nie]">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn btn-danger btn-sm mx-1 delete-btn"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
+                                (click)="eliminarAlumno(alumno.idAlumno)">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <a class="btn btn-secondary btn-sm mx-1" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Imprimir" target="_blank"
+                                [href]="'http://localhost:8080/Alu/alumnos/' + alumno.nie + '/imprimir'">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-info alert-dismissible fade show mt-1 ms-2 mr-2" *ngIf="alumnos?.length === 0">
+            <i class="bi bi-exclamation-triangle"></i>
+            <label>No hay alumnos registrados</label>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de eliminar el registro? Esta acción no puede deshacerse.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -53,7 +53,7 @@ export class AgregarAlumnoComponent implements OnInit {
     { value: 'Otros familiares', label: 'Otros familiares' },
     { value: 'Otros', label: 'Otros' }
   ];
-
+  anioActual: number = new Date().getFullYear();
   constructor(
     private alumnoService: AlumnoService,
     private gradoService: GradoService,
@@ -77,7 +77,7 @@ export class AgregarAlumnoComponent implements OnInit {
 
   cargarGrados(): void {
     // Obtengo la lista de grados disponibles
-    this.gradoService.obtenerListaDeGrados().subscribe({
+    this.gradoService.obtenerGradosPorAnyo(this.anioActual).subscribe({
       next: (data: Grado[]) => {
         this.grados = data;
       },

@@ -24,6 +24,5 @@ export class ListaDocentesComponent {
     this.docenteServicio.obtenerListaDocentes().subscribe(dato => {
       this.docentes = dato;
     });
-  }
-  
+  } 
 }

@@ -28,7 +28,13 @@ export const routes: Routes = [
       },
 
       {
-        path: 'agregar-alumno', component:AgregarAlumnoComponent,
+        path: 'alumnos',
+        loadComponent: () =>
+          import('./Alumno/lista-alumnos/lista-alumnos.component').then(m => m.ListaAlumnosComponent),
+      },
+      {
+        path: 'alumnos/agregarAlumno',
+        component: AgregarAlumnoComponent
       },
 
       {
