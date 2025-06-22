@@ -39,12 +39,13 @@
 
     <!-- Encabezado de la Tabla -->
     <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-secondary mb-4" title="Imprimir la lista de entrega para completar manualmente" (click)="imprimirTabla()">
+        <button class="btn btn-secondary mb-4" title="Imprimir la lista de entrega para completar manualmente" 
+        [disabled]="!idGradoSeleccionado" (click)="imprimirTabla()">
             <i class="bi bi-printer" ></i> Imprimir tabla
         </button>
     </div>
     <h2>Listado de alumnos</h2>
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped table-hover">
         <thead class="table-dark">
             <tr class="align-middle">
                 <th>No</th>
@@ -72,5 +73,21 @@
         </tbody>
     </table>
 </div>
+<!--NUEVO-->
+<div
+  class="drop-zone"
+  (click)="fileInput.click()"
+>
+  <p>Haz clic o arrastra un archivo Excel aquí</p>
+  <input
+    type="file"
+    #fileInput
+    accept=".xlsx, .xls"
+    hidden
+  />
+</div>
+
+<button class="btn1" >Enviar al backend</button>
+
 <script>
 </script>

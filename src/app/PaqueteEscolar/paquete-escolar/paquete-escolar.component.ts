@@ -3,7 +3,7 @@ import { PaqueteEscolar } from '../paquete-escolar';
 import { HttpClientModule } from '@angular/common/http';
 import { PaqueteEscolarService } from '../paquete-escolar.service';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -14,12 +14,21 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './paquete-escolar.component.css'
 })
 export class PaqueteEscolarComponent {
-  paquetesescolares: PaqueteEscolar[]=[];
+  paquetesescolares: PaqueteEscolar[] = [];
 
-  constructor(private paqueteServicio: PaqueteEscolarService) { }
+  mensaje: string = '';
+  constructor(private paqueteServicio: PaqueteEscolarService, private router: Router) {
+  const navigation = this.router.getCurrentNavigation();
+  const state = navigation?.extras.state as { mensaje?: string };
+  if (state?.mensaje) {
+    this.mensaje = state.mensaje;
+  }}
 
   ngOnInit(): void {
     this.obtenerPaquetes();
+    if (this.mensaje) {
+    setTimeout(() => this.mensaje = '', 2000);
+  }
   }
   private obtenerPaquetes() {
     this.paqueteServicio.obtenerListaDePaquetes().subscribe(dato => {
@@ -28,6 +37,8 @@ export class PaqueteEscolarComponent {
   }
   actualizarPaquete(paquete: PaqueteEscolar) {
     this.paqueteServicio.actualizarPaquete(paquete.id_paquete_e, paquete).subscribe();
+    this.mensaje = 'Paquete escolar actualizado';//agregar texto de que mostrara
+      setTimeout(() => this.mensaje = '', 2000);//duracion del mensaje
   }
 
   onNombreEdit(paquete: PaqueteEscolar, event: any) {
@@ -39,5 +50,5 @@ export class PaqueteEscolarComponent {
     paquete.paquete_activo = !paquete.paquete_activo;
     this.actualizarPaquete(paquete);
   }
-  
+
 }
