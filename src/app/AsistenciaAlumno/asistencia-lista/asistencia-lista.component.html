@@ -1,40 +1,96 @@
 <div class="p-4 mt-5">
-    <div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
-                </li>
-                <li class=" breadcrumb-item active" aria-current="page">Asistencia de alumno</li>
-            </ol>
-        </nav>
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Asistencia de alumnos</li>
+      </ol>
+    </nav>
+  </div>
+  <h2 class="text-center">Asistencia de alumnos</h2>
+</div>
+
+<div class="container">
+  <!-- Formulario de filtro por grado y fecha -->
+  <div class="d-flex justify-content-center align-items-center mb-4">
+    <div class="input-group">
+      <!-- Selector de grado -->
+      <select
+        [(ngModel)]="idGradoSeleccionado"
+        name="grado"
+        class="form-select me-2"
+        required
+      >
+        <option value="" disabled selected>Seleccione un grado</option>
+        <option *ngFor="let grado of grados" [value]="grado.id_grado">
+          {{ grado.nombre_grado }} "{{ grado.seccion }}"
+        </option>
+      </select>
+
+      <!-- Fecha inicio -->
+      <input
+        type="date"
+        [(ngModel)]="fechaInicio"
+        name="inicio"
+        class="form-control me-2"
+        placeholder="Fecha de inicio"
+      />
+
+      <!-- Fecha fin -->
+      <input
+        type="date"
+        [(ngModel)]="fechaFin"
+        name="fin"
+        class="form-control me-2"
+        placeholder="Fecha de fin"
+      />
+
+      <!-- Botón para buscar -->
+      <button
+        class="btn btn-primary"
+        (click)="buscarAsistenciasPorGradoYFechas()"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Buscar asistencias"
+      >
+        <i class="bi bi-search"></i> Buscar
+      </button>
+
+      <!-- Botón regresar -->
+      <button
+        class="btn btn-secondary ms-2"
+        [routerLink]="'/asistenciaalumno'"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Regresar"
+      >
+        <i class="bi bi-arrow-left"></i> Regresar
+      </button>
     </div>
-    <h2 class="text-center">Reporte de asistencia</h2>
+  </div>
 
-    <div class="container">
-        
-
-        <!-- Tabla de Asistencia de alumno -->
-        <h2>Listado de Asistencia de alumno</h2>
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr class="align-middle">
-                    <th style="text-align: center;">ID</th>
-                    <th style="text-align: center;">Estado de asistencia</th>
-                    <th style="text-align: center;">Fecha de asistencia</th>
-                    <th style="text-align: center;">Alumno</th>
-
-                    
-                    
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let asistenciaAlumno of asistenciaAlumnos">
-                    <th scope="row"> {{asistenciaAlumno.id_asistencia}}</th> 
-                    <th scope="row"> {{asistenciaAlumno.estado_asistencia}}</th> 
-                    <th scope="row"> {{asistenciaAlumno.fecha_asistencia}}</th> 
-                    <th scope="row"> {{asistenciaAlumno.alumno.nie}}</th> 
-
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Tabla de asistencias -->
+  <h2>Listado de asistencias</h2>
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr class="align-middle">
+        <th>NIE</th>
+        <th>Apellido</th>
+        <th>Nombre</th>
+        <th>Estado asistencia</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let asis of asistencias; trackBy: trackById">
+        <td>{{ asis.alumno.nie }}</td>
+        <td>{{ asis.alumno.apellido_alumno }}</td>
+        <td>{{ asis.alumno.nombre_alumno }}</td>
+        <td>{{ asis.estado_asistencia }}</td>
+        <td>{{ asis.fecha_asistencia | date: 'yyyy-MM-dd' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

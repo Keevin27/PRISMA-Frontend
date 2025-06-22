@@ -3,68 +3,91 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
-                </li>
-                <li class=" breadcrumb-item active" aria-current="page">Asistencia de alumno</li>
+                <li class=" breadcrumb-item active" aria-current="page">Asistencia de alumnos</li>
             </ol>
         </nav>
     </div>
     <h2 class="text-center">Asistencia de alumnos</h2>
+</div>
 
-<form (ngSubmit)="onSubmit()" method="post">
+<div class="container">
 
-     <div class="container">
-    	
-        <div class="d-flex justify-content-end align-items-center mb-2">
-            <button class="btn btn-primary me-2" type="submit" data-bs-toggle="tooltip" data-bs-placement="top">
-                <i class="bi bi-plus-lg"></i> Guardar asistencia
-            </button>
-        </div>
-<div class="d-flex justify-content-end align-items-center mb-2">
+    <!-- Formulario de Selección de Paquete -->
+    <div class="d-flex justify-content-center align-items-center mb-2">
+        <form th:action="@{/entregasPaquetes/seccion/{id}(id=${id})}" method="get" class="needs-validation" novalidate>
+            <div class="input-group mt-2">
+                <select [(ngModel)]="idGradoSeleccionado" name="grado" class="form-select me-2" required
+                    (change)="GradoSeleccionado()">
+                    <option value="" disabled>Seleccione un grado para asistencia</option>
+                    <option *ngFor="let grado of grados" [value]="grado.id_grado">{{ grado.nombre_grado }} "{{
+                        grado.seccion }}"</option>
+                </select>
+
+
+                <button type="submit" class="btn btn-primary me-2" id="btn-generar"  (click)="generarListaAsistencia()" 
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir asistencia">
+                <i class="bi bi-plus-lg"></i>  Añadir asistencia</button>
+
             <button class="btn btn-primary me-2" [routerLink]="'/asistenciaalumno/asistencia-lista'"
                 data-bs-toggle="tooltip" data-bs-placement="top" title="Reporte de asistencia">
                 <i class="bi bi-plus-lg"></i> Reporte de asistencia
             </button>
-        </div>
-        <!-- Tabla de Asistencia de alumno -->
-        <h2>Listado de Asistencia</h2>
-        <br><br>
-        <input type="date" id="fechaAsistencia" name="fechaAsistencia" class="input-group-addon">
-        <br><br>
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr class="align-middle">
-                     <th style="text-align: center;">NIE</th>
-                   
-                    <th style="text-align: center;">Nombre</th>
-                    <th style="text-align: center;">Apellido</th>
-                    <th style="text-align: center;">Estado asistencia</th>
-
-                    
-                    
-                </tr>
-            </thead>
-            <!-- aqui irian los alumnos -->
-            <tbody>
-                <tr *ngFor="let asistenciaAlumno of asistenciaAlumnos">
-                    <th scope="row"> {{asistenciaAlumno.alumno.nie}}</th> 
-                    
-                    <th scope="row"> {{asistenciaAlumno.alumno.nombre_alumno}}</th> 
-                    <th scope="row"> {{asistenciaAlumno.alumno.apellido_alumno}}</th> 
-                    <th scope="row"> <select name="estado_asistencia" id="estado_asistencia" class="form-select" aria-label="Default select example">
-                    <option value="Asistencia">Asistencia</option>
-                    <option value="Inasistencia">Inasistencia</option>
-                    <option value="Permiso">Permiso</option>
-                    </select>
-                    </th>
-
-                </tr>
-            </tbody>
-        </table>
+            </div>
+        </form>
     </div>
     
+    <!-- Encabezado de la Tabla -->
 
+    <h2>Listado de alumnos</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr class="align-middle">
+                <th>NIE</th>
+                <th>Apellido</th>
+                <th>Nombre</th>
+                <th >Estado asistencia</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (alu of alumnos; track alu.idAlumno){
+            <tr class="align-middle">
+                <td>{{ alu.nie }}</td>
+                <td>{{ alu.apellido_alumno }}</td>
+                <td>{{ alu.nombre_alumno }}</td>
+                
+            <!--    <td *ngFor="let p of paquetesEntregados"><input type="checkbox" [checked]="tieneAsignacion(alu, p)"></td>-->
+                <td>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" 
+           [value]="'Asistencia'" 
+           [(ngModel)]="alu.estadoSeleccionado" 
+           [name]="'asistencia_' + alu.idAlumno">
+    <label class="form-check-label">Asistencia</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" 
+           [value]="'Inasistencia'" 
+           [(ngModel)]="alu.estadoSeleccionado" 
+           [name]="'asistencia_' + alu.idAlumno">
+    <label class="form-check-label">Inasistencia</label>
+  </div>
+  <div class="form-check form-check-inline">
+    <input class="form-check-input" type="radio" 
+           [value]="'Permiso'" 
+           [(ngModel)]="alu.estadoSeleccionado" 
+           [name]="'asistencia_' + alu.idAlumno">
+    <label class="form-check-label">Permiso</label>
+  </div>
+</td>
 
-</form>
-    
+            </tr>
+            }
 
-   
+        </tbody>
+    </table>
+</div>
+<script>
+    function openInPopup(url) {
+        window.open(url, 'popup', 'width=800,height=600');
+    }
+</script>
