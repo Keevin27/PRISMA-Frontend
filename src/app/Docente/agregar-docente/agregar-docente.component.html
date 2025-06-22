@@ -1,3 +1,17 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/docentes"
+                        class="text-decoration-none text-secondary">Docentes</a></li>
+                <li class=" breadcrumb-item active" aria-current="page">Registrar Docente</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Registrar Docente</h2>
+</div>
 <div class="card">
     <div class="card-header text-center p-4 mt-5">
         <h5>CENTRO ESCOLAR GUSTAVO VIDES VALDES</h5>
@@ -5,14 +19,18 @@
         <h5>EXPEDIENTE PERSONAL DOCENTE: DATOS PERSONALES</h5>
     </div>
     <div>
-        <form  #docenteForm="ngForm" (ngSubmit)="onSubmit()" class="row g-3 needs-validation justify-content-center" novalidate>
+        <form #docenteForm="ngForm" (ngSubmit)="onSubmit(docenteForm)"
+            class="row g-3 needs-validation justify-content-center" novalidate>
             <div class="col-12">
                 <h4 class="text-center">Datos Personales</h4>
             </div>
-            
+
             <div class="col-lg-5 col-md-6">
                 <label for="nombre_Docente" class="form-label">Nombres:</label>
-                <input type="text" class="form-control bg-light" id="nombre_Docente" name="nombre_Docente" [(ngModel)]="docente.nombre_Docente">
+                <input type="text" class="form-control bg-light restricted-input" id="nombre_Docente"
+                    name="nombre_Docente" [(ngModel)]="docente.nombre_Docente" minlength="3" required #nombre="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && nombre.invalid"
+                    [class.is-valid]="docenteForm.submitted && nombre.valid">
                 <div class="invalid-feedback">
                     Es necesario agregar nombres
                 </div>
@@ -20,7 +38,10 @@
 
             <div class="col-lg-5 col-md-6">
                 <label for="apellido_Docente" class="form-label">Apellidos:</label>
-                <input type="text" class="form-control bg-light" id="apellido_Docente" name="apellido_Docente" [(ngModel)]="docente.apellido_Docente">
+                <input type="text" class="form-control bg-light restricted-input" id="apellido_Docente"
+                    name="apellido_Docente" [(ngModel)]="docente.apellido_Docente" minlength="3" required
+                    #apellidos="ngModel" [class.is-invalid]="docenteForm.submitted && apellidos.invalid"
+                    [class.is-valid]="docenteForm.submitted && apellidos.valid">
                 <div class="invalid-feedback">
                     Es necesario agregar apellidos
                 </div>
@@ -28,23 +49,30 @@
 
             <div class="col-lg-5 col-md-6">
                 <label for="docente_dui" class="form-label">DUI</label>
-                <input type="text" class="form-control bg-light" id="duiDocente" minlength="10" maxlength="10" 
-                name="duiDocente" [(ngModel)]="docente.duiDocente" (input)="validarDui($event)" required>
+                <input type="text" class="form-control bg-light restricted-input" id="duiDocente" minlength="10"
+                    maxlength="10" name="duiDocente" [(ngModel)]="docente.duiDocente" (input)="validarDui($event)"
+                    required #dui="ngModel" [class.is-invalid]="docenteForm.submitted && dui.invalid"
+                    [class.is-valid]="docenteForm.submitted && dui.valid">
                 <div class="invalid-feedback">
                     Es necesario agregar un DUI valido (########-#)
                 </div>
             </div>
             <div class="col-lg-5 col-md-6">
                 <label for="docente_fecha_nacimiento" class="form-label">Fecha de nacimiento:</label>
-                <input type="date" class="form-control bg-light" name="fecha_Nacimiento_D"
-                    id="fecha_Nacimiento_D" required [(ngModel)]="docente.fecha_Nacimiento_D">
+                <input type="date" class="form-control bg-light" name="fecha_Nacimiento_D" id="fecha_Nacimiento_D"
+                    required [(ngModel)]="docente.fecha_Nacimiento_D" #fecha="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && (!fecha.valid || !esMayorDeEdad(docente.fecha_Nacimiento_D))"
+                    [class.is-valid]="docenteForm.submitted && fecha.valid && esMayorDeEdad(docente.fecha_Nacimiento_D)">
                 <div class="invalid-feedback">
-                    Es necesario agregar la fecha de nacimiento
+                    El Docente debe tener al menos 18 años.
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
                 <label for="sexo_Docente" class="form-label">Sexo</label>
-                <select id="sexo_Docente" class="form-select" name="sexo_Docente" required [(ngModel)]="docente.sexo_Docente">
+                <select id="sexo_Docente" class="form-select bg-light" name="sexo_Docente" required
+                    [(ngModel)]="docente.sexo_Docente" #sexo="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && sexo.invalid"
+                    [class.is-valid]="docenteForm.submitted && sexo.valid">
                     <option value="" selected>Seleccionar...</option>
                     <option value="Masculino">M</option>
                     <option value="Femenino">F</option>
@@ -59,24 +87,28 @@
             <div class="col-lg-5 col-md-6">
                 <label for="telefono_Docente" class="form-label">Telefono</label>
                 <input type="text" class="form-control bg-light" id="telefono_Docente" name="telefono_Docente"
-                minlength="9" [(ngModel)]="docente.telefono_Docente" (input)="validarTelefono($event)">
+                    minlength="9" [(ngModel)]="docente.telefono_Docente" (input)="validarTelefono($event)">
                 <div class="invalid-feedback">
                     Es necesario agregar un numero de celular valido
                 </div>
             </div>
             <div class="col-lg-5 col-md-6">
                 <label for="correo_Docente" class="form-label">Correo</label>
-                <input type="text" class="form-control bg-light" id="correo_Docente"
-                name="correo_Docente" [(ngModel)]="docente.correo_Docente">
+                <input type="text" class="form-control bg-light" id="correo_Docente" name="correo_Docente"
+                    [(ngModel)]="docente.correo_Docente" #correo="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && !esCorreoValido(docente.correo_Docente)"
+                    [class.is-valid]="docenteForm.submitted && esCorreoValido(docente.correo_Docente)">
                 <div class="invalid-feedback">
-                    Es necesario agregar un correo electronico valido
+                    Agregue un correo electronico valido
                 </div>
             </div>
 
             <div class="col-lg-6 col-md-12">
                 <label for="docente_direccion" class="form-label">Dirección:</label>
-                <input type="text" class="form-control" id=" direccion_D" required
-                name="direccion_D" [(ngModel)]="docente.direccion_D">
+                <input type="text" class="form-control bg-light" id=" direccion_D" required name="direccion_D"
+                    [(ngModel)]="docente.direccion_D" #direccion="ngModel" 
+                    [class.is-invalid]="docenteForm.submitted && direccion.invalid"
+                    [class.is-valid]="docenteForm.submitted && direccion.valid">
                 <div id="direccionHelp" class="form-text">Dirección completa. Ej. Colonia Roma, Pasaje #4, Casa
                     6.</div>
                 <div class="invalid-feedback">
@@ -96,18 +128,18 @@
             <div *ngIf="mostrarAnexos" class="justify-content-center d-flex">
                 <div class="col-lg-4 col-md-6">
                     <label for="nombre_anexo" class="form-label">Nombre del anexo</label>
-                    <input class="form-control bg-light" type="text" id="nombre_anexo" 
-                     name="nombre_anexo" placeholder="Diploma, certificación, etc.">
+                    <input class="form-control bg-light" type="text" id="nombre_anexo" name="nombre_anexo"
+                        placeholder="Diploma, certificación, etc.">
                 </div>
                 <div class="col-lg-5 col-md-6">
                     <label for="datos_anexo" class="form-label">Documento</label>
                     <input class="form-control bg-light" type="file" id="datos_anexo" name="datos_anexo"
-                    accept="application/pdf" (change)="onFileSelected($event)">
+                        accept="application/pdf" (change)="onFileSelected($event)">
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-4">
                 <div class="col-auto">
-                    <button class="btn btn-success me-4">guardar</button>
+                    <button class="btn btn-success me-4">Guardar</button>
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-danger" routerLink="/docentes">Cancelar</button>
