@@ -20,33 +20,47 @@ export class AgregarDocenteComponent implements OnInit {
   mostrarAnexos: boolean = false;
   archivoBase64: string = '';
   nombreArchivo: string = '';
+
   constructor(private docenteServicio:DocenteService, private router:Router){}
 
   ngOnInit():void{
     
   }
 
-  guardarDocente(){
-    this.docenteServicio.guardarDocente(this.docente).subscribe(
-      (docenteGuardado:Docente) => {
-        console.log('Docente guardado:', docenteGuardado);
-        if (this.archivoBase64) {
-          this.subirAnexo(docenteGuardado.duiDocente!);
-        }
-      },
-      (error) => {
-        console.error('Error guardando docente', error);
-      }
-    );
-  }
-
   regresarListaDocente(){
     this.router.navigate(['/docentes']);
   }
   onSubmit(){
-    this.guardarDocente();
+
+    //Validamos que el docente no se repita
+    this.docenteServicio.existeDocente(this.docente.duiDocente).subscribe({
+    next: (existe) => {
+      if (existe) {
+        alert("Este DUI ya está registrado.");
+      } else {
+        // Proceder a guardar
+        this.docenteServicio.guardarDocente(this.docente).subscribe(
+          (docenteGuardado:Docente) => {
+            this.regresarListaDocente();
+            console.log('Docente guardado:', docenteGuardado);
+            if (this.archivoBase64) {
+              //subimos anexos si hay
+              this.subirAnexo(docenteGuardado.duiDocente!);
+            }
+          },
+          (error) => {
+            console.error('Error guardando docente', error);
+          }
+        );
+      }
+    },
+    error: (err) => {
+      console.error("Error verificando existencia de DUI", err);
+    }
+  });
   }
-    validarDui(event: Event) {
+
+  validarDui(event: Event) {
       const input = event.target as HTMLInputElement;
 
       // Remueve todo lo que no sea número
