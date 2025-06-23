@@ -61,7 +61,7 @@
             <div class="col-lg-5 col-md-6">
                 <label for="telefono_Docente" class="form-label">Telefono</label>
                 <input type="text" class="form-control bg-light" id="telefono_Docente" name="telefono_Docente"
-                minlength="9" [(ngModel)]="docente.telefono_Docente" (input)="validarTelefono($event)">
+                minlength="8" [(ngModel)]="docente.telefono_Docente" (input)="validarTelefono($event)">
                 <div class="invalid-feedback">
                     Es necesario agregar un numero de celular valido
                 </div>
@@ -128,7 +128,7 @@
                         <td>{{ i + 1 }}</td>
                         <td>{{ anexo.nombre_Anexo_D }}</td>
                         <td>
-                            <button class="btn btn-outline-success btn-sm" (click)="descargarAnexo(anexo.id_Anexo_D!)">
+                            <button class="btn btn-outline-success btn-sm" type="button" (click)="descargarAnexo(anexo.id_Anexo_D!)">
                                 <i class="bi bi-download"></i> Ver/Descargar
                             </button>
                         </td>

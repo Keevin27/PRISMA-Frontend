@@ -74,7 +74,7 @@ export class AgregarDocenteComponent implements OnInit {
       // Actualiza el valor en el input y en el modelo
       input.value = valor;
       this.docente.duiDocente = valor;
-    }
+  }
 
   validarTelefono(event: Event) {
     const input = event.target as HTMLInputElement;
