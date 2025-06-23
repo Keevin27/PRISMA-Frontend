@@ -73,7 +73,6 @@ export class UsuarioListComponent implements OnInit {
       this.cargarUsuarios();
       this.usuarioSeleccionado = null;
   
-      // Cerrar modal manualmente sin modalInstance
       const modalEl = document.getElementById('cambiarRolModal');
       if (modalEl) {
         modalEl.classList.remove('show');
@@ -83,10 +82,8 @@ export class UsuarioListComponent implements OnInit {
         modalEl.removeAttribute('role');
       }
   
-      // Remover clase modal-open del body
       document.body.classList.remove('modal-open');
   
-      // Eliminar backdrop si existe
       const backdrop = document.querySelector('.modal-backdrop');
       if (backdrop) {
         backdrop.remove();
