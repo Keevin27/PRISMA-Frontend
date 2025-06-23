@@ -11,10 +11,16 @@
 </div>
 
 <div class="container">
+    <div *ngIf="mensajeError" class="alert alert-danger" role="alert">
+        {{ mensajeError }}
+    </div>
+    <div *ngIf="mensajeValido" class="alert alert-success" role="alert">
+        {{ mensajeValido }}
+    </div>
 
     <!-- Formulario de Selección de Paquete -->
     <div class="d-flex justify-content-center align-items-center mb-2">
-        <form th:action="@{/entregasPaquetes/seccion/{id}(id=${id})}" method="get" class="needs-validation" novalidate>
+        <form>
             <div class="input-group mt-2">
                 <select [(ngModel)]="idGradoSeleccionado" name="grado" class="form-select me-2" required
                     (change)="GradoSeleccionado()">
@@ -23,62 +29,65 @@
                         grado.seccion }}"</option>
                 </select>
 
+                <input type="date" class="form-control bg-light me-2" name="fecha_Nacimiento_D" id="fecha_Nacimiento_D"
+                    [(ngModel)]="fechaAsistencia" (change)="buscarAsistencia()" 
+                    [disabled]="!idGradoSeleccionado || idGradoSeleccionado === ''">
 
-                <button type="submit" class="btn btn-primary me-2" id="btn-generar"  (click)="generarListaAsistencia()" 
-                data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir asistencia">
-                <i class="bi bi-plus-lg"></i>  Añadir asistencia</button>
-
-            <button class="btn btn-primary me-2" [routerLink]="'/asistenciaalumno/asistencia-lista'"
-                data-bs-toggle="tooltip" data-bs-placement="top" title="Reporte de asistencia">
-                <i class="bi bi-plus-lg"></i> Reporte de asistencia
-            </button>
+                <button class="btn btn-primary me-2" type="submit" (click)="generarAsistencias()"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Crear asistencia"
+                    [disabled]="!idGradoSeleccionado || !esFechaValida() || yaTieneAsistencia">
+                    <i class="bi bi-plus-lg"></i> Crear asistencia
+                </button>
+                <button class="btn btn-secondary me-2" [routerLink]="'/asistenciaalumno/asistencia-lista'"
+                    data-bs-toggle="tooltip" data-bs-placement="top" title="Reporte de asistencia"
+                    [disabled]="!idGradoSeleccionado">
+                    <i class="bi bi-plus-lg"></i> Reporte de asistencia
+                </button>
             </div>
         </form>
     </div>
-    
+
     <!-- Encabezado de la Tabla -->
 
     <h2>Listado de alumnos</h2>
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr class="align-middle">
-                <th>NIE</th>
-                <th>Apellido</th>
-                <th>Nombre</th>
-                <th >Estado asistencia</th>
+                <th style="text-align: center;">No</th>
+                <th style="text-align: center;">NIE</th>
+                <th style="text-align: center;">Apellido</th>
+                <th style="text-align: center;">Nombre</th>
+                <th style="text-align: center;">{{ fechaAsistencia }}</th>
             </tr>
         </thead>
         <tbody>
-            @for (alu of alumnos; track alu.idAlumno){
+            @for (asis of asistencias; let i = $index; track asis.id_asistencia){
             <tr class="align-middle">
-                <td>{{ alu.nie }}</td>
-                <td>{{ alu.apellido_alumno }}</td>
-                <td>{{ alu.nombre_alumno }}</td>
-                
-            <!--    <td *ngFor="let p of paquetesEntregados"><input type="checkbox" [checked]="tieneAsignacion(alu, p)"></td>-->
-                <td>
-  <div class="form-check form-check-inline">
-    <input class="form-check-input" type="radio" 
-           [value]="'Asistencia'" 
-           [(ngModel)]="alu.estadoSeleccionado" 
-           [name]="'asistencia_' + alu.idAlumno">
-    <label class="form-check-label">Asistencia</label>
-  </div>
-  <div class="form-check form-check-inline">
-    <input class="form-check-input" type="radio" 
-           [value]="'Inasistencia'" 
-           [(ngModel)]="alu.estadoSeleccionado" 
-           [name]="'asistencia_' + alu.idAlumno">
-    <label class="form-check-label">Inasistencia</label>
-  </div>
-  <div class="form-check form-check-inline">
-    <input class="form-check-input" type="radio" 
-           [value]="'Permiso'" 
-           [(ngModel)]="alu.estadoSeleccionado" 
-           [name]="'asistencia_' + alu.idAlumno">
-    <label class="form-check-label">Permiso</label>
-  </div>
-</td>
+                <td style="text-align: center;">{{ i + 1 }}</td>
+                <td style="text-align: center;">{{ asis.alumno.nie }}</td>
+                <td>{{ asis.alumno.apellido_alumno }}</td>
+                <td>{{ asis.alumno.nombre_alumno }}</td>
+
+                <td class="d-flex justify-content-center">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" [value]="'Asistencia'"
+                            name="estado_{{i}}"  [(ngModel)]="asis.estado_asistencia"
+                            (change)="actualizarEstadoAsistencia(asis)">
+                        <label class="form-check-label">Asistencia</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio"[value]="'Inasistencia'"
+                            name="estado_{{i}}" [(ngModel)]="asis.estado_asistencia" 
+                            (change)="actualizarEstadoAsistencia(asis)">
+                        <label class="form-check-label">Inasistencia</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" [value]="'Permiso'"
+                            name="estado_{{i}}" [(ngModel)]="asis.estado_asistencia"
+                            (change)="actualizarEstadoAsistencia(asis)">
+                        <label class="form-check-label">Permiso</label>
+                    </div>
+                </td>
 
             </tr>
             }
@@ -86,8 +95,3 @@
         </tbody>
     </table>
 </div>
-<script>
-    function openInPopup(url) {
-        window.open(url, 'popup', 'width=800,height=600');
-    }
-</script>

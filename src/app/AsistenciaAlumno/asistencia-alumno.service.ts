@@ -10,7 +10,7 @@ export class AsistenciaAlumnoService {
 
   private baseURL = "http://localhost:8080/AsisAlum/asistencia-alumno";
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
   /**
    * Agrega una nueva asistencia
@@ -31,6 +31,14 @@ export class AsistenciaAlumnoService {
     return this.httpClient.get<AsistenciaAlumno[]>(`${this.baseURL}-filtro`, { params });
   }
 
-
+  obtenerAsistenciasPorGradoFecha(idGrado: string, fecha: string): Observable<AsistenciaAlumno[]> {
+    const params = new HttpParams()
+      .set('idGrado', idGrado)
+      .set('fecha', fecha);
+    return this.httpClient.get<AsistenciaAlumno[]>(`${this.baseURL}-filtro-dia`, { params });
+  }
+  actualizarEstadoAsistencia(asistencia: AsistenciaAlumno): Observable<Object> {
+    return this.httpClient.put(`${this.baseURL}/${asistencia.id_asistencia}`, asistencia);
+  }
 }
 

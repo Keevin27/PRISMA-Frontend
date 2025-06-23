@@ -13,83 +13,81 @@
 </div>
 
 <div class="container">
+  <div *ngIf="!sonFechasValidas()" class="alert alert-danger" role="alert">
+    Seleccione un grado y rango de fechas valido
+  </div>
+  <div *ngIf="mensajeValido" class="alert alert-success" role="alert">
+    {{ mensajeValido }}
+  </div>
   <!-- Formulario de filtro por grado y fecha -->
   <div class="d-flex justify-content-center align-items-center mb-4">
     <div class="input-group">
       <!-- Selector de grado -->
-      <select
-        [(ngModel)]="idGradoSeleccionado"
-        name="grado"
-        class="form-select me-2"
-        required
-      >
+      <select [(ngModel)]="idGradoSeleccionado" name="grado" class="form-select me-2" required>
         <option value="" disabled selected>Seleccione un grado</option>
-        <option *ngFor="let grado of grados" [value]="grado.id_grado">
+        <option *ngFor="let grado of grados" [value]="grado.id_grado">  
           {{ grado.nombre_grado }} "{{ grado.seccion }}"
         </option>
       </select>
 
       <!-- Fecha inicio -->
-      <input
-        type="date"
-        [(ngModel)]="fechaInicio"
-        name="inicio"
-        class="form-control me-2"
-        placeholder="Fecha de inicio"
-      />
+      <input type="date" [(ngModel)]="fechaInicio" name="inicio" class="form-control me-2"
+        placeholder="Fecha de inicio" />
 
       <!-- Fecha fin -->
-      <input
-        type="date"
-        [(ngModel)]="fechaFin"
-        name="fin"
-        class="form-control me-2"
-        placeholder="Fecha de fin"
-      />
+      <input type="date" [(ngModel)]="fechaFin" name="fin" class="form-control me-2" placeholder="Fecha de fin" />
 
       <!-- Botón para buscar -->
-      <button
-        class="btn btn-primary"
-        (click)="buscarAsistenciasPorGradoYFechas()"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        title="Buscar asistencias"
-      >
+      <button class="btn btn-primary" (click)="buscarAsistenciasPorGradoYFechas()" data-bs-toggle="tooltip"
+        [disabled]="!idGradoSeleccionado || !sonFechasValidas()" data-bs-placement="top" title="Buscar asistencias">
         <i class="bi bi-search"></i> Buscar
       </button>
 
       <!-- Botón regresar -->
-      <button
-        class="btn btn-secondary ms-2"
-        [routerLink]="'/asistenciaalumno'"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        title="Regresar"
-      >
+      <button class="btn btn-dark ms-2" [routerLink]="'/asistenciaalumno'" data-bs-toggle="tooltip"
+        data-bs-placement="top" title="Regresar">
         <i class="bi bi-arrow-left"></i> Regresar
       </button>
     </div>
   </div>
 
+  <div class="d-flex justify-content-end mb-2">
+        <button class="btn btn-secondary mb-4" title="Imprimir la lista de entrega para completar manualmente" 
+        [disabled]="!idGradoSeleccionado || !sonFechasValidas()" (click)="imprimirTabla()">
+            <i class="bi bi-printer" ></i> Imprimir tabla
+        </button>
+    </div>
+
   <!-- Tabla de asistencias -->
-  <h2>Listado de asistencias</h2>
   <table class="table table-bordered table-striped">
     <thead class="table-dark">
+      <tr *ngIf="sonFechasValidas() && gradoSeleccionado">
+        <th colspan="8">
+          LISTADO DE ASISTENCIAS DE {{ gradoSeleccionado.nombre_grado }} "{{ gradoSeleccionado.seccion }}"
+          DESDE {{ fechaInicio }} HASTA {{ fechaFin }}
+        </th>
+      </tr>
       <tr class="align-middle">
-        <th>NIE</th>
-        <th>Apellido</th>
-        <th>Nombre</th>
-        <th>Estado asistencia</th>
-        <th>Fecha</th>
+        <th style="text-align: center;">No</th>
+        <th style="text-align: center;">NIE</th>
+        <th style="text-align: center;">Apellido</th>
+        <th style="text-align: center;">Nombre</th>
+        <th style="text-align: center;">Total</th>
+        <th style="text-align: center;">Asistencias</th>
+        <th style="text-align: center;">Inasistencias</th>
+        <th style="text-align: center;">Permisos</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let asis of asistencias; trackBy: trackById">
-        <td>{{ asis.alumno.nie }}</td>
-        <td>{{ asis.alumno.apellido_alumno }}</td>
-        <td>{{ asis.alumno.nombre_alumno }}</td>
-        <td>{{ asis.estado_asistencia }}</td>
-        <td>{{ asis.fecha_asistencia | date: 'yyyy-MM-dd' }}</td>
+      <tr *ngFor="let r of resumenAsistencias; let i = index">
+        <td style="text-align: center;">{{ i + 1 }}</td>
+        <td style="text-align: center;">{{ r.alumno.nie }}</td>
+        <td>{{ r.alumno.apellido }}</td>
+        <td>{{ r.alumno.nombre }}</td>
+        <td style="text-align: center;">{{ r.total }}</td>
+        <td style="text-align: center;">{{ r.asistencia }}</td>
+        <td style="text-align: center;">{{ r.inasistencia }}</td>
+        <td style="text-align: center;">{{ r.permiso }}</td>
       </tr>
     </tbody>
   </table>
