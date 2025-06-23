@@ -143,20 +143,36 @@ export class EntregarPaqueteEscolarComponent {
     );
 
   }
-
-
+  //Funcion que da formato a la impresion de tabla
   imprimirTabla() {
-  const tablaHTML = document.querySelector('.table')?.outerHTML;
+    const tablaOriginal = document.querySelector('.table') as HTMLElement;
 
-  if (!tablaHTML) {
-    console.error('No se encontro la tabla para imprimir');
-    return;
-  }
+    if (!tablaOriginal) {
+      console.error('No se encontro la tabla para imprimir');
+      return;
+    }
 
-  const ventana = window.open('', '_blank', 'width=900,height=600');
+    const tablaClonada = tablaOriginal.cloneNode(true) as HTMLElement;
 
-  if (ventana) {
-    ventana.document.write(`
+    const checkboxesOriginal = tablaOriginal.querySelectorAll('input[type="checkbox"]');
+    const checkboxesClonados = tablaClonada.querySelectorAll('input[type="checkbox"]');
+
+    checkboxesOriginal.forEach((checkboxOriginal, i) => {
+      const checkboxClonado = checkboxesClonados[i] as HTMLInputElement;
+      if (checkboxOriginal instanceof HTMLInputElement && checkboxClonado) {
+        checkboxClonado.checked = checkboxOriginal.checked;
+        if (checkboxOriginal.checked) {
+          checkboxClonado.setAttribute('checked', 'true');
+        } else {
+          checkboxClonado.removeAttribute('checked');
+        }
+      }
+    });
+
+    const ventana = window.open('', '_blank', 'width=900,height=600');
+
+    if (ventana) {
+      ventana.document.write(`
       <html>
         <head>
           <title>Listado de alumnos</title>
@@ -169,16 +185,16 @@ export class EntregarPaqueteEscolarComponent {
         </head>
         <body>
           <h2>Listado de alumnos</h2>
-          ${tablaHTML}
+          ${tablaClonada.outerHTML}
         </body>
       </html>
     `);
-    ventana.document.close();
-    ventana.print();
-  } else {
-    alert("No se pudo abrir la ventana de impresion");
+      ventana.document.close();
+      ventana.print();
+    } else {
+      alert("No se pudo abrir la ventana de impresión");
+    }
   }
-}
 
 
 }

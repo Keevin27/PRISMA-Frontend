@@ -1,11 +1,26 @@
-<div class="container my-4 py-5">
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class=" breadcrumb-item active" aria-current="page">Docentes</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Gestión de Docentes</h2>
+</div>
+<div class="container">
+    <div *ngIf="mensaje" class="alert alert-success" role="alert">
+            {{ mensaje }}
+        </div>
     <h2 >Docentes</h2>
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h1 class="text-start col-lg-3 " ></h1>
             <div class="d-flex gap-2">
                 <a class="btn btn-secondary" 
                     data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir listado actual" target="_blank"
-                    onclick="openInPopup(this.href); return false;">
+                    (click)="imprimirDocentesTodos()" >
                     <i class="bi bi-printer"></i> Imprimir
                 </a>
                 <a class="btn btn-primary"  data-bs-toggle="tooltip"
@@ -15,80 +30,57 @@
                 </a>
             </div>
         </div>
-
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover table-striped table-bordered">
+                <thead class="table-dark">
                     <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>DUI</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
+                        <th style="text-align: center;">No</th>
+                        <th style="text-align: center;">Nombre</th>
+                        <th style="text-align: center;">Apellido</th>
+                        <th style="width: 10%; text-align: center;">DUI</th>
+                        <th style="width: 10%; text-align: center;">Teléfono</th>
+                        <th style="text-align: center;">Correo</th>
                         <th style="width: 10%; text-align: center;">Acciones</th>
+                        <th style="width: 10%; text-align: center;">Actividad</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Agrega la referencia al elemento que maneja la paginación (page.content) -->
-                    <tr *ngFor=" let docente of docentes">
+                    <tr *ngFor=" let docente of docentes; let i =index">
+                        <td style="text-align: center;">{{ i + 1 }}</td>
                         <td>{{docente.nombre_Docente}}</td>
                         <td>{{docente.apellido_Docente}}</td>
                         <td>{{docente.duiDocente}}</td>
-                        <td>{{docente.telefono_Docente}}</td>
+                        <td style="text-align: center;">{{docente.telefono_Docente}}</td>
                         <td>{{docente.correo_Docente}}</td>
                         <td>
-                            <div class="d-flex justify-content-left">
-                                <div
-                                    sec:authorize="hasAnyRole('ADMINISTRADOR','SECRETARIA', 'SUBDIRECTORA', 'DIRECTOR')">
-                                    <a class="btn btn-success btn-sm mx-1"
-                                        routerlink = ""
-                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar">
-                                        <i class="bi bi-file-earmark-text"></i>
-                                    </a>
-                                </div>
+                            <div class="d-flex justify-content-center">
                                 <a class="btn btn-primary btn-sm mx-1"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Editar" [routerLink]="['/docentes', docente.duiDocente]">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                                <a class="btn btn-danger btn-sm mx-1 delete-btn"
-                                    th:href="@{/expedientedocente/eliminarexpediente/} + ${docenteDTO.docente.duiDocente}"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
+                                    <i class="bi bi-pencil-square "></i>
                                 </a>
                                 <a class="btn btn-secondary btn-sm mx-1" data-bs-toggle="tooltip"
                                     data-bs-placement="top" title="Imprimir" target="_blank"
-                                    [href]="'http://localhost:8080/expedienteDocente/docentes/' + docente.duiDocente + '/imprimir'">
+                                    (click)="imprimirDocente(docente.duiDocente,docente.nombre_Docente)">
                                     <i class="bi bi-printer"></i>
                                 </a>
+                            </div>
+                        </td>
+                        <td class="d-flex justify-content-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    [checked]="docente.docente_Activo"
+                                    [ngClass]="{
+                                        'bg-success': docente.docente_Activo,
+                                        'bg-danger': !docente.docente_Activo
+                                    }"
+                                    (change)="cambiarEstadoActividad(docente)">
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
-
-            <div class="alert alert-info alert-dismissible fade show mt-1 ms-2 mr-2" th:if="${totalElements == 0}">
-                <i class="bi bi-exclamation-triangle"></i>
-                <label th:text="${'No hay docentes registrados'}"></label>
-            </div>
         </div>
-    </div>
-
-    <!-- Modal de Confirmación -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estás seguro de eliminar el registro? Esta acción no puede deshacerse.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
