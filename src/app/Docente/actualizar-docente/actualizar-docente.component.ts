@@ -159,18 +159,29 @@ export class ActualizarDocenteComponent implements OnInit {
       }
     );
   }
+  //variable temporal para eliminar anexo
+  idAnexoAEliminar: number | null = null;
 
-  eliminarAnexo(id: number):void {
-    if (confirm('¿Estás seguro de eliminar este anexo del servidor?')) {
-      this.docenteServicio.eliminarAnexo(id).subscribe({
-        next: () => {
-          this.anexos = this.anexos.filter(a => a.id_Anexo_D !== id);
-          console.log('Anexo eliminado del servidor');
-        },
-        error: (err) => console.error('Error eliminando anexo', err)
-      });
-    }
+
+  abrirModalEliminar(id: number) {
+    this.idAnexoAEliminar = id;
   }
+
+
+  confirmarEliminacionAnexo() {
+    if (!this.idAnexoAEliminar) return;
+
+    this.docenteServicio.eliminarAnexo(this.idAnexoAEliminar).subscribe({
+      next: () => {
+        this.anexos = this.anexos.filter(a => a.id_Anexo_D !== this.idAnexoAEliminar);
+        console.log('Anexo eliminado del servidor');
+        this.idAnexoAEliminar = null; // limpiar
+      },
+      error: (err) => console.error('Error eliminando anexo', err)
+    });
+  }
+
+
   validarDui(event: Event) {
     const input = event.target as HTMLInputElement;
 
