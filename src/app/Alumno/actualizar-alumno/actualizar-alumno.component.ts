@@ -60,11 +60,12 @@ export class ActualizarAlumnoComponent implements OnInit {
     private gradoService: GradoService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
+  mensaje: string = '';//mensajito que se presentara en el flotante
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id'); 
+      const id = params.get('id');
       if (id) {
         this.idAlumno = parseInt(id);
         // Primero cargar grados, luego cargar alumno
@@ -74,6 +75,9 @@ export class ActualizarAlumnoComponent implements OnInit {
         this.router.navigate(['/alumnos']);
       }
     });
+    if (this.mensaje) {
+      setTimeout(() => this.mensaje = '', 2000);
+    }
   }
 
   cargarGrados(): void {
@@ -86,7 +90,12 @@ export class ActualizarAlumnoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar grados:', error);
-        alert('Error al cargar la lista de grados');
+        this.mensaje = `Error al cargar los grados.`;
+
+        // Oculta el mensaje después de 2 segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 2000);
       }
     });
   }
@@ -100,17 +109,17 @@ export class ActualizarAlumnoComponent implements OnInit {
           const fecha = new Date(this.alumno.fecha_nacimiento_alumno);
           (this.alumno as any).fecha_nacimiento_alumno = fecha.toISOString().split('T')[0];
         }
-        
+
         // FIX: Buscar el grado correspondiente en la lista de grados disponibles
         if (this.alumno.grado && this.grados.length > 0) {
-          const gradoEncontrado = this.grados.find(g => 
+          const gradoEncontrado = this.grados.find(g =>
             g.id_grado === this.alumno.grado.id_grado
           );
           if (gradoEncontrado) {
             this.alumno.grado = gradoEncontrado;
           }
         }
-        
+
         // Asegurar que el estado se mantenga como booleano
         if (this.alumno.estado_alumno === undefined || this.alumno.estado_alumno === null) {
           this.alumno.estado_alumno = true;
@@ -118,16 +127,23 @@ export class ActualizarAlumnoComponent implements OnInit {
       },
       error: (e) => {
         console.error("Error cargando alumno", e);
-        alert('Error al cargar los datos del alumno');
-        this.router.navigate(['/alumnos']);
+        this.mensaje = `Error al cargar los datos del alumno.`;
+
+        // Oculta el mensaje después de 2 segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 2000);
+        this.router.navigate(['/alumnos'], {
+          state: { mensaje: 'Alumno actualizado con exito.' }
+        });
       }
     });
   }
 
   onSubmit(): void {
-    console.log('Formulario enviado'); 
-    console.log('Datos del alumno:', this.alumno); 
-    
+    console.log('Formulario enviado');
+    console.log('Datos del alumno:', this.alumno);
+
     if (this.validarFormulario()) {
       this.actualizarAlumno();
     }
@@ -170,86 +186,118 @@ export class ActualizarAlumnoComponent implements OnInit {
     this.alumnoService.actualizarAlumno(this.idAlumno, alumnoData).subscribe({
       next: (response) => {
         console.log('Alumno actualizado con éxito', response);
-        alert('¡Alumno actualizado exitosamente!');
-        this.router.navigate(['/alumnos']);
+        this.router.navigate(['/alumnos'], {
+          state: { mensaje: 'Alumno Actualizado con exito.' }
+        });
       },
       error: (error) => {
         console.error('Error actualizando alumno', error);
-        let mensaje = 'Error al actualizar el alumno';
-        
+        this.mensaje = 'Error al actualizar el alumno';
+        setTimeout(() => {
+
+          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+          // Ocultar mensaje después de unos segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 3000);
+
+        }, 100);
+
         if (error.error && typeof error.error === 'string') {
-          mensaje = error.error;
-        } else if (error.message) {
-          mensaje = error.message;
+          this.mensaje = error.error;
         } else if (error.status === 400) {
-          mensaje = 'Error: Datos inválidos o NIE duplicado';
+          this.mensaje = `NIE ya ingresado`;
+
+          // Oculta el mensaje después de 2 segundos
+          setTimeout(() => {
+
+          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+          // Ocultar mensaje después de unos segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 3000);
+
+        }, 100);
         } else if (error.status === 404) {
-          mensaje = 'Error: Alumno no encontrado';
+          this.mensaje = `Alumno no encontrado`;
+
+          // Oculta el mensaje después de 2 segundos
+          setTimeout(() => {
+
+          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+          // Ocultar mensaje después de unos segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 3000);
+
+        }, 100);
         }
-        
-        alert(mensaje);
+
       }
     });
   }
 
   validarFormulario(): boolean {
-    // Valido que los campos obligatorios estén completos
+    const errores: string[] = [];
+
     if (!this.alumno.nie || this.alumno.nie.toString().trim() === '') {
-      alert('El NIE es obligatorio');
-      return false;
+      errores.push('El NIE es obligatorio.');
+    } else if (!/^\d{7}$/.test(this.alumno.nie.toString())) {
+      errores.push('El NIE debe tener 7 dígitos.');
     }
 
     if (!this.alumno.nombre_alumno || this.alumno.nombre_alumno.trim() === '') {
-      alert('El nombre del alumno es obligatorio');
-      return false;
+      errores.push('El nombre del alumno es obligatorio.');
     }
 
     if (!this.alumno.apellido_alumno || this.alumno.apellido_alumno.trim() === '') {
-      alert('El apellido del alumno es obligatorio');
-      return false;
+      errores.push('El apellido del alumno es obligatorio.');
     }
 
     if (!this.alumno.fecha_nacimiento_alumno) {
-      alert('La fecha de nacimiento es obligatoria');
-      return false;
+      errores.push('La fecha de nacimiento es obligatoria.');
     }
 
     if (!this.alumno.sexo_a) {
-      alert('El sexo es obligatorio');
-      return false;
+      errores.push('El sexo es obligatorio.');
     }
 
-    if (!this.alumno.direccion_a?.trim()) {
-      alert('La dirección es obligatoria');
-      return false;
+    if (!this.alumno.direccion_a || this.alumno.direccion_a.trim() === '') {
+      errores.push('La dirección es obligatoria.');
     }
 
-    // Valido formato del NIE (7 dígitos)
-    const nieRegex = /^\d{7}$/;
-    if (!nieRegex.test(this.alumno.nie.toString())) {
-      alert('El NIE debe tener 7 dígitos');
-      return false;
-    }
-
-    // Valido correos electrónicos si fueron proporcionados
     if (this.alumno.correo_alumno && !this.validarEmail(this.alumno.correo_alumno)) {
-      alert('El formato del correo del alumno no es válido');
-      return false;
+      errores.push('El formato del correo del alumno no es válido.');
     }
 
     if (this.alumno.correo_encargado && !this.validarEmail(this.alumno.correo_encargado)) {
-      alert('El formato del correo del encargado no es válido');
-      return false;
+      errores.push('El formato del correo del encargado no es válido.');
     }
 
-    // Valido formato del DUI si fue proporcionado
     if (this.alumno.dui_encargado && !this.validarDUI(this.alumno.dui_encargado)) {
-      alert('El formato del DUI no es válido (debe ser: 12345678-9)');
+      errores.push('El formato del DUI del encargado no es válido (ej: 12345678-9).');
+    }
+
+    if (errores.length > 0) {
+      this.mensaje = errores[0]; 
+
+      // Mover al inicio
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Ocultar después de unos segundos
+      setTimeout(() => {
+        this.mensaje = '';
+      }, 3000);
+
       return false;
     }
 
     return true;
   }
+
 
   private validarEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -274,7 +322,7 @@ export class ActualizarAlumnoComponent implements OnInit {
     // Solo permite números y limita a 8 dígitos
     let valor = input.value.replace(/\D/g, '').substring(0, 8);
     input.value = valor;
-    
+
     if (campo === 'alumno') {
       this.alumno.telefono_alumno = valor;
     } else {
@@ -286,12 +334,12 @@ export class ActualizarAlumnoComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     // Remueve todo lo que no sea número
     let valor = input.value.replace(/\D/g, '');
-    
+
     // Aplica el formato ########-#
     if (valor.length > 8) {
       valor = valor.substring(0, 8) + '-' + valor.substring(8, 9);
     }
-    
+
     // Actualiza el valor en el input y en el modelo
     input.value = valor;
     this.alumno.dui_encargado = valor;
@@ -309,13 +357,13 @@ export class ActualizarAlumnoComponent implements OnInit {
   onEmailChange(event: Event, campo: 'alumno' | 'encargado'): void {
     const input = event.target as HTMLInputElement;
     const email = input.value;
-    
+
     if (email && !this.validarEmail(email)) {
       input.setCustomValidity('Formato de email inválido');
     } else {
       input.setCustomValidity('');
     }
-    
+
     if (campo === 'alumno') {
       this.alumno.correo_alumno = email;
     } else {
@@ -324,8 +372,8 @@ export class ActualizarAlumnoComponent implements OnInit {
   }
 
   cancelar(): void {
-    if (confirm('¿Estás seguro de cancelar? Los cambios no guardados se perderán.')) {
-      this.router.navigate(['/alumnos']);
-    }
+    this.router.navigate(['/alumnos'], {
+      state: { mensaje: 'Se cancelo el proceso de  editar alumno' }
+    });
   }
 }

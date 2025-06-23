@@ -60,6 +60,7 @@ export class AgregarAlumnoComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) { }
+  mensaje: string = '';//mensajito que se presentara en el flotante
 
   ngOnInit(): void {
     this.cargarGrados();
@@ -83,7 +84,17 @@ export class AgregarAlumnoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar grados:', error);
-        alert('Error al cargar la lista de grados');
+        this.mensaje = 'Error al cargar grados';//agregar texto de que mostrara en el flotante
+        setTimeout(() => {
+
+          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+          // Ocultar mensaje después de unos segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 3000);
+
+        }, 100);
       }
     });
   }
@@ -101,96 +112,137 @@ export class AgregarAlumnoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar alumno:', error);
-        alert('Error al cargar los datos del alumno');
+        this.mensaje = 'Error al cargar el alumno';//agregar texto de que mostrara en el flotante
+        setTimeout(() => {
+
+          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+          // Ocultar mensaje después de unos segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 3000);
+
+        }, 100);
       }
     });
   }
 
-guardarAlumno(): void {
-  // Preparo los datos antes de enviar al servidor
-  const alumnoData = { ...this.alumno };
+  guardarAlumno(): void {
+    // Preparo los datos antes de enviar al servidor
+    const alumnoData = { ...this.alumno };
 
-  // Convierto la fecha del formato yyyy-mm-dd (input) al formato correcto
-  if (alumnoData.fecha_nacimiento_alumno) {
-    const fechaInput = alumnoData.fecha_nacimiento_alumno.toString();
-    if (fechaInput.includes('-')) {
-      const partes = fechaInput.split('-');
-      // Si viene en formato yyyy-mm-dd del input, lo convierto a Date
-      if (partes[0].length === 4) {
-        alumnoData.fecha_nacimiento_alumno = new Date(`${partes[0]}-${partes[1]}-${partes[2]}`) as any;
+    // Convierto la fecha del formato yyyy-mm-dd (input) al formato correcto
+    if (alumnoData.fecha_nacimiento_alumno) {
+      const fechaInput = alumnoData.fecha_nacimiento_alumno.toString();
+      if (fechaInput.includes('-')) {
+        const partes = fechaInput.split('-');
+        // Si viene en formato yyyy-mm-dd del input, lo convierto a Date
+        if (partes[0].length === 4) {
+          alumnoData.fecha_nacimiento_alumno = new Date(`${partes[0]}-${partes[1]}-${partes[2]}`) as any;
+        }
       }
     }
-  }
 
-  // Validar que se haya seleccionado un grado
-  if (!alumnoData.grado || (typeof alumnoData.grado === 'object' && !alumnoData.grado.id_grado)) {
-    alert('Debe seleccionar un grado válido');
-    return;
-  }
+    // Validar que se haya seleccionado un grado
+    if (!alumnoData.grado || (typeof alumnoData.grado === 'object' && !alumnoData.grado.id_grado)) {
+      this.mensaje = 'Seleccione un grado valido.';
+      setTimeout(() => {
 
-  // Asegurar que el grado tenga el formato correcto
-  if (typeof alumnoData.grado === 'string' || typeof alumnoData.grado === 'number') {
-    const gradoSeleccionado = this.grados.find(g =>
-      (typeof alumnoData.grado === 'number' && g.id_grado === alumnoData.grado) ||
-      (typeof alumnoData.grado === 'string' && g.id_grado === parseInt(alumnoData.grado))
-    );
-    if (gradoSeleccionado) {
-      alumnoData.grado = gradoSeleccionado;
-    } else {
-      alert('Grado seleccionado no válido');
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return;
     }
-  }
 
-  console.log('Datos a enviar:', alumnoData);
+    // Asegurar que el grado tenga el formato correcto
+    if (typeof alumnoData.grado === 'string' || typeof alumnoData.grado === 'number') {
+      const gradoSeleccionado = this.grados.find(g =>
+        (typeof alumnoData.grado === 'number' && g.id_grado === alumnoData.grado) ||
+        (typeof alumnoData.grado === 'string' && g.id_grado === parseInt(alumnoData.grado))
+      );
+      if (gradoSeleccionado) {
+        alumnoData.grado = gradoSeleccionado;
+      } else {
+        this.mensaje = 'Seleccione un grado valido.';
+        setTimeout(() => {
 
-  if (this.isEditing) {
-    // Actualizo alumno existente
-    this.alumnoService.actualizarAlumno(this.alumnoId, alumnoData).subscribe({
-      next: (response: any) => {
-        console.log('Respuesta del servidor:', response);
-        alert('Alumno actualizado exitosamente');
-        this.irGestionarAlumnos();
-      },
-      error: (error: any) => {
-        console.error('Error completo:', error);
-        let mensaje = 'Error al actualizar el alumno';
-        
-        if (error.error && typeof error.error === 'string') {
-          mensaje = error.error;
-        } else if (error.message) {
-          mensaje = error.message;
-        }
-        
-        alert(mensaje);
+          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+          // Ocultar mensaje después de unos segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 3000);
+
+        }, 100);
+        return;
       }
-    });
-  } else {
-    // Creo nuevo alumno
-    this.alumnoService.agregarAlumno(alumnoData).subscribe({
-      next: (response: any) => {
-        console.log('Respuesta del servidor:', response);
-        alert('Alumno agregado exitosamente');
-        this.irGestionarAlumnos();
-      },
-      error: (error: any) => {
-        console.error('Error completo:', error);
-        let mensaje = 'Error al guardar el alumno';
-        
-        if (error.error && typeof error.error === 'string') {
-          mensaje = error.error;
-        } else if (error.message) {
-          mensaje = error.message;
+    }
+
+    console.log('Datos a enviar:', alumnoData);
+
+    if (this.isEditing) {
+      // Actualizo alumno existente
+      this.alumnoService.actualizarAlumno(this.alumnoId, alumnoData).subscribe({
+        next: (response: any) => {
+          this.mensaje = 'Se actualizo el Alumno';
+          setTimeout(() => {
+
+            window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+            // Ocultar mensaje después de unos segundos
+            setTimeout(() => {
+              this.mensaje = '';
+            }, 3000);
+
+          }, 100);
+          this.irGestionarAlumnos();
+        },
+        error: (error: any) => {
+          this.mensaje = 'Error al actualizar Alumno';
+          setTimeout(() => {
+
+            window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+            // Ocultar mensaje después de unos segundos
+            setTimeout(() => {
+              this.mensaje = '';
+            }, 3000);
+
+          }, 100);
         }
-        
-        alert(mensaje);
-      }
-    });
+      });
+    } else {
+      // Creo nuevo alumno
+      this.alumnoService.agregarAlumno(alumnoData).subscribe({
+        next: (response: any) => {
+          this.irGestionarAlumnos();
+        },
+        error: (error: any) => {
+          this.mensaje = 'Error al insertar el Alumno.';
+          setTimeout(() => {
+
+            window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+            // Ocultar mensaje después de unos segundos
+            setTimeout(() => {
+              this.mensaje = '';
+            }, 3000);
+
+          }, 100);
+        }
+      });
+    }
   }
-}
 
   irGestionarAlumnos(): void {
-    this.router.navigate(['/alumnos']);
+    this.router.navigate(['/alumnos'], {
+      state: { mensaje: 'Alumno registrado con exito.' }
+    });
   }
 
   onSubmit(): void {
@@ -202,46 +254,126 @@ guardarAlumno(): void {
   validarFormulario(): boolean {
     // Valido que los campos obligatorios estén completos
     if (!this.alumno.nie || this.alumno.nie.toString().trim() === '') {
-      alert('El NIE es obligatorio');
+      this.mensaje = 'Ingrese un NIE valido';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     if (!this.alumno.nombre_alumno || this.alumno.nombre_alumno.trim() === '') {
-      alert('El nombre del alumno es obligatorio');
+      this.mensaje = 'Ingrese el Nombre del alumno';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     if (!this.alumno.apellido_alumno || this.alumno.apellido_alumno.trim() === '') {
-      alert('El apellido del alumno es obligatorio');
+      this.mensaje = 'Ingrese el apellido del alumno';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     if (!this.alumno.grado) {
-      alert('Debe seleccionar un grado');
+      this.mensaje = 'seleccione el grado del alumno';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     // Valido formato del NIE (7 dígitos)
     const nieRegex = /^\d{7}$/;
     if (!nieRegex.test(this.alumno.nie.toString())) {
-      alert('El NIE debe tener 7 dígitos');
+      this.mensaje = 'Ingrese un NIE valido de 7 digitos';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     // Valido correos electrónicos si fueron proporcionados
     if (this.alumno.correo_alumno && !this.validarEmail(this.alumno.correo_alumno)) {
-      alert('El formato del correo del alumno no es válido');
+      this.mensaje = 'El formato del correo no es valido';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     if (this.alumno.correo_encargado && !this.validarEmail(this.alumno.correo_encargado)) {
-      alert('El formato del correo del encargado no es válido');
+      this.mensaje = 'el formato del correo no es valido';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 
     // Valido formato del DUI si fue proporcionado
     if (this.alumno.dui_encargado && !this.validarDUI(this.alumno.dui_encargado)) {
-      alert('El formato del DUI no es válido (debe ser: 12345678-9)');
+      this.mensaje = 'El formato del dui no es valido';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
       return false;
     }
 

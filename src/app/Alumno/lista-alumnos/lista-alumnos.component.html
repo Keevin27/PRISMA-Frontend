@@ -2,6 +2,9 @@
     <h2>Alumnos</h2>
 
     <div class="row">
+        <div *ngIf="mensaje" class="alert alert-success" role="alert">
+            {{ mensaje }}
+        </div>
         <!-- Filtro de Alumnos - Columna Izquierda -->
         <div class="col-lg-2 col-md-3 mb-4">
             <div class="card">
@@ -62,7 +65,7 @@
                             data-bs-toggle="tooltip" 
                             data-bs-placement="top" 
                             [title]="obtenerDescripcionImpresion()"
-                            (click)="imprimirListado()">
+                            (click)="imprimirAlumnosFiltrados()">
                         <i class="bi bi-printer"></i> Imprimir
                     </button>
                     <a class="btn btn-primary" data-bs-toggle="tooltip"
@@ -111,8 +114,9 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a class="btn btn-danger btn-sm mx-1 delete-btn"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar"
-                                        (click)="eliminarAlumno(alumno.idAlumno)">
+                                         title="Eliminar"
+                                        data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                                        (click)="abrirModalEliminar(alumno.idAlumno!)">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                     <!-- control -->
@@ -120,7 +124,7 @@
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top" 
                                             title="Imprimir expediente individual"
-                                            (click)="imprimirExpedienteIndividual(alumno.idAlumno)">
+                                            (click)="imprimirExpedienteIndividual(alumno.idAlumno,alumno.nombre_alumno)">
                                         <i class="bi bi-printer"></i>
                                     </button>
                                 </div>
@@ -146,21 +150,23 @@
     </div>
 </div>
 
-<!-- Modal de Confirmación -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
-    aria-hidden="true">
+<!-- Modal único reutilizable -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalLabelEliminar" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primarytext-white">
+                <h5 class="modal-title" id="modalLabelEliminar">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                ¿Estás seguro de eliminar el registro? Esta acción no puede deshacerse.
+                ¿Estás seguro que deseas eliminar este Alumno?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Eliminar</button>
+                <button type="button" class="btn btn-danger" (click)="confirmarEliminacionAlumno()"
+                    data-bs-dismiss="modal">
+                    Sí, eliminar
+                </button>
             </div>
         </div>
     </div>

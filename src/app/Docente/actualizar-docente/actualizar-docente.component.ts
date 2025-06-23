@@ -26,6 +26,7 @@ export class ActualizarDocenteComponent implements OnInit {
     datos_Anexo_D: '',
     fecha_Anexo_D: new Date().toISOString().slice(0, 10)
   };
+  
 
   constructor(private docenteServicio: DocenteService, private router: Router, private route: ActivatedRoute) { }
   duiDocente: string = '';
@@ -130,6 +131,7 @@ export class ActualizarDocenteComponent implements OnInit {
       alert('Debes ingresar el nombre y el archivo del anexo.');
     }
   }
+
   eliminarAnexo(id: number): void {
     if (confirm('¿Estás seguro de eliminar este anexo del servidor?')) {
       this.docenteServicio.eliminarAnexo(id).subscribe({

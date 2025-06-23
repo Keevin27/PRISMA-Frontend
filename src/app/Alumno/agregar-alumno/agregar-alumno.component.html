@@ -12,6 +12,9 @@
         </nav>
     </div>
 </div>
+<div *ngIf="mensaje" id="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
 
 <div class="card shadow">
     <div class="card-header text-center p-4 bg-secondary text-white">
@@ -21,7 +24,7 @@
     </div>
     
     <div class="card-body p-4">
-        <form (ngSubmit)="onSubmit()" method="post" class="needs-validation" novalidate>
+        <form #alumnoForm="ngForm" (ngSubmit)="onSubmit()" method="post" class="needs-validation" novalidate>
             
             <!-- Datos Personales del Alumno -->
             <div class="row mb-4">
@@ -33,32 +36,41 @@
                 
                 <div class="col-lg-3 col-md-6 mb-3">
                     <label for="nie" class="form-label fw-bold">NIE: <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="nie" [(ngModel)]="alumno.nie" name="nie" required 
-                           maxlength="7" pattern="[0-9]*" 
+                    <input type="text" class="form-control restricted-input" id="nie" [(ngModel)]="alumno.nie" name="nie" required 
+                           maxlength="7" pattern="[0-9]*" minlength="7"
                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                           placeholder="Ej: 1234567">
-                    <div class="invalid-feedback">Es necesario agregar el NIE</div>
+                           placeholder="Ej: 1234567" #nie="ngModel"
+                           [class.is-invalid]="alumnoForm.submitted && nie.invalid"
+                           [class.is-valid]="alumnoForm.submitted && nie.valid">
+                    <div class="invalid-feedback">Es necesario agregar un Nie Valido</div>
                 </div>
 
                 <div class="col-lg-4 col-md-6 mb-3">
                     <label for="nombres" class="form-label fw-bold">Nombres: <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="nombres" [(ngModel)]="alumno.nombre_alumno" 
-                           name="nombres" required placeholder="Nombres completos">
+                           name="nombres" required placeholder="Nombres completos" #nombre="ngModel"
+                           [class.is-invalid]="alumnoForm.submitted && nombre.invalid"
+                           [class.is-valid]="alumnoForm.submitted && nombre.valid">
                     <div class="invalid-feedback">Es necesario agregar nombres</div>
                 </div>
 
                 <div class="col-lg-4 col-md-6 mb-3">
                     <label for="apellidos" class="form-label fw-bold">Apellidos: <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="apellidos" [(ngModel)]="alumno.apellido_alumno" 
-                           name="apellidos" required placeholder="Apellidos completos">
+                           name="apellidos" required placeholder="Apellidos completos" #apellido="ngModel"
+                           [class.is-invalid]="alumnoForm.submitted && apellido.invalid"
+                           [class.is-valid]="alumnoForm.submitted && apellido.valid">
                     <div class="invalid-feedback">Es necesario agregar apellidos</div>
                 </div>
 
                 <div class="col-lg-3 col-md-6 mb-3">
-                    <label for="fecha_nacimiento" class="form-label fw-bold">Fecha de Nacimiento:</label>
-                    <input type="date" class="form-control" id="fecha_nacimiento" 
+                    <label for="fecha_nacimiento" class="form-label fw-bold">Fecha de Nacimiento:
+                        <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control restricted-input" id="fecha_nacimiento" 
                            [(ngModel)]="alumno.fecha_nacimiento_alumno" name="fecha_nacimiento" 
-                           min="1900-01-01" max="2024-12-31">
+                           min="1900-01-01" max="2024-12-31" #fechaNac="ngModel" required=""
+                           [class.is-invalid]="alumnoForm.submitted && fechaNac.invalid"
+                           [class.is-valid]="alumnoForm.submitted && fechaNac.valid">
                     <div class="invalid-feedback">Es necesario agregar la fecha de nacimiento</div>
                 </div>
 
@@ -73,7 +85,9 @@
 
                 <div class="col-lg-4 col-md-6 mb-3">
                     <label for="grado" class="form-label fw-bold">Grado: <span class="text-danger">*</span></label>
-                    <select class="form-select" id="grado" [(ngModel)]="alumno.grado" name="grado" required>
+                    <select class="form-select" id="grado" [(ngModel)]="alumno.grado" name="grado" required #grado="ngModel"
+                    [class.is-invalid]="alumnoForm.submitted && grado.invalid"
+                    [class.is-valid]="alumnoForm.submitted && grado.valid">
                         <option value="">Seleccione un grado</option>
                         <option *ngFor="let grado of grados" [ngValue]="grado">
                             {{ grado.nombre_grado }} - {{ grado.seccion }}

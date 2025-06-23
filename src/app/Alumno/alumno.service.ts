@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpParams  } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Alumno } from './alumno';
@@ -42,8 +42,8 @@ export class AlumnoService {
   }
 
   // Eliminar alumno
-  eliminarAlumno(id: number): Observable<void> {
-    return this.httpClient.delete<void>(`${this.baseURL}/alumnos/${id}`);
+  eliminarAlumno(id: number): Observable<string> {
+    return this.httpClient.delete(`${this.baseURL}/alumnos/${id}`,{ responseType: 'text' });
   }
 
   // Cambiar estado del alumno
@@ -84,5 +84,32 @@ export class AlumnoService {
     
     return this.httpClient.get<Alumno[]>(url);
   }
+  
+  // Imprimir expediente individual de un alumno
+  imprimirExpedienteAlumno(idAlumno: number): Observable<Blob> {
+    const url = `${this.baseURL}/alumnos/${idAlumno}/imprimir`;
+    return this.httpClient.get(url, {
+      responseType: 'blob'
+    });
+  }
+
+  // Imprimir listado completo de alumnos
+  imprimirListadoAlumnos(): Observable<Blob> {
+    const url = `${this.baseURL}/alumnos/imprimir-listado`;
+    return this.httpClient.get(url, {
+      responseType: 'blob'
+    });
+  }
+
+  // Imprimir listado filtrado de alumnos
+  imprimirListadoAlumnosFiltrado(filtros: { anio?: string; grado?: string }): Observable<Blob> {
+    const params = new HttpParams({ fromObject: filtros });
+    const url = `${this.baseURL}/alumnos/imprimir-listado-filtrado`;
+    return this.httpClient.get(url, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
 }
 
