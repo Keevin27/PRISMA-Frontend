@@ -41,7 +41,7 @@ export class AlumnoService {
     return this.httpClient.put<Alumno>(`${this.baseURL}/alumnos/${id}`, alumno);
   }
 
-  // Eliminar alumno (cambiar estado)
+  // Eliminar alumno
   eliminarAlumno(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.baseURL}/alumnos/${id}`);
   }
@@ -56,4 +56,33 @@ export class AlumnoService {
     return this.httpClient.get<Alumno[]>(`${this.baseURL}/alumnos/activos`);
   }
 
+  // Obtener años disponibles
+  obtenerAniosDisponibles(): Observable<number[]> {
+    return this.httpClient.get<number[]>(`${this.baseURL}/alumnos/anios`);
+  }
+
+  // Obtener secciones disponibles
+  obtenerSeccionesDisponibles(): Observable<string[]> {
+    return this.httpClient.get<string[]>(`${this.baseURL}/alumnos/secciones`);
+  }
+
+  // Filtrar alumnos por año y sección
+  filtrarAlumnos(anio?: string, seccion?: string): Observable<Alumno[]> {
+    let url = `${this.baseURL}/alumnos/filtrar`;
+    const params: string[] = [];
+    
+    if (anio) {
+      params.push(`anio=${anio}`);
+    }
+    if (seccion) {
+      params.push(`seccion=${seccion}`);
+    }
+    
+    if (params.length > 0) {
+      url += '?' + params.join('&');
+    }
+    
+    return this.httpClient.get<Alumno[]>(url);
+  }
 }
+

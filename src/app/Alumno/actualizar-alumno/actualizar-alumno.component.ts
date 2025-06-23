@@ -63,13 +63,12 @@ export class ActualizarAlumnoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cargarGrados();
-    
     this.route.paramMap.subscribe(params => {
       const id = params.get('id'); 
       if (id) {
         this.idAlumno = parseInt(id);
-        this.cargarAlumno();
+        // Primero cargar grados, luego cargar alumno
+        this.cargarGrados();
       } else {
         console.error("No se recibió ID en la ruta");
         this.router.navigate(['/alumnos']);
@@ -82,6 +81,8 @@ export class ActualizarAlumnoComponent implements OnInit {
     this.gradoService.obtenerGradosPorAnyo(this.anioActual).subscribe({
       next: (data: Grado[]) => {
         this.grados = data;
+        // Después de cargar los grados, cargar el alumno
+        this.cargarAlumno();
       },
       error: (error: any) => {
         console.error('Error al cargar grados:', error);
@@ -99,6 +100,17 @@ export class ActualizarAlumnoComponent implements OnInit {
           const fecha = new Date(this.alumno.fecha_nacimiento_alumno);
           (this.alumno as any).fecha_nacimiento_alumno = fecha.toISOString().split('T')[0];
         }
+        
+        // FIX: Buscar el grado correspondiente en la lista de grados disponibles
+        if (this.alumno.grado && this.grados.length > 0) {
+          const gradoEncontrado = this.grados.find(g => 
+            g.id_grado === this.alumno.grado.id_grado
+          );
+          if (gradoEncontrado) {
+            this.alumno.grado = gradoEncontrado;
+          }
+        }
+        
         // Asegurar que el estado se mantenga como booleano
         if (this.alumno.estado_alumno === undefined || this.alumno.estado_alumno === null) {
           this.alumno.estado_alumno = true;
@@ -114,7 +126,7 @@ export class ActualizarAlumnoComponent implements OnInit {
 
   onSubmit(): void {
     console.log('Formulario enviado'); 
-    console.log('Datos del alumno:', this.alumno); // Debug
+    console.log('Datos del alumno:', this.alumno); 
     
     if (this.validarFormulario()) {
       this.actualizarAlumno();

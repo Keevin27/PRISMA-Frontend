@@ -10,21 +10,30 @@
                     <form>
                         <div class="mb-2">
                             <label for="filtro_anio" class="form-label small">Año:</label>
-                            <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio" [(ngModel)]="filtroAnio">
+                            <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio" 
+                                    [(ngModel)]="filtroAnio" (change)="onAnioChange()">
                                 <option value="">Seleccionar año...</option>
                                 <option *ngFor="let anio of aniosDisponibles" [value]="anio">{{anio}}</option>
                             </select>
                         </div>
                         <div class="mb-2">
-                            <label for="filtro_seccion" class="form-label small">Sección:</label>
-                            <select id="filtro_seccion" class="form-select form-select-sm" name="filtro_seccion" [(ngModel)]="filtroSeccion">
-                                <option value="">Seleccionar sección...</option>
-                                <option *ngFor="let seccion of seccionesDisponibles" [value]="seccion">{{seccion}}</option>
+                            <label for="filtro_grado" class="form-label small">Grado:</label>
+                            <select id="filtro_grado" class="form-select form-select-sm" name="filtro_grado" 
+                                    [(ngModel)]="filtroGrado" (change)="filtrarAlumnos()" [disabled]="!filtroAnio">
+                                <option value="">
+                                    {{!filtroAnio ? 'Primero selecciona un año...' : 'Seleccionar grado...'}}
+                                </option>
+                                <option *ngFor="let grado of gradosDisponibles" [value]="grado.id_grado">
+                                    {{obtenerNombreCompletoGrado(grado)}}
+                                </option>
                             </select>
                         </div>
-                        <div class="d-grid">
+                        <div class="d-grid gap-2">
                             <button type="button" class="btn btn-primary btn-sm" (click)="filtrarAlumnos()">
                                 <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limpiarFiltros()">
+                                <i class="bi bi-arrow-clockwise"></i> Limpiar
                             </button>
                         </div>
                     </form>
@@ -34,13 +43,28 @@
 
         <!-- Contenido Principal - Columna Derecha -->
         <div class="col-lg-10 col-md-9">
+            <!-- Mostrar filtros activos -->
+            <div class="mb-2" *ngIf="filtroAnio || filtroGrado">
+                <small class="text-muted">
+                    <i class="bi bi-funnel-fill"></i> Filtros activos: 
+                    <span *ngIf="filtroAnio" class="badge bg-primary me-1">Año: {{filtroAnio}}</span>
+                    <span *ngIf="filtroGrado" class="badge bg-primary me-1">Grado: {{obtenerGradoSeleccionado()}}</span>
+                    <button type="button" class="btn btn-link btn-sm p-0 ms-2" (click)="limpiarFiltros()">
+                        <small>Limpiar todos</small>
+                    </button>
+                </small>
+            </div>
+
             <div class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
                 <div class="d-flex gap-2">
-                    <a class="btn btn-secondary" 
-                        data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir listado actual" target="_blank"
-                        onclick="openInPopup(this.href); return false;">
+                    <!-- BOTÓN de función imprimirListado() -->
+                    <button class="btn btn-secondary" 
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            [title]="obtenerDescripcionImpresion()"
+                            (click)="imprimirListado()">
                         <i class="bi bi-printer"></i> Imprimir
-                    </a>
+                    </button>
                     <a class="btn btn-primary" data-bs-toggle="tooltip"
                         data-bs-placement="top" title="Agregar un nuevo alumno"
                         routerLink="/alumnos/agregarAlumno" routerLinkActive="active">
@@ -50,12 +74,20 @@
             </div>
 
             <div class="table-responsive">
+                <!-- Mostrar cantidad de resultados -->
+                <div class="mb-2">
+                    <small class="text-muted">
+                        Mostrando {{alumnosFiltrados}} de {{totalAlumnos}} alumnos
+                    </small>
+                </div>
+
                 <table class="table table-hover">
                     <thead class="table-dark">
                         <tr>
                             <th>NIE</th>
                             <th>Nombre</th>
                             <th>Apellidos</th>
+                            <th>Grado</th>
                             <th style="width: 15%; text-align: center;">Acciones</th>
                         </tr>
                     </thead>
@@ -64,12 +96,13 @@
                             <td>{{alumno.nie}}</td>
                             <td>{{alumno.nombre_alumno}}</td>
                             <td>{{alumno.apellido_alumno}}</td>
+                            <td>{{obtenerNombreCompletoGrado(alumno.grado)}}</td>
                             <td>
                                 <div class="d-flex justify-content-left">
                                     <div>
                                         <a class="btn btn-success btn-sm mx-1"
-                                            routerLink=""
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Consultar">
+                                            [routerLink]="['/alumnos/ver', alumno.idAlumno]"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Ver">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </div>
@@ -82,18 +115,29 @@
                                         (click)="eliminarAlumno(alumno.idAlumno)">
                                         <i class="bi bi-trash"></i>
                                     </a>
-                                    <a class="btn btn-secondary btn-sm mx-1" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" title="Imprimir" target="_blank"
-                                        [href]="'http://localhost:8080/Alu/alumnos/' + alumno.nie + '/imprimir'">
+                                    <!-- control -->
+                                    <button class="btn btn-secondary btn-sm mx-1" 
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top" 
+                                            title="Imprimir expediente individual"
+                                            (click)="imprimirExpedienteIndividual(alumno.idAlumno)">
                                         <i class="bi bi-printer"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="alumnos?.length === 0">
+                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="alumnosFiltrados === 0 && totalAlumnos > 0">
+                    <i class="bi bi-funnel"></i>
+                    <label>No hay alumnos que coincidan con los filtros aplicados</label>
+                    <button type="button" class="btn btn-link p-0 ms-2" (click)="limpiarFiltros()">
+                        <small>Limpiar filtros</small>
+                    </button>
+                </div>
+
+                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="totalAlumnos === 0">
                     <i class="bi bi-exclamation-triangle"></i>
                     <label>No hay alumnos registrados</label>
                 </div>

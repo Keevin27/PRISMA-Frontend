@@ -39,6 +39,12 @@ export const routes: Routes = [
       },
 
       {
+        path: 'alumnos/ver/:id',
+        loadComponent: () =>
+          import('./Alumno/ver-alumno/ver-alumno.component').then(m => m.VerAlumnoComponent),
+      },
+
+      {
         path: 'alumnos/:id',
         component:ActualizarAlumnoComponent
       },

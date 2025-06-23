@@ -11,7 +11,7 @@
                 <h4 class="text-center">Datos Personales del Alumno</h4>
             </div>
             
-
+            <!-- Nombres y Apellidos -->
             <div class="col-lg-5 col-md-6">
                 <label for="nombre_alumno" class="form-label">Nombres:</label>
                 <input type="text" class="form-control bg-light" id="nombre_alumno" name="nombre_alumno" 
@@ -30,6 +30,7 @@
                 </div>
             </div>
 
+            <!-- NIE y Fecha de nacimiento -->
             <div class="col-lg-5 col-md-6">
                 <label for="nie" class="form-label">NIE</label>
                 <input type="text" class="form-control bg-light" id="nie" maxlength="7" 
@@ -48,7 +49,8 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <!-- Sexo y Grado -->
+            <div class="col-lg-5 col-md-6">
                 <label for="sexo_a" class="form-label">Sexo</label>
                 <select id="sexo_a" class="form-select" name="sexo_a" required [(ngModel)]="alumno.sexo_a">
                     <option value="">Seleccionar...</option>
@@ -59,7 +61,21 @@
                 </div>
             </div>
 
-            <div class="col-lg-6 col-md-12">
+            <div class="col-lg-5 col-md-6">
+                <label for="grado" class="form-label">Grado:</label>
+                <select id="grado" class="form-select bg-light" name="grado" required [(ngModel)]="alumno.grado">
+                    <option value="">Seleccione un grado</option>
+                    <option *ngFor="let grado of grados" [ngValue]="grado">
+                        {{ grado.nombre_grado }} - {{ grado.seccion }}
+                    </option>
+                </select>
+                <div class="invalid-feedback">
+                    Es necesario seleccionar un grado
+                </div>
+            </div>
+
+            <!-- Dirección (campo completo) -->
+            <div class="col-lg-10 col-md-12">
                 <label for="direccion_a" class="form-label">Dirección:</label>
                 <input type="text" class="form-control bg-light" id="direccion_a" required
                 name="direccion_a" [(ngModel)]="alumno.direccion_a">
@@ -73,6 +89,7 @@
                 <h4 class="text-center">Contacto del Alumno</h4>
             </div>
 
+            <!-- Teléfono y Correo del alumno -->
             <div class="col-lg-5 col-md-6">
                 <label for="telefono_alumno" class="form-label">Teléfono</label>
                 <input type="text" class="form-control bg-light" id="telefono_alumno" name="telefono_alumno"
@@ -95,6 +112,7 @@
                 <h4 class="text-center">Información Médica</h4>
             </div>
 
+            <!-- Información médica -->
             <div class="col-lg-5 col-md-6">
                 <label for="enfermedades" class="form-label">Enfermedades:</label>
                 <textarea class="form-control bg-light" id="enfermedades" name="enfermedades" 
@@ -111,6 +129,7 @@
                 <h4 class="text-center">Datos del Encargado</h4>
             </div>
 
+            <!-- Vive con y Parentezco -->
             <div class="col-lg-5 col-md-6">
                 <label for="vive_con" class="form-label">Vive con:</label>
                 <select id="vive_con" class="form-select" name="vive_con" [(ngModel)]="alumno.vive_con">
@@ -128,6 +147,7 @@
                 </select>
             </div>
 
+            <!-- DUI y Teléfono del encargado -->
             <div class="col-lg-5 col-md-6">
                 <label for="dui_encargado" class="form-label">DUI del Encargado:</label>
                 <input type="text" class="form-control bg-light" id="dui_encargado" maxlength="10" 
@@ -143,6 +163,7 @@
                 maxlength="8" [(ngModel)]="alumno.telefono_encargado" (input)="validarTelefono($event, 'encargado')">
             </div>
 
+            <!-- Correo y Lugar de trabajo del encargado -->
             <div class="col-lg-5 col-md-6">
                 <label for="correo_encargado" class="form-label">Correo del Encargado:</label>
                 <input type="email" class="form-control bg-light" id="correo_encargado"
@@ -159,6 +180,7 @@
                 <h4 class="text-center">Estado del Alumno</h4>
             </div>
 
+            <!-- Estado del alumno centrado -->
             <div class="d-flex justify-content-center">
                 <div class="col-lg-5 col-md-6">
                     <label for="estado_alumno" class="form-label">Estado:</label>
@@ -169,6 +191,7 @@
                 </div>
             </div>
 
+            <!-- Botones -->
             <div class="d-flex justify-content-center mt-4">
                 <div class="col-auto">
                     <button type="submit" class="btn btn-success me-4">Actualizar</button>
