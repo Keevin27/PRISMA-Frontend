@@ -11,6 +11,7 @@ import { AuthGuard } from './Auth/auth.guard';
 import { NoAuthGuard } from './Auth/no-auth.guard';
 import { UsuarioListComponent } from './usuarios/pages/usuario-list/usuario-list.component';
 import { UsuarioFormComponent } from './usuarios/pages/usuario-form/usuario-form.component';
+import { ForbiddenComponent } from './forbidden/forbidden.component';
 
 export const routes: Routes = [
   {
@@ -56,9 +57,18 @@ export const routes: Routes = [
         component: ActualizarDocenteComponent,
       },
 
-      { path: 'usuarios', component: UsuarioListComponent },
+      {
+        path: 'usuarios',
+        component: UsuarioListComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] } // <-- Permitir solo estos roles
+      },
       { path: 'usuarios/nuevo', component: UsuarioFormComponent },
       { path: 'usuarios/editar/:id', component: UsuarioFormComponent },
+      {
+        path: 'forbidden',
+        component: ForbiddenComponent // <- Página de acceso denegado
+      }
     ],
   },
 

@@ -27,4 +27,12 @@ export class UsuarioService {
   eliminar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  actualizarRol(usuario: { idUsuario: number; roles: any[] }): Observable<Usuario> {
+    return this.http.put<Usuario>(`${this.apiUrl}/${usuario.idUsuario}/rol`, usuario);
+  }
+
+  actualizarActivo(idUsuario: number, activo: boolean) {
+    return this.http.put<Usuario>(`${this.apiUrl}/${idUsuario}/activo`, activo);
+  }
 }
