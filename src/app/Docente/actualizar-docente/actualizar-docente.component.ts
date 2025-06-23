@@ -93,10 +93,7 @@ export class ActualizarDocenteComponent implements OnInit {
       }
     );
   }
-  descargarAnexo(id?: number): void {
-    const url = `http://localhost:8080/anexos/docente/${id}/archivo`;
-    window.open(url, '_blank');
-  }
+
   toggleAnexos(event: Event) {
     const input = event.target as HTMLInputElement;
     this.mostrarAnexos = input.checked;
@@ -131,18 +128,61 @@ export class ActualizarDocenteComponent implements OnInit {
       alert('Debes ingresar el nombre y el archivo del anexo.');
     }
   }
+  
+  descargarAnexo(id?: number): void {
+  if (!id) return;
+    this.docenteServicio.descargarAnexo(id).subscribe(
+      response => {
+        const blob = response.body!;
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'anexo.pdf';
 
-  eliminarAnexo(id: number): void {
-    if (confirm('¿Estás seguro de eliminar este anexo del servidor?')) {
-      this.docenteServicio.eliminarAnexo(id).subscribe({
-        next: () => {
-          this.anexos = this.anexos.filter(a => a.id_Anexo_D !== id);
-          console.log('Anexo eliminado del servidor');
-        },
-        error: (err) => console.error('Error eliminando anexo', err)
-      });
-    }
+        // Extraer el nombre del archivo desde el header (si existe)
+        if (contentDisposition) {
+          const matches = /filename="(.+)"/.exec(contentDisposition);
+          if (matches && matches[1]) {
+            filename = matches[1];
+          }
+        }
+        // Crear enlace invisible para forzar descarga
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error => {
+        console.error('Error al descargar el anexo:', error);
+      }
+    );
   }
+  //variable temporal para eliminar anexo
+  idAnexoAEliminar: number | null = null;
+
+
+  abrirModalEliminar(id: number) {
+    this.idAnexoAEliminar = id;
+  }
+
+
+  confirmarEliminacionAnexo() {
+    if (!this.idAnexoAEliminar) return;
+
+    this.docenteServicio.eliminarAnexo(this.idAnexoAEliminar).subscribe({
+      next: () => {
+        this.anexos = this.anexos.filter(a => a.id_Anexo_D !== this.idAnexoAEliminar);
+        console.log('Anexo eliminado del servidor');
+        this.idAnexoAEliminar = null; // limpiar
+      },
+      error: (err) => console.error('Error eliminando anexo', err)
+    });
+  }
+
+
   validarDui(event: Event) {
     const input = event.target as HTMLInputElement;
 
