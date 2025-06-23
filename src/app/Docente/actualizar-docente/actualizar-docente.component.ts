@@ -125,7 +125,18 @@ export class ActualizarDocenteComponent implements OnInit {
         fecha_Anexo_D: new Date().toISOString().slice(0, 10)
       };
     } else {
-      alert('Debes ingresar el nombre y el archivo del anexo.');
+      this.mensaje=`Debe Ingresar el nombre del anexo`;
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
+
     }
   }
   
