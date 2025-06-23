@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './core/layout/layout.component';
+import { PaqueteEscolarComponent } from './PaqueteEscolar/paquete-escolar/paquete-escolar.component';
+import { AgregarPaqueteEscolarComponent } from './PaqueteEscolar/agregar-paquete-escolar/agregar-paquete-escolar.component';
+import { AsistenciaListaComponent } from './AsistenciaAlumno/asistencia-lista/asistencia-lista.component';
+import { AgregarAsistenciaComponent } from './AsistenciaAlumno/agregar-asistencia/agregar-asistencia.component';
+import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paquete-escolar/entregar-paquete-escolar.component';
 import { AgregarDocenteComponent } from './Docente/agregar-docente/agregar-docente.component';
 import { ActualizarDocenteComponent } from './Docente/actualizar-docente/actualizar-docente.component';
 
@@ -11,7 +16,23 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./PaqueteEscolar/paquete-escolar/paquete-escolar.component').then((m) => m.PaqueteEscolarComponent),
+          import('./home/home.component').then((m) => m.HomeComponent),
+      },
+      {
+        path: 'paquetesescolares', component:PaqueteEscolarComponent,
+      },
+      {
+        path: 'paquetesescolares/agregar-paqueteescolar', component:AgregarPaqueteEscolarComponent,
+      },
+      {
+        path: 'asistenciaalumno', component:AgregarAsistenciaComponent,
+      },
+      {
+        path: 'asistenciaalumno/asistencia-lista', component:AsistenciaListaComponent,
+      },
+      
+      {
+        path: 'entrega-paquetes-escolares', component:EntregarPaqueteEscolarComponent,
       },
       {
         path: 'home',

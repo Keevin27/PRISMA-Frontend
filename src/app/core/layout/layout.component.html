@@ -3,9 +3,16 @@
 <main class="main-content" [class.shift]="sidenav.isOpen">
   <header class="topbar d-flex align-items-center px-3">
     <button class="btn p-0 border-0 bg-transparent me-3" (click)="sidenav.toggle()">
-      <i class="bi bi-list fs-3"></i>
+      <i class="bi bi-list fs-3 text-light"></i>
     </button>
-    <h1 class="h5 mb-0">PRISMA</h1>
+
+    <div class="d-none d-md-block ms-auto">
+      <h1 class="h6 mb-0">PRISMA</h1>
+    </div>
+    <div class="flex-grow-1 text-center">
+      <h1 class="h6 mb-0 fw-bold">Centro Escolar Gustavo Vides Valdes</h1>
+    </div>
+    
   </header>
 
   <section class="page-content">

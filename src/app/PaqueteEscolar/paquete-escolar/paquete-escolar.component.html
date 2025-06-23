@@ -1,2 +1,58 @@
-<h2>Dashboard</h2><p>Contenido principal visible.</p>
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class=" breadcrumb-item active" aria-current="page">Paquetes Escolares</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Gestion de Paquetes Escolares</h2>
 
+    <div class="container">
+        <div *ngIf="mensaje" class="alert alert-success" role="alert">
+            {{ mensaje }}
+        </div>
+
+        <!-- Boton para agregar paquete escolar -->
+        <div class="d-flex justify-content-end align-items-center mb-2">
+            <button class="btn btn-primary me-2" [routerLink]="'/paquetesescolares/agregar-paqueteescolar'"
+                data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar paquete escolar">
+                <i class="bi bi-plus-lg"></i> Agregar paquete escolar
+            </button>
+        </div>
+        <!-- Tabla de paquetes escolares -->
+        <h2>Listado de Paquetes Escolares</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr class="align-middle">
+                    <th style="width: 10%; text-align: center;">No</th>
+                    <th style="text-align: center;">Nombre</th>
+                    <th style="width: 20%; text-align: center;">Activo</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @for (paqueteEscolar of paquetesescolares; let i =$index; track paqueteEscolar.id_paquete_e){
+                <tr>
+                    <td style="text-align: center;">{{ i + 1 }}</td>
+                    <!--Nombre editable-->
+                    <td contenteditable="true" (blur)="onNombreEdit(paqueteEscolar, $event)">
+                        {{ paqueteEscolar.nombre_paquete }}
+                    </td>
+
+                    <!-- Checkbox editable -->
+                    <td class="d-flex justify-content-center">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                [checked]="paqueteEscolar.paquete_activo" id="switchCheckChecked"
+                                (change)="toggleActivo(paqueteEscolar)">
+                        </div>
+
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
