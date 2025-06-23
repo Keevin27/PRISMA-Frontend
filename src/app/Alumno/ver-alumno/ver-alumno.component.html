@@ -1,0 +1,233 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/alumnos" class="text-decoration-none text-secondary">Gestión
+                        de Alumnos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Ver Alumno</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-secondary text-white text-center p-4">
+        <h4 class="mb-1">CENTRO ESCOLAR GUSTAVO VIDES VALDES</h4>
+        <h5 class="mb-1">LOURDES COLON</h5>
+        <h6 class="mb-0">EXPEDIENTE PERSONAL ALUMNO: DATOS PERSONALES</h6>
+    </div>
+    <div class="card-body p-4">
+        
+        <!-- Datos Personales del Alumno -->
+        <div class="mb-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="bi bi-person-circle me-2"></i>Datos Personales del Alumno
+                    </h4>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">NIE:</label>
+                        <div class="fs-6 text-dark">{{alumno.nie || 'No especificado'}}</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Estado:</label>
+                        <div>
+                            <span class="badge fs-6 px-3 py-2" [class]="alumno.estado_alumno ? 'bg-success' : 'bg-danger'">
+                                <i class="bi" [class]="alumno.estado_alumno ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                                {{alumno.estado_alumno ? 'Activo' : 'Inactivo'}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-12">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Nombre Completo:</label>
+                        <div class="fs-6 text-dark">
+                            {{(alumno.nombre_alumno || '') + ' ' + (alumno.apellido_alumno || '') || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Fecha de Nacimiento:</label>
+                        <div class="fs-6 text-dark">{{alumno.fecha_nacimiento_alumno || 'No especificado'}}</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Género:</label>
+                        <div class="fs-6 text-dark">{{(alumno.sexo_a === 'M' ? 'Masculino' : alumno.sexo_a === 'F' ? 'Femenino' : alumno.sexo_a) || 'No especificado'}}</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Grado:</label>
+                        <div class="fs-6 text-dark">
+                            {{(alumno.grado && alumno.grado.nombre_grado) ? (alumno.grado.nombre_grado + ' - ' + alumno.grado.seccion) : 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacto -->
+        <div class="mb-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="bi bi-telephone me-2"></i>Información de Contacto
+                    </h4>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-6 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Teléfono:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-phone me-2"></i>{{alumno.telefono_alumno || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Correo electrónico:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-envelope me-2"></i>{{alumno.correo_alumno || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8 col-md-8">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Dirección:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-geo-alt me-2"></i>{{alumno.direccion_a || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-4">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Vive con:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-house me-2"></i>{{alumno.vive_con || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información Médica -->
+        <div class="mb-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="bi bi-heart-pulse me-2"></i>Información Médica
+                    </h4>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-6 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Enfermedad:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-clipboard-pulse me-2"></i>{{alumno.enfermedades || 'Ninguna'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Medicamento:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-capsule me-2"></i>{{alumno.medicamento || 'Ninguno'}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos del Encargado -->
+        <div class="mb-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="bi bi-person-check me-2"></i>Datos del Encargado
+                    </h4>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">DUI del Encargado:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-card-text me-2"></i>{{alumno.dui_encargado || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Parentesco:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-people me-2"></i>{{alumno.parentezco_encargado || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Teléfono del Encargado:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-phone me-2"></i>{{alumno.telefono_encargado || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Correo del Encargado:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-envelope me-2"></i>{{alumno.correo_encargado || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <div class="bg-light p-3 rounded-3 h-100">
+                        <label class="form-label fw-bold text-secondary small mb-1">Lugar de trabajo:</label>
+                        <div class="fs-6 text-dark">
+                            <i class="bi bi-building me-2"></i>{{alumno.lugar_de_trabajo || 'No especificado'}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón -->
+        <div class="text-center mt-5 pt-4 border-top">
+            <button type="button" class="btn btn-secondary btn-lg px-4 py-2" (click)="volver()">
+                <i class="bi bi-arrow-left me-2"></i>Volver
+            </button>
+        </div>
+
+    </div>
+</div>

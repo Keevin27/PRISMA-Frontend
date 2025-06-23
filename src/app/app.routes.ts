@@ -7,6 +7,8 @@ import { AgregarAsistenciaComponent } from './AsistenciaAlumno/agregar-asistenci
 import { EntregarPaqueteEscolarComponent } from './PaqueteEscolar/entregar-paquete-escolar/entregar-paquete-escolar.component';
 import { AgregarDocenteComponent } from './Docente/agregar-docente/agregar-docente.component';
 import { ActualizarDocenteComponent } from './Docente/actualizar-docente/actualizar-docente.component';
+import { AgregarAlumnoComponent } from './Alumno/agregar-alumno/agregar-alumno.component';
+import { ActualizarAlumnoComponent } from './Alumno/actualizar-alumno/actualizar-alumno.component';
 
 export const routes: Routes = [
   {
@@ -34,6 +36,28 @@ export const routes: Routes = [
       {
         path: 'entrega-paquetes-escolares', component:EntregarPaqueteEscolarComponent,
       },
+
+      {
+        path: 'alumnos',
+        loadComponent: () =>
+          import('./Alumno/lista-alumnos/lista-alumnos.component').then(m => m.ListaAlumnosComponent),
+      },
+      {
+        path: 'alumnos/agregarAlumno',
+        component:AgregarAlumnoComponent
+      },
+
+      {
+        path: 'alumnos/ver/:id',
+        loadComponent: () =>
+          import('./Alumno/ver-alumno/ver-alumno.component').then(m => m.VerAlumnoComponent),
+      },
+
+      {
+        path: 'alumnos/:id',
+        component:ActualizarAlumnoComponent
+      },
+
       {
         path: 'home',
         loadComponent: () =>
