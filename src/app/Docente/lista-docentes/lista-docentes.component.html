@@ -10,7 +10,10 @@
     </div>
     <h2 class="text-center">Gestión de Docentes</h2>
 </div>
-<div class="container my-4 py-5">
+<div class="container">
+    <div *ngIf="mensaje" class="alert alert-success" role="alert">
+            {{ mensaje }}
+        </div>
     <h2 >Docentes</h2>
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h1 class="text-start col-lg-3 " ></h1>
@@ -27,29 +30,28 @@
                 </a>
             </div>
         </div>
-        <div *ngIf="mostrarMensaje" class="alert alert-info text-center" role="alert">
-            {{ mensajeCambioEstado }}
-        </div>
         <div class="table-responsive">
             <table class="table table-hover table-striped table-bordered">
                 <thead class="table-dark">
                     <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th style="width: 10%;">DUI</th>
-                        <th style="width: 10%;">Teléfono</th>
-                        <th>Correo</th>
+                        <th style="text-align: center;">No</th>
+                        <th style="text-align: center;">Nombre</th>
+                        <th style="text-align: center;">Apellido</th>
+                        <th style="width: 10%; text-align: center;">DUI</th>
+                        <th style="width: 10%; text-align: center;">Teléfono</th>
+                        <th style="text-align: center;">Correo</th>
                         <th style="width: 10%; text-align: center;">Acciones</th>
                         <th style="width: 10%; text-align: center;">Actividad</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Agrega la referencia al elemento que maneja la paginación (page.content) -->
-                    <tr *ngFor=" let docente of docentes">
+                    <tr *ngFor=" let docente of docentes; let i =index">
+                        <td style="text-align: center;">{{ i + 1 }}</td>
                         <td>{{docente.nombre_Docente}}</td>
                         <td>{{docente.apellido_Docente}}</td>
                         <td>{{docente.duiDocente}}</td>
-                        <td>{{docente.telefono_Docente}}</td>
+                        <td style="text-align: center;">{{docente.telefono_Docente}}</td>
                         <td>{{docente.correo_Docente}}</td>
                         <td>
                             <div class="d-flex justify-content-center">
@@ -64,7 +66,7 @@
                                 </a>
                             </div>
                         </td>
-                        <td class="text-center">
+                        <td class="d-flex justify-content-center">
                             <div class="form-check form-switch">
                                 <input class="form-check-input"
                                     type="checkbox"

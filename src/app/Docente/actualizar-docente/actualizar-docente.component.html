@@ -55,7 +55,7 @@
                 <label for="docente_dui" class="form-label">DUI</label>
                 <input type="text" class="form-control bg-light restricted-input" id="duiDocente" minlength="10"
                     maxlength="10" name="duiDocente" [(ngModel)]="docente.duiDocente" (input)="validarDui($event)"
-                    required #dui="ngModel" [class.is-invalid]="docenteForm.submitted && dui.invalid"
+                    required #dui="ngModel" disabled [class.is-invalid]="docenteForm.submitted && dui.invalid"
                     [class.is-valid]="docenteForm.submitted && dui.valid">
                 <div class="invalid-feedback">
                     Es necesario agregar un DUI valido (########-#)

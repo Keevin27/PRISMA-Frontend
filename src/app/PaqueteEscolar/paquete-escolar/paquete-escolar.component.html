@@ -27,21 +27,23 @@
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr class="align-middle">
-                    <th class="text-center">Nombre</th>
-                    <th class="text-center">Activo</th>
+                    <th style="width: 10%; text-align: center;">No</th>
+                    <th style="text-align: center;">Nombre</th>
+                    <th style="width: 20%; text-align: center;">Activo</th>
                 </tr>
             </thead>
             <tbody>
 
-                @for (paqueteEscolar of paquetesescolares; track paqueteEscolar.id_paquete_e){
+                @for (paqueteEscolar of paquetesescolares; let i =$index; track paqueteEscolar.id_paquete_e){
                 <tr>
+                    <td style="text-align: center;">{{ i + 1 }}</td>
                     <!--Nombre editable-->
                     <td contenteditable="true" (blur)="onNombreEdit(paqueteEscolar, $event)">
                         {{ paqueteEscolar.nombre_paquete }}
                     </td>
 
                     <!-- Checkbox editable -->
-                    <td class="text-center">
+                    <td class="d-flex justify-content-center">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch"
                                 [checked]="paqueteEscolar.paquete_activo" id="switchCheckChecked"

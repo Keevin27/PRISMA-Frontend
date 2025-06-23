@@ -37,7 +37,7 @@ export class PaqueteEscolarComponent {
   }
   actualizarPaquete(paquete: PaqueteEscolar) {
     this.paqueteServicio.actualizarPaquete(paquete.id_paquete_e, paquete).subscribe();
-    this.mensaje = 'Paquete escolar actualizado';//agregar texto de que mostrara
+    this.mensaje = 'Paquete escolar actualizado con éxito.';//agregar texto de que mostrara
       setTimeout(() => this.mensaje = '', 2000);//duracion del mensaje
   }
 

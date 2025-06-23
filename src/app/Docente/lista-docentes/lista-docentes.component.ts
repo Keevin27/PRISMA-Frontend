@@ -13,8 +13,6 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class ListaDocentesComponent {
   docentes:Docente[]; 
-  mensajeCambioEstado: string = '';
-  mostrarMensaje: boolean = false;
 
 
   mensaje: string = '';
@@ -45,13 +43,11 @@ export class ListaDocentesComponent {
     // Llama a un servicio para actualizar el estado en el backend (opcional)
     this.docenteServicio.actualizarEstadoDocente(docente.duiDocente!, nuevoEstado).subscribe({
       next: () => {
-        this.mensajeCambioEstado = `Se cambió el estado del docente a ${nuevoEstado ? 'activo' : 'inactivo'}.`;
-        this.mostrarMensaje = true;
+        this.mensaje = `Se cambió el estado del Docente a ${nuevoEstado ? 'activo' : 'inactivo'}.`;
         
         // Oculta el mensaje después de 2 segundos
         setTimeout(() => {
-          this.mostrarMensaje = false;
-          this.mensajeCambioEstado = '';
+          this.mensaje = '';
         }, 2000);
       },
       error: err => {

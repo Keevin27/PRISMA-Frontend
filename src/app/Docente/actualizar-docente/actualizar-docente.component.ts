@@ -55,7 +55,7 @@ export class ActualizarDocenteComponent implements OnInit {
 
     //VALIDACION------------------------------------------------>
     if (!form.valid || !this.esMayorDeEdad(this.docente.fecha_Nacimiento_D) || !this.esCorreoValido(this.docente.correo_Docente)) {
-      this.mensaje = 'No se ha podido registrar el paquete escolar.';//agregar texto de que mostrara en el flotante
+      this.mensaje = 'No se ha podido actualizar el Docente.';//agregar texto de que mostrara en el flotante
       setTimeout(() => {
 
         window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje

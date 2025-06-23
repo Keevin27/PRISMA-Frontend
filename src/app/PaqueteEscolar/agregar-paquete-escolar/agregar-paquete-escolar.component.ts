@@ -30,7 +30,7 @@ export class AgregarPaqueteEscolarComponent {
   }
   irGestionarPaquetes() {
     this.router.navigate(['/paquetesescolares'], {
-      state: { mensaje: 'Paquete escolar guardado con exito.' }
+      state: { mensaje: 'Paquete escolar registrado con éxito.' }
     });
   }
   mensaje: string = '';//mensajito que se presentara en el flotante

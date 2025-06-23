@@ -10,13 +10,15 @@
             </ol>
         </nav>
     </div>
-    <h2 class="text-center">Registrar Docente</h2>
 </div>
+<div *ngIf="mensaje" id="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
 <div class="card">
-    <div class="card-header text-center p-4 mt-5">
+    <div class="card-header text-center">
         <h5>CENTRO ESCOLAR GUSTAVO VIDES VALDES</h5>
         <h5>LOURDES COLON</h5>
-        <h5>EXPEDIENTE PERSONAL DOCENTE: DATOS PERSONALES</h5>
+        <h5>REGISTRO EXPEDIENTE PERSONAL DOCENTE</h5>
     </div>
     <div>
         <form #docenteForm="ngForm" (ngSubmit)="onSubmit(docenteForm)"

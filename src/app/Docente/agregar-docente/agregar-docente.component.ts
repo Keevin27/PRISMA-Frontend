@@ -21,49 +21,76 @@ export class AgregarDocenteComponent implements OnInit {
   archivoBase64: string = '';
   nombreArchivo: string = '';
 
-  constructor(private docenteServicio:DocenteService, private router:Router){}
+  constructor(private docenteServicio: DocenteService, private router: Router) { }
 
   ngOnInit(): void {
 
   }
 
-  regresarListaDocente(){
-    this.router.navigate(['/docentes']);
+  regresarListaDocente() {
+    this.router.navigate(['/docentes'], {
+      state: { mensaje: 'Docente registrado con exito.' }
+    });
   }
+  mensaje: string = '';//mensajito que se presentara en el flotante
   onSubmit(form: NgForm) {
     if (!form.valid || !this.esMayorDeEdad(this.docente.fecha_Nacimiento_D) || !this.esCorreoValido(this.docente.correo_Docente)) {
+      this.mensaje = 'No se ha podido registrar el paquete escolar.';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
+
       return;
     }
     //Validamos que el docente no se repita
     this.docenteServicio.existeDocente(this.docente.duiDocente).subscribe({
-    next: (existe) => {
-      if (existe) {
-        alert("Este DUI ya está registrado.");
-      } else {
-        // Proceder a guardar
-        this.docenteServicio.guardarDocente(this.docente).subscribe(
-          (docenteGuardado:Docente) => {
-            this.regresarListaDocente();
-            console.log('Docente guardado:', docenteGuardado);
-            if (this.archivoBase64) {
-              //subimos anexos si hay
-              this.subirAnexo(docenteGuardado.duiDocente!);
+      next: (existe) => {
+        if (existe) {
+          this.mensaje = 'Este DUI ya esta registrado.';//agregar texto de que mostrara en el flotante
+          setTimeout(() => {
+
+            window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+            // Ocultar mensaje después de unos segundos
+            setTimeout(() => {
+              this.mensaje = '';
+            }, 3000);
+
+          }, 100);
+
+          return;
+        } else {
+          // Proceder a guardar
+          this.docenteServicio.guardarDocente(this.docente).subscribe(
+            (docenteGuardado: Docente) => {
+              this.regresarListaDocente();
+              console.log('Docente guardado:', docenteGuardado);
+              if (this.archivoBase64) {
+                //subimos anexos si hay
+                this.subirAnexo(docenteGuardado.duiDocente!);
+              }
+            },
+            (error) => {
+              console.error('Error guardando docente', error);
             }
-          },
-          (error) => {
-            console.error('Error guardando docente', error);
-          }
-        );
+          );
+        }
+      },
+      error: (err) => {
+        console.error("Error verificando existencia de DUI", err);
       }
-    },
-    error: (err) => {
-      console.error("Error verificando existencia de DUI", err);
-    }
-  });
+    });
   }
 
   validarDui(event: Event) {
-      const input = event.target as HTMLInputElement;
+    const input = event.target as HTMLInputElement;
 
     // Remueve todo lo que no sea número
     let valor = input.value.replace(/\D/g, '');
@@ -134,7 +161,7 @@ export class AgregarDocenteComponent implements OnInit {
     return edad >= 18;
   }
   esCorreoValido(correo: string): boolean {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(correo);
-}
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(correo);
+  }
 }
