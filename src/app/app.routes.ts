@@ -100,7 +100,12 @@ export const routes: Routes = [
       {
         path: 'forbidden',
         component: ForbiddenComponent // <- Página de acceso denegado
-      }
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'home',
+      },
     ],
   },
 
