@@ -1,0 +1,240 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/alumnos" class="text-decoration-none text-secondary">Gestión
+                        de Alumnos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ isEditing ? 'Editar' : 'Agregar' }} Alumno
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div *ngIf="mensaje" id="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
+
+<div class="card shadow">
+    <div class="card-header text-center p-4 bg-secondary text-white">
+        <h4 class="mb-1">CENTRO ESCOLAR GUSTAVO VIDES VALDES</h4>
+        <h5 class="mb-1">LOURDES COLON</h5>
+        <h6 class="mb-0">EXPEDIENTE PERSONAL ALUMNO: DATOS PERSONALES</h6>
+    </div>
+    
+    <div class="card-body p-4">
+        <form #alumnoForm="ngForm" (ngSubmit)="onSubmit()" method="post" class="needs-validation" novalidate>
+            
+            <!-- Datos Personales del Alumno -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="fas fa-user me-2"></i>Datos Personales del Alumno
+                    </h4>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="nie" class="form-label fw-bold">NIE: <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control restricted-input" id="nie" [(ngModel)]="alumno.nie" name="nie" required 
+                           maxlength="7" pattern="[0-9]*" minlength="7"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                           placeholder="Ej: 1234567" #nie="ngModel"
+                           [class.is-invalid]="alumnoForm.submitted && nie.invalid"
+                           [class.is-valid]="alumnoForm.submitted && nie.valid">
+                    <div class="invalid-feedback">Es necesario agregar un Nie Valido</div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <label for="nombres" class="form-label fw-bold">Nombres: <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nombres" [(ngModel)]="alumno.nombre_alumno" 
+                           name="nombres" required placeholder="Nombres completos" #nombre="ngModel"
+                           [class.is-invalid]="alumnoForm.submitted && nombre.invalid"
+                           [class.is-valid]="alumnoForm.submitted && nombre.valid">
+                    <div class="invalid-feedback">Es necesario agregar nombres</div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <label for="apellidos" class="form-label fw-bold">Apellidos: <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="apellidos" [(ngModel)]="alumno.apellido_alumno" 
+                           name="apellidos" required placeholder="Apellidos completos" #apellido="ngModel"
+                           [class.is-invalid]="alumnoForm.submitted && apellido.invalid"
+                           [class.is-valid]="alumnoForm.submitted && apellido.valid">
+                    <div class="invalid-feedback">Es necesario agregar apellidos</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="fecha_nacimiento" class="form-label fw-bold">Fecha de Nacimiento:
+                        <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control restricted-input" id="fecha_nacimiento" 
+                           [(ngModel)]="alumno.fecha_nacimiento_alumno" name="fecha_nacimiento" 
+                           min="1900-01-01" max="2024-12-31" #fechaNac="ngModel" required=""
+                           [class.is-invalid]="alumnoForm.submitted && fechaNac.invalid"
+                           [class.is-valid]="alumnoForm.submitted && fechaNac.valid">
+                    <div class="invalid-feedback">Es necesario agregar la fecha de nacimiento</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="genero" class="form-label fw-bold">Género:</label>
+                    <select class="form-select" id="genero" [(ngModel)]="alumno.sexo_a" name="genero">
+                        <option value="">Seleccionar</option>
+                        <option *ngFor="let sexo of sexos" [value]="sexo.value">{{ sexo.label }}</option>
+                    </select>
+                    <div class="invalid-feedback">Es necesario seleccionar un género</div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <label for="grado" class="form-label fw-bold">Grado: <span class="text-danger">*</span></label>
+                    <select class="form-select" id="grado" [(ngModel)]="alumno.grado" name="grado" required #grado="ngModel"
+                    [class.is-invalid]="alumnoForm.submitted && grado.invalid"
+                    [class.is-valid]="alumnoForm.submitted && grado.valid">
+                        <option value="">Seleccione un grado</option>
+                        <option *ngFor="let grado of grados" [ngValue]="grado">
+                            {{ grado.nombre_grado }} - {{ grado.seccion }}
+                        </option>
+                    </select>
+                    <div class="invalid-feedback">Es necesario seleccionar un grado</div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-3">
+                    <label for="estado" class="form-label fw-bold">Estado:</label>
+                    <select class="form-select" id="estado" [(ngModel)]="alumno.estado_alumno" name="estado">
+                        <option [value]="true">Activo</option>
+                        <option [value]="false">Inactivo</option>
+                    </select>
+                    <div class="invalid-feedback">Es necesario seleccionar un estado</div>
+                </div>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="fas fa-address-book me-2"></i>Información de Contacto
+                    </h4>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="telefono" class="form-label fw-bold">Teléfono:</label>
+                    <input type="tel" class="form-control" id="telefono" [(ngModel)]="alumno.telefono_alumno" 
+                           name="telefono" placeholder="0000-0000" pattern="\d{4}-\d{4}" maxlength="9"
+                           oninput="this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(\d{4})/, '$1-$2').substring(0, 9)">
+                    <div class="invalid-feedback">Es necesario agregar un número de teléfono válido</div>
+                </div>
+
+                <div class="col-lg-5 col-md-6 mb-3">
+                    <label for="correo" class="form-label fw-bold">Correo electrónico:</label>
+                    <input type="email" class="form-control" id="correo" [(ngModel)]="alumno.correo_alumno" 
+                           name="correo" placeholder="ejemplo@correo.com">
+                    <div class="invalid-feedback">Es necesario agregar un correo electrónico válido</div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <label for="viveCon" class="form-label fw-bold">Vive con:</label>
+                    <select class="form-select" id="viveCon" [(ngModel)]="alumno.vive_con" name="viveCon">
+                        <option value="">Seleccionar</option>
+                        <option *ngFor="let opcion of viveConOpciones" [value]="opcion.value">{{ opcion.label }}</option>
+                    </select>
+                    <div class="invalid-feedback">Es necesario seleccionar con quien vive</div>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label for="direccion" class="form-label fw-bold">Dirección completa:</label>
+                    <input type="text" class="form-control" id="direccion" [(ngModel)]="alumno.direccion_a" 
+                           name="direccion" placeholder="Colonia, calle, número de casa, referencias">
+                    <div class="form-text">Dirección completa. Ej. Colonia Roma, Pasaje #4, Casa 6.</div>
+                    <div class="invalid-feedback">Es necesario agregar la dirección</div>
+                </div>
+            </div>
+
+            <!-- Información Médica -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="fas fa-heartbeat me-2"></i>Información Médica
+                    </h4>
+                </div>
+
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <label for="enfermedad" class="form-label fw-bold">Enfermedades:</label>
+                    <textarea class="form-control" id="enfermedad" [(ngModel)]="alumno.enfermedades" 
+                              name="enfermedad" rows="3" placeholder="Describir enfermedades conocidas o 'Ninguna'"></textarea>
+                    <div class="invalid-feedback">Es necesario agregar información sobre enfermedades</div>
+                </div>
+
+                <div class="col-lg-6 col-md-6 mb-3">
+                    <label for="medicamento" class="form-label fw-bold">Medicamentos:</label>
+                    <textarea class="form-control" id="medicamento" [(ngModel)]="alumno.medicamento" 
+                              name="medicamento" rows="3" placeholder="Medicamentos que toma regularmente o 'Ninguno'"></textarea>
+                    <div class="invalid-feedback">Es necesario agregar información sobre medicamentos</div>
+                </div>
+            </div>
+
+            <!-- Datos del Encargado/Responsable -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center text-dark border-bottom pb-2 mb-4">
+                        <i class="fas fa-users me-2"></i>Datos del Encargado/Responsable
+                    </h4>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="dui" class="form-label fw-bold">DUI del Encargado:</label>
+                    <input type="text" class="form-control" id="dui" [(ngModel)]="alumno.dui_encargado" 
+                           name="dui" placeholder="00000000-0" maxlength="10"
+                           oninput="this.value = this.value.replace(/\D/g, '').replace(/(\d{8})(\d{1})/, '$1-$2').substring(0, 10)">
+                    <div class="invalid-feedback">Es necesario agregar un DUI válido (########-#)</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="parentesco" class="form-label fw-bold">Parentesco:</label>
+                    <select class="form-select" id="parentesco" [(ngModel)]="alumno.parentezco_encargado" name="parentesco">
+                        <option value="">Seleccionar</option>
+                        <option *ngFor="let parentesco of parentescos" [value]="parentesco.value">{{ parentesco.label }}</option>
+                    </select>
+                    <div class="invalid-feedback">Es necesario seleccionar el parentesco</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="telefono_encargado" class="form-label fw-bold">Teléfono del Encargado:</label>
+                    <input type="tel" class="form-control" id="telefono_encargado" 
+                           [(ngModel)]="alumno.telefono_encargado" name="telefono_encargado" 
+                           placeholder="0000-0000" pattern="\d{4}-\d{4}" maxlength="9"
+                           oninput="this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(\d{4})/, '$1-$2').substring(0, 9)">
+                    <div class="invalid-feedback">Es necesario agregar un número de teléfono válido</div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label for="correo_encargado" class="form-label fw-bold">Correo del Encargado:</label>
+                    <input type="email" class="form-control" id="correo_encargado" 
+                           [(ngModel)]="alumno.correo_encargado" name="correo_encargado"
+                           placeholder="ejemplo@correo.com">
+                    <div class="invalid-feedback">Es necesario agregar un correo electrónico válido</div>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label for="lugar_trabajo" class="form-label fw-bold">Lugar de trabajo del Encargado:</label>
+                    <input type="text" class="form-control" id="lugar_trabajo" 
+                           [(ngModel)]="alumno.lugar_de_trabajo" name="lugar_trabajo"
+                           placeholder="Nombre de la empresa o lugar de trabajo">
+                    <div class="invalid-feedback">Es necesario agregar el lugar de trabajo</div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-center gap-3 pt-3 border-top">
+                        <button type="submit" class="btn btn-success px-4 py-2">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                        <a class="btn btn-danger px-4 py-2" routerLink="/alumnos">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

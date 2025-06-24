@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Anexo } from '../anexo';
 import { Docente } from '../docente';
@@ -11,12 +11,12 @@ import { AnexoDTO } from '../anexo-dto';
 @Component({
   selector: 'app-actualizar-docente',
   standalone: true,
-  imports: [FormsModule,HttpClientModule,RouterModule,CommonModule],
+  imports: [FormsModule, HttpClientModule, RouterModule, CommonModule],
   templateUrl: './actualizar-docente.component.html',
   styleUrls: ['./actualizar-docente.component.css']
 })
-export class ActualizarDocenteComponent implements OnInit{
-  docente : Docente=new Docente();
+export class ActualizarDocenteComponent implements OnInit {
+  docente: Docente = new Docente();
   mostrarAnexos: boolean = false;
   anexosNuevos: Anexo[] = [];     //Este es el que vamos a guardar
   anexos: AnexoDTO[] = [];        //Viene desde BackEnd
@@ -26,34 +26,53 @@ export class ActualizarDocenteComponent implements OnInit{
     datos_Anexo_D: '',
     fecha_Anexo_D: new Date().toISOString().slice(0, 10)
   };
+  
 
-  constructor(private docenteServicio:DocenteService, private router:Router,private route:ActivatedRoute){}
-  duiDocente:string='';
+  constructor(private docenteServicio: DocenteService, private router: Router, private route: ActivatedRoute) { }
+  duiDocente: string = '';
 
   ngOnInit(): void {
-  this.route.paramMap.subscribe(params => {
-    const dui = params.get('dui');
-    if (dui) {
-      this.duiDocente = dui;
+    this.route.paramMap.subscribe(params => {
+      const dui = params.get('dui');
+      if (dui) {
+        this.duiDocente = dui;
 
-      this.docenteServicio.obtenerDocentePorDui(this.duiDocente).subscribe({
-        next: (data) => { this.docente = data; },
-        error: (e) => { console.error("Error cargando docente", e); }
-      });
+        this.docenteServicio.obtenerDocentePorDui(this.duiDocente).subscribe({
+          next: (data) => { this.docente = data; },
+          error: (e) => { console.error("Error cargando docente", e); }
+        });
 
-      this.docenteServicio.obtenerAnexosPorDocente(this.duiDocente).subscribe({
-        next: (data) => { this.anexos = data; },
-        error: (e) => { console.error("Error cargando anexos", e); }
-      });
-    } else {
-      console.error("No se recibió DUI en la ruta");
-    }
-  });
+        this.docenteServicio.obtenerAnexosPorDocente(this.duiDocente).subscribe({
+          next: (data) => { this.anexos = data; },
+          error: (e) => { console.error("Error cargando anexos", e); }
+        });
+      } else {
+        console.error("No se recibió DUI en la ruta");
+      }
+    });
   }
-  
-  onSubmit() {
-    this.docenteServicio.actualizarDocente(this.docente.duiDocente,this.docente).subscribe(
-      (response)=> {
+  mensaje: string = '';//mensajito que se presentara en el flotante
+  onSubmit(form: NgForm) {
+
+    //VALIDACION------------------------------------------------>
+    if (!form.valid || !this.esMayorDeEdad(this.docente.fecha_Nacimiento_D) || !this.esCorreoValido(this.docente.correo_Docente)) {
+      this.mensaje = 'No se ha podido actualizar el Docente.';//agregar texto de que mostrara en el flotante
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
+
+      return;
+    }//FIN VALIDACION-------------------------------------------->
+
+    this.docenteServicio.actualizarDocente(this.docente.duiDocente, this.docente).subscribe(
+      (response) => {
         console.log('Docente actualizado con éxito', response);
 
         // Subir todos los anexos nuevos
@@ -65,17 +84,16 @@ export class ActualizarDocenteComponent implements OnInit{
             );
           });
         }
-        this.router.navigate(['/docentes']);
+        this.router.navigate(['/docentes'], {
+          state: { mensaje: 'Docente actualizado con exito.' } //Envio de mensaje a la vista
+        });
       },
-    (error) => {
-      console.error('Error actualizando docente', error);
-    }
+      (error) => {
+        console.error('Error actualizando docente', error);
+      }
     );
   }
-  descargarAnexo(id?: number): void {
-    const url = `http://localhost:8080/anexos/${id}/archivo`;
-    window.open(url, '_blank');
-  }
+
   toggleAnexos(event: Event) {
     const input = event.target as HTMLInputElement;
     this.mostrarAnexos = input.checked;
@@ -107,41 +125,115 @@ export class ActualizarDocenteComponent implements OnInit{
         fecha_Anexo_D: new Date().toISOString().slice(0, 10)
       };
     } else {
-      alert('Debes ingresar el nombre y el archivo del anexo.');
+      this.mensaje=`Debe Ingresar el nombre del anexo`;
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
+
     }
   }
-  eliminarAnexo(id: number):void {
-    if (confirm('¿Estás seguro de eliminar este anexo del servidor?')) {
-    this.docenteServicio.eliminarAnexo(id).subscribe({
+  
+  descargarAnexo(id?: number): void {
+  if (!id) return;
+    this.docenteServicio.descargarAnexo(id).subscribe(
+      response => {
+        const blob = response.body!;
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'anexo.pdf';
+
+        // Extraer el nombre del archivo desde el header (si existe)
+        if (contentDisposition) {
+          const matches = /filename="(.+)"/.exec(contentDisposition);
+          if (matches && matches[1]) {
+            filename = matches[1];
+          }
+        }
+        // Crear enlace invisible para forzar descarga
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error => {
+        console.error('Error al descargar el anexo:', error);
+      }
+    );
+  }
+  //variable temporal para eliminar anexo
+  idAnexoAEliminar: number | null = null;
+
+
+  abrirModalEliminar(id: number) {
+    this.idAnexoAEliminar = id;
+  }
+
+
+  confirmarEliminacionAnexo() {
+    if (!this.idAnexoAEliminar) return;
+
+    this.docenteServicio.eliminarAnexo(this.idAnexoAEliminar).subscribe({
       next: () => {
-        this.anexos = this.anexos.filter(a => a.id_Anexo_D !== id);
+        this.anexos = this.anexos.filter(a => a.id_Anexo_D !== this.idAnexoAEliminar);
         console.log('Anexo eliminado del servidor');
+        this.idAnexoAEliminar = null; // limpiar
       },
       error: (err) => console.error('Error eliminando anexo', err)
     });
-    }
   }
+
+
   validarDui(event: Event) {
-      const input = event.target as HTMLInputElement;
+    const input = event.target as HTMLInputElement;
 
-      // Remueve todo lo que no sea número
-      let valor = input.value.replace(/\D/g, '');
+    // Remueve todo lo que no sea número
+    let valor = input.value.replace(/\D/g, '');
 
-      // Aplica el formato ########-#
-      if (valor.length > 8) {
-        valor = valor.substring(0, 8) + '-' + valor.substring(8, 9);
-      }
-
-      // Actualiza el valor en el input y en el modelo
-      input.value = valor;
-      this.docente.duiDocente = valor;
+    // Aplica el formato ########-#
+    if (valor.length > 8) {
+      valor = valor.substring(0, 8) + '-' + valor.substring(8, 9);
     }
+
+    // Actualiza el valor en el input y en el modelo
+    input.value = valor;
+    this.docente.duiDocente = valor;
+  }
 
   validarTelefono(event: Event) {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '').substring(0, 8); // solo números
     this.docente.telefono_Docente = input.value;
   }
-  
-    
+  //Metodo que verifica que la fecha de nacimiento represente una edad mayor a los 18 anyos
+  esMayorDeEdad(fechaStr: Date | string): boolean {
+    if (!fechaStr) return false;
+
+    const hoy = new Date();
+    const nacimiento = new Date(fechaStr);
+    const edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+      return edad - 1 >= 18;
+    }
+
+    return edad >= 18;
+  }
+  //Metodo para verificar que un correo electronico tenga @ .
+  esCorreoValido(correo: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(correo);
+  }
+
 }

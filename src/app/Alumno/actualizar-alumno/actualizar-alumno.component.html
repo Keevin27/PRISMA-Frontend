@@ -1,0 +1,236 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/alumnos" class="text-decoration-none text-secondary">Gestión
+                        de Alumnos</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Actualizar Alumno</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header text-center p-4">
+        <h5>CENTRO ESCOLAR GUSTAVO VIDES VALDES</h5>
+        <h5>LOURDES COLON</h5>
+        <h5>EXPEDIENTE PERSONAL ALUMNO: DATOS PERSONALES</h5>
+    </div>
+    <div *ngIf="mensaje" id="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
+    <div>
+        
+        <form (ngSubmit)="onSubmit()" #alumnoForm="ngForm" class="row g-3 needs-validation justify-content-center" novalidate >
+            <div class="col-12">
+                <h4 class="text-center">Datos Personales del Alumno</h4>
+            </div>
+            
+            <!-- Nombres y Apellidos -->
+            <div class="col-lg-5 col-md-6">
+                <label for="nombre_alumno" class="form-label">Nombres:</label>
+                <input type="text" class="form-control bg-light restricted-input" id="nombre_alumno" name="nombre_alumno" minlength="3"
+                [(ngModel)]="alumno.nombre_alumno" required #nombre="ngModel"
+                [class.is-invalid]="alumnoForm.submitted && nombre.invalid" 
+                [class.is-valid]="alumnoForm.submitted && nombre.valid">
+                <div class="invalid-feedback">
+                    Es necesario agregar nombres
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="apellido_alumno" class="form-label">Apellidos:</label>
+                <input type="text" class="form-control bg-light restricted-input" 
+                id="apellido_alumno" name="apellido_alumno"  minlength="3"
+                [(ngModel)]="alumno.apellido_alumno" required #apellido="ngModel"
+                [class.is-invalid]="alumnoForm.submitted && apellido.invalid" 
+                [class.is-valid]="alumnoForm.submitted && apellido.valid">
+                <div class="invalid-feedback">
+                    Es necesario agregar apellidos
+                </div>
+            </div>
+
+            <!-- NIE y Fecha de nacimiento -->
+            <div class="col-lg-5 col-md-6">
+                <label for="nie" class="form-label">NIE</label>
+                <input type="text" class="form-control bg-light restricted-input" id="nie" maxlength="7" #nie="ngModel"
+                name="nie" [(ngModel)]="alumno.nie" (input)="validarNie($event)" required minlength="7" pattern="^[0-9]{7}$"
+                [class.is-invalid]="alumnoForm.submitted && nie.invalid" 
+                [class.is-valid]="alumnoForm.submitted && nie.valid">
+                <div class="invalid-feedback">
+                    Es necesario agregar un NIE válido
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="fecha_nacimiento_alumno" class="form-label">Fecha de nacimiento:</label>
+                <input type="date" class="form-control bg-light restricted-input" name="fecha_nacimiento_alumno"
+                    id="fecha_nacimiento_alumno" required [(ngModel)]="alumno.fecha_nacimiento_alumno" #fechaNac="ngModel"
+                    [class.is-invalid]="alumnoForm.submitted && fechaNac.invalid" 
+                    [class.is-valid]="alumnoForm.submitted && fechaNac.valid">
+                <div class="invalid-feedback">
+                    Es necesario agregar la fecha de nacimiento
+                </div>
+            </div>
+
+            <!-- Sexo y Grado -->
+            <div class="col-lg-5 col-md-6">
+                <label for="sexo_a" class="form-label">Sexo</label>
+                <select id="sexo_a" class="form-select restricted-input" name="sexo_a" required [(ngModel)]="alumno.sexo_a" #sexo="ngModel"
+                [class.is-invalid]="alumnoForm.submitted && sexo.invalid" 
+                [class.is-valid]="alumnoForm.submitted && sexo.valid">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let sexo of sexos" [value]="sexo.value">{{sexo.label}}</option>
+                </select>
+                <div class="invalid-feedback">
+                    Es necesario seleccionar un Sexo
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="grado" class="form-label">Grado:</label>
+                <select id="grado" class="form-select bg-light restricted-input" name="grado" required [(ngModel)]="alumno.grado" #grado="ngModel"
+                [class.is-invalid]="alumnoForm.submitted && grado.invalid" 
+                [class.is-valid]="alumnoForm.submitted && grado.valid">
+                    <option value="">Seleccione un grado</option>
+                    <option *ngFor="let grado of grados" [ngValue]="grado">
+                        {{ grado.nombre_grado }} - {{ grado.seccion }}
+                    </option>
+                </select>
+                <div class="invalid-feedback">
+                    Es necesario seleccionar un grado
+                </div>
+            </div>
+
+            <!-- Dirección (campo completo) -->
+            <div class="col-lg-10 col-md-12">
+                <label for="direccion_a" class="form-label">Dirección:</label>
+                <input type="text" class="form-control bg-light" id="direccion_a" required
+                name="direccion_a" [(ngModel)]="alumno.direccion_a" #direccion="ngModel"
+                [class.is-invalid]="alumnoForm.submitted && direccion.invalid" 
+                [class.is-valid]="alumnoForm.submitted && direccion.valid">
+                <div id="direccionHelp" class="form-text">Dirección completa. Ej. Colonia Roma, Pasaje #4, Casa 6.</div>
+                <div class="invalid-feedback">
+                    Es necesario agregar la dirección
+                </div>
+            </div>
+
+            <div class="col-12">
+                <h4 class="text-center">Contacto del Alumno</h4>
+            </div>
+
+            <!-- Teléfono y Correo del alumno -->
+            <div class="col-lg-5 col-md-6">
+                <label for="telefono_alumno" class="form-label">Teléfono</label>
+                <input type="text" class="form-control bg-light" id="telefono_alumno" name="telefono_alumno"
+                maxlength="8" [(ngModel)]="alumno.telefono_alumno" (input)="validarTelefono($event, 'alumno')">
+                <div class="invalid-feedback">
+                    Es necesario agregar un número de teléfono válido
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="correo_alumno" class="form-label">Correo</label>
+                <input type="email" class="form-control bg-light" id="correo_alumno"
+                name="correo_alumno" [(ngModel)]="alumno.correo_alumno" (input)="onEmailChange($event, 'alumno')">
+                <div class="invalid-feedback">
+                    Es necesario agregar un correo electrónico válido
+                </div>
+            </div>
+
+            <div class="col-12">
+                <h4 class="text-center">Información Médica</h4>
+            </div>
+
+            <!-- Información médica -->
+            <div class="col-lg-5 col-md-6">
+                <label for="enfermedades" class="form-label">Enfermedades:</label>
+                <textarea class="form-control bg-light" id="enfermedades" name="enfermedades" 
+                rows="3" [(ngModel)]="alumno.enfermedades" placeholder="Especificar enfermedades o alergias conocidas"></textarea>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="medicamento" class="form-label">Medicamentos:</label>
+                <textarea class="form-control bg-light" id="medicamento" name="medicamento" 
+                rows="3" [(ngModel)]="alumno.medicamento" placeholder="Medicamentos que toma regularmente"></textarea>
+            </div>
+
+            <div class="col-12">
+                <h4 class="text-center">Datos del Encargado</h4>
+            </div>
+
+            <!-- Vive con y Parentezco -->
+            <div class="col-lg-5 col-md-6">
+                <label for="vive_con" class="form-label">Vive con:</label>
+                <select id="vive_con" class="form-select" name="vive_con" [(ngModel)]="alumno.vive_con">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let opcion of viveConOpciones" [value]="opcion.value">{{opcion.label}}</option>
+                </select>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="parentezco_encargado" class="form-label">Parentezco del Encargado:</label>
+                <select id="parentezco_encargado" class="form-select" name="parentezco_encargado" 
+                [(ngModel)]="alumno.parentezco_encargado">
+                    <option value="">Seleccionar...</option>
+                    <option *ngFor="let parentesco of parentescos" [value]="parentesco.value">{{parentesco.label}}</option>
+                </select>
+            </div>
+
+            <!-- DUI y Teléfono del encargado -->
+            <div class="col-lg-5 col-md-6">
+                <label for="dui_encargado" class="form-label">DUI del Encargado:</label>
+                <input type="text" class="form-control bg-light" id="dui_encargado" maxlength="10" 
+                name="dui_encargado" [(ngModel)]="alumno.dui_encargado" (input)="formatearDUI($event)">
+                <div class="invalid-feedback">
+                    Es necesario agregar un DUI válido
+                </div>
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="telefono_encargado" class="form-label">Teléfono del Encargado:</label>
+                <input type="text" class="form-control bg-light" id="telefono_encargado" name="telefono_encargado"
+                maxlength="8" [(ngModel)]="alumno.telefono_encargado" (input)="validarTelefono($event, 'encargado')">
+            </div>
+
+            <!-- Correo y Lugar de trabajo del encargado -->
+            <div class="col-lg-5 col-md-6">
+                <label for="correo_encargado" class="form-label">Correo del Encargado:</label>
+                <input type="email" class="form-control bg-light" id="correo_encargado"
+                name="correo_encargado" [(ngModel)]="alumno.correo_encargado" (input)="onEmailChange($event, 'encargado')">
+            </div>
+
+            <div class="col-lg-5 col-md-6">
+                <label for="lugar_de_trabajo" class="form-label">Lugar de Trabajo del Encargado:</label>
+                <input type="text" class="form-control bg-light" id="lugar_de_trabajo" 
+                name="lugar_de_trabajo" [(ngModel)]="alumno.lugar_de_trabajo">
+            </div>
+
+            <div class="col-12">
+                <h4 class="text-center">Estado del Alumno</h4>
+            </div>
+
+            <!-- Estado del alumno centrado -->
+            <div class="d-flex justify-content-center">
+                <div class="col-lg-5 col-md-6">
+                    <label for="estado_alumno" class="form-label">Estado:</label>
+                    <select id="estado_alumno" class="form-select" name="estado_alumno" [(ngModel)]="alumno.estado_alumno">
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-center mt-4">
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-success me-4">Actualizar</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger" (click)="cancelar()">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

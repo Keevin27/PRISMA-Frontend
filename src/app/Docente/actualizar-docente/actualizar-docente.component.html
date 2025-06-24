@@ -1,20 +1,41 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/docentes"
+                        class="text-decoration-none text-secondary">Docentes</a></li>
+                <li class=" breadcrumb-item active" aria-current="page">Actualizar Docente</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Actualización Docente</h2>
+</div>
 <div class="card">
     <div class="card-header text-center p-4 mt-5">
         <h5>CENTRO ESCOLAR GUSTAVO VIDES VALDES</h5>
         <h5>LOURDES COLON</h5>
         <h5>EXPEDIENTE PERSONAL DOCENTE: DATOS PERSONALES</h5>
     </div>
-    <div>
-        
-        <form (ngSubmit)="onSubmit()" #docenteForm="ngForm" class="row g-3 needs-validation justify-content-center" >
+    <div *ngIf="mensaje" id="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
+    <div class="">
+
+        <form (ngSubmit)="onSubmit(docenteForm)" #docenteForm="ngForm"
+            class="row g-3 needs-validation justify-content-center" novalidate>
             <div class="col-12">
                 <h4 class="text-center">Datos Personales</h4>
             </div>
-            
+
 
             <div class="col-lg-5 col-md-6">
                 <label for="nombre_Docente" class="form-label">Nombres:</label>
-                <input type="text" class="form-control bg-light" id="nombre_Docente" name="nombre_Docente" [(ngModel)]="docente.nombre_Docente">
+                <input type="text" class="form-control bg-light restricted-input" id="nombre_Docente"
+                    name="nombre_Docente" [(ngModel)]="docente.nombre_Docente" minlength="3" required #nombre="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && nombre.invalid"
+                    [class.is-valid]="docenteForm.submitted && nombre.valid">
                 <div class="invalid-feedback">
                     Es necesario agregar nombres
                 </div>
@@ -22,7 +43,10 @@
 
             <div class="col-lg-5 col-md-6">
                 <label for="apellido_Docente" class="form-label">Apellidos:</label>
-                <input type="text" class="form-control bg-light" id="apellido_Docente" name="apellido_Docente" [(ngModel)]="docente.apellido_Docente">
+                <input type="text" class="form-control bg-light restricted-input" id="apellido_Docente"
+                    name="apellido_Docente" [(ngModel)]="docente.apellido_Docente" minlength="3" required
+                    #apellidos="ngModel" [class.is-invalid]="docenteForm.submitted && apellidos.invalid"
+                    [class.is-valid]="docenteForm.submitted && apellidos.valid">
                 <div class="invalid-feedback">
                     Es necesario agregar apellidos
                 </div>
@@ -30,23 +54,30 @@
 
             <div class="col-lg-5 col-md-6">
                 <label for="docente_dui" class="form-label">DUI</label>
-                <input type="text" class="form-control bg-light" id="duiDocente" maxlength="10" 
-                name="duiDocente" [(ngModel)]="docente.duiDocente" (input)="validarDui($event)" disabled >
+                <input type="text" class="form-control bg-light restricted-input" id="duiDocente" minlength="10"
+                    maxlength="10" name="duiDocente" [(ngModel)]="docente.duiDocente" (input)="validarDui($event)"
+                    required #dui="ngModel" disabled [class.is-invalid]="docenteForm.submitted && dui.invalid"
+                    [class.is-valid]="docenteForm.submitted && dui.valid">
                 <div class="invalid-feedback">
-                    Es necesario agregar un DUI valido
+                    Es necesario agregar un DUI valido (########-#)
                 </div>
             </div>
             <div class="col-lg-5 col-md-6">
                 <label for="docente_fecha_nacimiento" class="form-label">Fecha de nacimiento:</label>
-                <input type="date" class="form-control bg-light" name="fecha_Nacimiento_D"
-                    id="fecha_Nacimiento_D" required [(ngModel)]="docente.fecha_Nacimiento_D">
+                <input type="date" class="form-control bg-light" name="fecha_Nacimiento_D" id="fecha_Nacimiento_D"
+                    required [(ngModel)]="docente.fecha_Nacimiento_D" #fecha="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && (!fecha.valid || !esMayorDeEdad(docente.fecha_Nacimiento_D))"
+                    [class.is-valid]="docenteForm.submitted && fecha.valid && esMayorDeEdad(docente.fecha_Nacimiento_D)">
                 <div class="invalid-feedback">
-                    Es necesario agregar la fecha de nacimiento
+                    El Docente debe tener al menos 18 años.
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
                 <label for="sexo_Docente" class="form-label">Sexo</label>
-                <select id="sexo_Docente" class="form-select" name="sexo_Docente" required [(ngModel)]="docente.sexo_Docente">
+                <select id="sexo_Docente" class="form-select bg-light" name="sexo_Docente" required
+                    [(ngModel)]="docente.sexo_Docente" #sexo="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && sexo.invalid"
+                    [class.is-valid]="docenteForm.submitted && sexo.valid">
                     <option value="" selected>Seleccionar...</option>
                     <option value="Masculino">M</option>
                     <option value="Femenino">F</option>
@@ -61,24 +92,30 @@
             <div class="col-lg-5 col-md-6">
                 <label for="telefono_Docente" class="form-label">Telefono</label>
                 <input type="text" class="form-control bg-light" id="telefono_Docente" name="telefono_Docente"
-                minlength="9" [(ngModel)]="docente.telefono_Docente" (input)="validarTelefono($event)">
+                    minlength="8" [(ngModel)]="docente.telefono_Docente" (input)="validarTelefono($event)"
+                    #tel="ngModel" placeholder="0000-0000" [class.is-invalid]="docenteForm.submitted && tel.invalid"
+                    [class.is-valid]="docenteForm.submitted && tel.valid">
                 <div class="invalid-feedback">
-                    Es necesario agregar un numero de celular valido
+                    El numero de telefono no es valido
                 </div>
             </div>
             <div class="col-lg-5 col-md-6">
                 <label for="correo_Docente" class="form-label">Correo</label>
-                <input type="text" class="form-control bg-light" id="correo_Docente"
-                name="correo_Docente" [(ngModel)]="docente.correo_Docente">
+                <input type="text" class="form-control bg-light" id="correo_Docente" name="correo_Docente"
+                    [(ngModel)]="docente.correo_Docente" #correo="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && !esCorreoValido(docente.correo_Docente)"
+                    [class.is-valid]="docenteForm.submitted && esCorreoValido(docente.correo_Docente)">
                 <div class="invalid-feedback">
-                    Es necesario agregar un correo electronico valido
+                    Agregue un correo electronico valido
                 </div>
             </div>
 
             <div class="col-lg-6 col-md-12">
                 <label for="docente_direccion" class="form-label">Dirección:</label>
-                <input type="text" class="form-control" id="direccion_D" required
-                name="direccion_D" [(ngModel)]="docente.direccion_D">
+                <input type="text" class="form-control bg-light" id=" direccion_D" required name="direccion_D"
+                    [(ngModel)]="docente.direccion_D" #direccion="ngModel"
+                    [class.is-invalid]="docenteForm.submitted && direccion.invalid"
+                    [class.is-valid]="docenteForm.submitted && direccion.valid">
                 <div id="direccionHelp" class="form-text">Dirección completa. Ej. Colonia Roma, Pasaje #4, Casa
                     6.</div>
                 <div class="invalid-feedback">
@@ -98,55 +135,59 @@
             <div *ngIf="mostrarAnexos" class="justify-content-center d-flex">
                 <div class="col-lg-4 col-md-6">
                     <label for="nombre_anexo" class="form-label">Nombre del anexo</label>
-                    <input class="form-control bg-light" type="text" id="nombre_anexo" 
-                    name="nombre_anexo"[(ngModel)]="nuevoAnexo.nombre_Anexo_D">
+                    <input class="form-control bg-light" type="text" id="nombre_anexo" name="nombre_anexo"
+                        [(ngModel)]="nuevoAnexo.nombre_Anexo_D">
                 </div>
                 <div class="col-lg-5 col-md-6">
                     <label for="datos_anexo" class="form-label">Documento (PDF)</label>
                     <input class="form-control bg-light" type="file" id="datos_anexo" name="datos_anexo"
-                    accept="application/pdf" (change)="onArchivoSeleccionado($event)">
+                        accept="application/pdf" (change)="onArchivoSeleccionado($event)">
                 </div>
                 <!--Aca empieza anexos -->
                 <div class="col-md-2 text-end mt-3">
                     <button type="button" class="btn btn-primary" (click)="agregarAnexo()">Agregar</button>
-                    </div>
                 </div>
+            </div>
 
-                <!-- Tabla de anexos -->
-                <div class="table-responsive mt-4">
-                    <table class="table table-bordered table-hover text-center">
+            <!-- Tabla de anexos -->
+            <div class="table-responsive mt-4">
+                <table class="table table-bordered table-hover text-center">
                     <thead class="table-light">
                         <tr>
-                        <th>#</th>
-                        <th>Nombre del anexo</th>
-                        <th>Ver documento</th>
-                        <th>Acciones</th>
+                            <th>#</th>
+                            <th>Nombre del anexo</th>
+                            <th>Ver documento</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let anexo of anexos; let i = index">
-                        <td>{{ i + 1 }}</td>
-                        <td>{{ anexo.nombre_Anexo_D }}</td>
-                        <td>
-                            <button class="btn btn-outline-success btn-sm" (click)="descargarAnexo(anexo.id_Anexo_D!)">
-                                <i class="bi bi-download"></i> Ver/Descargar
-                            </button>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-danger" (click)="eliminarAnexo(anexo.id_Anexo_D)">
-                            Eliminar
-                            </button>
-                        </td>
+                            <td>{{ i + 1 }}</td>
+                            <td>{{ anexo.nombre_Anexo_D }}</td>
+                            <td>
+                                <button class="btn btn-outline-success btn-sm" type="button"
+                                    (click)="descargarAnexo(anexo.id_Anexo_D!)">
+                                    <i class="bi bi-download"></i> Ver/Descargar
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                                    (click)="abrirModalEliminar(anexo.id_Anexo_D!)">
+                                    Eliminar
+                                </button>
+                            </td>
                         </tr>
                         <tr *ngIf="anexos.length === 0">
-                        <td colspan="4">No hay anexos registrados.</td>
+                            <td colspan="4">No hay anexos registrados.</td>
                         </tr>
                     </tbody>
-                    </table>
-                </div>
+                </table>
+
+            </div>
             <div class="d-flex justify-content-center mt-4">
                 <div class="col-auto">
-                    <button class="btn btn-success me-4">guardar</button>
+                    <button class="btn btn-success me-4">Guardar</button>
                 </div>
                 <div class="col-auto">
                     <button class="btn btn-danger" routerLink="/docentes">Cancelar</button>
@@ -155,4 +196,24 @@
         </form>
     </div>
 </div>
-
+<!-- Modal único reutilizable -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalLabelEliminar" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalLabelEliminar">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro que deseas eliminar este anexo?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" (click)="confirmarEliminacionAnexo()"
+                    data-bs-dismiss="modal">
+                    Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
