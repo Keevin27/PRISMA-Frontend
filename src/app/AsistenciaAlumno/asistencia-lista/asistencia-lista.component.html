@@ -25,7 +25,7 @@
       <!-- Selector de grado -->
       <select [(ngModel)]="idGradoSeleccionado" name="grado" class="form-select me-2" required>
         <option value="" disabled selected>Seleccione un grado</option>
-        <option *ngFor="let grado of grados" [value]="grado.id_grado">  
+        <option *ngFor="let grado of grados" [value]="grado.id_grado">
           {{ grado.nombre_grado }} "{{ grado.seccion }}"
         </option>
       </select>
@@ -52,21 +52,20 @@
   </div>
 
   <div class="d-flex justify-content-end mb-2">
-        <button class="btn btn-secondary mb-4" title="Imprimir la lista de entrega para completar manualmente" 
-        [disabled]="!idGradoSeleccionado || !sonFechasValidas()" (click)="imprimirTabla()">
-            <i class="bi bi-printer" ></i> Imprimir tabla
-        </button>
-    </div>
+    <button class="btn btn-secondary mb-4" title="Imprimir la lista de entrega para completar manualmente"
+      [disabled]="!idGradoSeleccionado || !sonFechasValidas()" (click)="imprimirTabla()">
+      <i class="bi bi-printer"></i> Imprimir tabla
+    </button>
+  </div>
 
   <!-- Tabla de asistencias -->
+  <h2 *ngIf="sonFechasValidas() && gradoSeleccionado">
+    Listado de asistencias de {{ gradoSeleccionado.nombre_grado }} "{{ gradoSeleccionado.seccion }}"
+    desde {{ fechaInicio }} hasta {{ fechaFin }}
+  </h2>
   <table class="table table-bordered table-striped">
     <thead class="table-dark">
-      <tr *ngIf="sonFechasValidas() && gradoSeleccionado">
-        <th colspan="8">
-          LISTADO DE ASISTENCIAS DE {{ gradoSeleccionado.nombre_grado }} "{{ gradoSeleccionado.seccion }}"
-          DESDE {{ fechaInicio }} HASTA {{ fechaFin }}
-        </th>
-      </tr>
+      <tr></tr>
       <tr class="align-middle">
         <th style="text-align: center;">No</th>
         <th style="text-align: center;">NIE</th>
