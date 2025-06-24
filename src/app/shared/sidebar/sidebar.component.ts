@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./sidebar.component.css'],
 })
 export class SidebarComponent implements OnInit{
-  rolesUsuario: string[] = [];//ESTA ES LA OTRA COSA
+  rolesUsuario: string[] = [];//PARA RESTRINGIR
   private readonly _open = signal(false);
   constructor(
     private authService: AuthService //PARA RESTRINGIR
@@ -21,6 +21,12 @@ export class SidebarComponent implements OnInit{
   }
   BloquearDocente(): boolean {  //PARA RESTRINGIR
     return !this.rolesUsuario.includes('ROLE_DOCENTE');
+  }
+  BloquearDirectora(): boolean {  //PARA RESTRINGIR
+    return !this.rolesUsuario.includes('ROLE_DIRECTORA');
+  }
+  BloquearSecretaria(): boolean {  //PARA RESTRINGIR
+    return !this.rolesUsuario.includes('ROLE_SECRETARIA');
   }
   toggle() {
     this._open.update(v => !v);

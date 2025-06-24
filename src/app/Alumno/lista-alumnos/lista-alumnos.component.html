@@ -71,7 +71,7 @@
                 </small>
             </div>
 
-            <div class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
+            <div *ngIf="BloquearDocente()" class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
                 <div class="d-flex gap-2">
                     <!-- BOTÓN de función imprimirListado() -->
                     <button class="btn btn-secondary" 
@@ -115,7 +115,7 @@
                             <td>{{obtenerNombreCompletoGrado(alumno.grado)}}</td>
                             <td>
                                 <div class="d-flex justify-content-left">
-                                    <div>
+                                    <div *ngIf="BloquearDocente()">
                                         <a class="btn btn-success btn-sm mx-1"
                                             [routerLink]="['/alumnos/ver', alumno.idAlumno]"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Ver">
@@ -126,14 +126,14 @@
                                         [routerLink]="['/alumnos', alumno.idAlumno]">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a class="btn btn-danger btn-sm mx-1 delete-btn"
+                                    <a *ngIf="BloquearDocente()" class="btn btn-danger btn-sm mx-1 delete-btn"
                                          title="Eliminar"
                                         data-bs-toggle="modal" data-bs-target="#modalEliminar"
                                         (click)="abrirModalEliminar(alumno.idAlumno!)">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                     <!-- control -->
-                                    <button class="btn btn-secondary btn-sm mx-1" 
+                                    <button *ngIf="BloquearDocente()" class="btn btn-secondary btn-sm mx-1" 
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top" 
                                             title="Imprimir expediente individual"

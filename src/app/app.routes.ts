@@ -31,20 +31,30 @@ export const routes: Routes = [
       {
         path: 'paquetesescolares',
         component: PaqueteEscolarComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
       {
         path: 'paquetesescolares/agregar-paqueteescolar',
         component: AgregarPaqueteEscolarComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
       },
       {
-        path: 'asistenciaalumno', component:AgregarAsistenciaComponent,
+        path: 'asistenciaalumno', component: AgregarAsistenciaComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
       },
       {
-        path: 'asistenciaalumno/asistencia-lista', component:AsistenciaListaComponent,
+        path: 'asistenciaalumno/asistencia-lista', component: AsistenciaListaComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
       },
-      
+
       {
-        path: 'entrega-paquetes-escolares', component:EntregarPaqueteEscolarComponent,
+        path: 'entrega-paquetes-escolares', component: EntregarPaqueteEscolarComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_DOCENTE'] }
       },
 
       {
@@ -54,18 +64,22 @@ export const routes: Routes = [
       },
       {
         path: 'alumnos/agregarAlumno',
-        component:AgregarAlumnoComponent
+        component: AgregarAlumnoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
 
       {
         path: 'alumnos/ver/:id',
         loadComponent: () =>
           import('./Alumno/ver-alumno/ver-alumno.component').then(m => m.VerAlumnoComponent),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
 
       {
         path: 'alumnos/:id',
-        component:ActualizarAlumnoComponent
+        component: ActualizarAlumnoComponent
       },
 
       {
@@ -79,10 +93,14 @@ export const routes: Routes = [
           import('./Docente/lista-docentes/lista-docentes.component').then(
             (m) => m.ListaDocentesComponent
           ),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
       {
         path: 'docentes/agregarDocente',
         component: AgregarDocenteComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
       },
       {
         path: 'docentes/:dui',
@@ -95,8 +113,16 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] } // <-- Permitir solo estos roles
       },
-      { path: 'usuarios/nuevo', component: UsuarioFormComponent },
-      { path: 'usuarios/editar/:id', component: UsuarioFormComponent },
+      {
+        path: 'usuarios/nuevo', component: UsuarioFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
+      },
+      {
+        path: 'usuarios/editar/:id', component: UsuarioFormComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
+      },
       {
         path: 'forbidden',
         component: ForbiddenComponent // <- Página de acceso denegado
@@ -127,6 +153,6 @@ export const routes: Routes = [
     ],
   },
 
-  
+
   { path: '**', redirectTo: 'login' },
 ];

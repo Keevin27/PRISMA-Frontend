@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Grado } from '../../Models/grado';
 import { GradoService } from '../../Services/grado.service';
+import { AuthService } from '../../Auth/auth.service';
 
 @Component({
   selector: 'app-lista-alumnos',
@@ -15,6 +16,7 @@ import { GradoService } from '../../Services/grado.service';
   styleUrls: ['./lista-alumnos.component.css']
 })
 export class ListaAlumnosComponent implements OnInit {
+  rolesUsuario: string[] = [];//PARA RESTRINGIR
   alumnos: Alumno[] = [];
   todosLosAlumnos: Alumno[] = [];
   filtroAnio: string = '';
@@ -26,7 +28,8 @@ export class ListaAlumnosComponent implements OnInit {
   constructor(
     private alumnoServicio: AlumnoService,
     private gradoService: GradoService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService //PARA RESTRINGIR
   ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { mensaje?: string };
@@ -38,10 +41,14 @@ export class ListaAlumnosComponent implements OnInit {
 
   // Inicializa el componente
   ngOnInit(): void {
+    this.rolesUsuario = this.authService.getUserRoles(); //PARA RESTRINGIR
     this.obtenerAlumnos();
     if (this.mensaje) {
       setTimeout(() => this.mensaje = '', 2000);
     }
+  }
+  BloquearDocente(): boolean {  //PARA RESTRINGIR
+    return !this.rolesUsuario.includes('ROLE_DOCENTE');
   }
 
   // Obtiene todos los alumnos del servidor
