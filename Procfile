@@ -1,0 +1,1 @@
+web: npx http-server dist/prisma-frontend -p $PORT
