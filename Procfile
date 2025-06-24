@@ -1,1 +1,1 @@
-web: npx http-server dist/prisma-frontend -p $PORT
+web: npx http-server dist/prisma-frontend/browser -p $PORT --proxy http://localhost:$PORT?
