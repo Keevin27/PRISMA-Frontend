@@ -8,7 +8,7 @@ import { AsistenciaAlumno } from './asistencia-alumno';
 })
 export class AsistenciaAlumnoService {
 
-  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/AsisAlum/asistencia-alumno";
+  private baseURL = "http://localhost:8080/AsisAlum/asistencia-alumno";
 
   constructor(private httpClient: HttpClient) { }
 

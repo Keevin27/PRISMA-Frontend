@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradoService {
-  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Grado/grados"
+  private baseURL = "http://localhost:8080/Grado/grados"
 
   constructor(private httpClient:HttpClient) { }
 

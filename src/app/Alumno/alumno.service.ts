@@ -7,7 +7,7 @@ import { Alumno } from './alumno';
   providedIn: 'root'
 })
 export class AlumnoService {
-  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Alu"
+  private baseURL = "http://localhost:8080/Alu"
   
   constructor(private httpClient: HttpClient) { }
 

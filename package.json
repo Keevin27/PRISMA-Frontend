@@ -3,11 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "start": "node server.js",
-    "build": "ng build --configuration=production",
-    "heroku-postbuild": "npm install --omit=optional --include=dev && npm run build"
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
@@ -19,17 +18,12 @@
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
-    "@angular/cli": "^17.0.0",
-    "@angular/compiler-cli": "^17.0.0",
-    "typescript": "~5.2.2",
     "bootstrap": "^5.3.7",
-    "express": "^5.1.0",
     "jwt-decode": "^4.0.0",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.22.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.2",
-    "esbuild": "^0.19.0"
+    "zone.js": "~0.14.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.0",
