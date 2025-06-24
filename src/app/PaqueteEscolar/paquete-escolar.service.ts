@@ -8,7 +8,7 @@ import { PaqueteEscolar } from './paquete-escolar';
 })
 export class PaqueteEscolarService {
 
-  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/PacEsc/paquetes-escolares"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/PaqEsc/paquetes-escolares"
 
   constructor(private httpClient :HttpClient) { }
 
