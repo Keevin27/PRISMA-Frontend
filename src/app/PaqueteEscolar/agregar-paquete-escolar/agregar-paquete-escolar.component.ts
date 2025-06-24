@@ -4,7 +4,6 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { PaqueteEscolarService } from '../paquete-escolar.service';
-import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 
 @Component({
