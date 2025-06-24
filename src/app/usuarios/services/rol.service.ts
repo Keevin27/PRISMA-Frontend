@@ -11,7 +11,7 @@ export interface Rol {
   providedIn: 'root'
 })
 export class RolService {
-  private apiUrl = 'http://localhost:8080/api/roles';
+  private apiUrl = 'https://prisma-backend-9dd71ec0c985.herokuapp.com/api/roles';
 
   constructor(private http: HttpClient) {}
 
