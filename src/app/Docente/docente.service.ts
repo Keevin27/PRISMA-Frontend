@@ -10,8 +10,8 @@ import { AnexoDTO } from './anexo-dto';
 })
 export class DocenteService {
   //obtiene listado de docentes de backend
-  private baseURL = "http://localhost:8080/expedienteDocente/docentes"
-  private baseAnexURL ="http://localhost:8080/anexos/docente"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/docentes"
+  private baseAnexURL ="https://prisma-backend-9dd71ec0c985.herokuapp.com/anexos/docente"
 
   constructor(private httpClient : HttpClient) {
    }

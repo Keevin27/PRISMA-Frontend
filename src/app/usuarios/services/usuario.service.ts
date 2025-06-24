@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class UsuarioService {
 
-  private apiUrl = 'http://localhost:8080/api/usuarios';
+  private apiUrl = 'https://prisma-backend-9dd71ec0c985.herokuapp.com/api/usuarios';
 
   constructor(private http: HttpClient) {}
 
