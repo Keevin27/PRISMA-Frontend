@@ -11,6 +11,7 @@ import { Grado } from '../../Models/grado';
 import { GradoService } from '../../Services/grado.service';
 import { AlumnopaqueteService } from '../alumnopaquete.service';
 import { Alumnopaquete } from '../alumnopaquete';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-entregar-paquete-escolar',
@@ -27,7 +28,7 @@ export class EntregarPaqueteEscolarComponent {
   paquetesEntregados: PaqueteEscolar[] = [];//Aqui se guardan los paquetes que ya fueron entregados en la seccion
   paquetesaEntregar: PaqueteEscolar[] = [];//Paquetes a entregar, se cargaran en el select
 
-  paqueteSeleccionado!: PaqueteEscolar;
+  paqueteSeleccionado: PaqueteEscolar | null = null;
   idGradoSeleccionado: string = '';
   anioActual: number = new Date().getFullYear();
 
@@ -39,13 +40,13 @@ export class EntregarPaqueteEscolarComponent {
     this.obtenerPaquetesActivos();
     this.obtenerGradosAnyoActual(this.anioActual);
   }
-
+  //Obtener lista de paquetes activos
   private obtenerPaquetesActivos() {
     this.paqueteServicio.obtenerListaDePaquetesActivos().subscribe(dato => {
       this.paquetesescolares = dato;
     })
   }
-
+  //Obtener grados del anyo actual
   private obtenerGradosAnyoActual(anioActual: number) {
     this.gradoServicio.obtenerGradosPorAnyo(anioActual).subscribe(dato => {
       this.grados = dato;
@@ -57,6 +58,7 @@ export class EntregarPaqueteEscolarComponent {
       this.alumnos = dato;
     })
     this.obtenerAsignaciones();
+    this.paqueteSeleccionado = null;
 
   }
   //Metodo para traer las asginaciones de AlumnoPaquete del grado seleccionado
@@ -95,23 +97,88 @@ export class EntregarPaqueteEscolarComponent {
   }
   //Se ejecuta para generar nuevas asignaciones para un paquete escolar
   generarListaEntrega() {
-    this.alumnos.forEach(alumno => {
-      const asignacion: Alumnopaquete = {
+    if (!this.paqueteSeleccionado) return;
+    const asignaciones = this.alumnos.map(alumno => {
+      return this.alumnopaqueteServicio.agregarAlumnoPaquete({
         paquete_entregado: false,
         alumno: { idAlumno: alumno.idAlumno } as Alumno,
-        paqueteEscolar: { id_paquete_e: this.paqueteSeleccionado.id_paquete_e } as PaqueteEscolar
-
+        paqueteEscolar: { id_paquete_e: this.paqueteSeleccionado!.id_paquete_e } as PaqueteEscolar
+      });
+    });
+    //Porcion de codigo que da la "pausa" para refrescar la tabla con las nuevas asignaciones
+    forkJoin(asignaciones).subscribe({
+      next: res => {
+        console.log("Todas las asignaciones creadas", res);
+        this.obtenerAsignaciones();
+        this.paqueteSeleccionado = null;
+      },
+      error: err => {
+        console.error("Error al crear asignaciones", err);
       }
-      this.alumnopaqueteServicio.agregarAlumnoPaquete(asignacion).subscribe({
+    });
+  }
+  //Actualizar estado de la asignacion
+  cambiarvalor(a: Alumno, p: PaqueteEscolar) {
+    const asignacion = this.buscarAsignacion(a, p);
+    if (!asignacion) {
+      console.error('No se encontró asignación');
+      return;
+    }
+    asignacion.paquete_entregado = !asignacion.paquete_entregado;
+    this.alumnopaqueteServicio.actualizarAlumnoPaquete(asignacion.id_asignacion!, asignacion)
+      .subscribe({
         next: res => {
-          console.log("Asignación creada", res);
+          console.log("Asignación actualizada correctamente", res);
         },
         error: err => {
-          console.error("Error al crear asignación", err);
+          console.error("Error al actualizar asignación", err);
         }
-      })
-    });
-    this.obtenerAsignaciones();
-    console.log("llegueee");
+      });
   }
+  buscarAsignacion(alumno: Alumno, paquete: PaqueteEscolar): Alumnopaquete | undefined {
+    console.log("llegamso");
+    return this.asignaciones.find(a =>
+      a.alumno.idAlumno === alumno.idAlumno &&
+      a.paqueteEscolar.id_paquete_e === paquete.id_paquete_e
+    );
+
+  }
+
+
+  imprimirTabla() {
+  const tablaHTML = document.querySelector('.table')?.outerHTML;
+
+  if (!tablaHTML) {
+    console.error('No se encontro la tabla para imprimir');
+    return;
+  }
+
+  const ventana = window.open('', '_blank', 'width=900,height=600');
+
+  if (ventana) {
+    ventana.document.write(`
+      <html>
+        <head>
+          <title>Listado de alumnos</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+            th { background-color: #eee; }
+          </style>
+        </head>
+        <body>
+          <h2>Listado de alumnos</h2>
+          ${tablaHTML}
+        </body>
+      </html>
+    `);
+    ventana.document.close();
+    ventana.print();
+  } else {
+    alert("No se pudo abrir la ventana de impresion");
+  }
+}
+
+
 }
