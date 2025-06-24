@@ -26,6 +26,7 @@ export class ActualizarDocenteComponent implements OnInit {
     datos_Anexo_D: '',
     fecha_Anexo_D: new Date().toISOString().slice(0, 10)
   };
+  
 
   constructor(private docenteServicio: DocenteService, private router: Router, private route: ActivatedRoute) { }
   duiDocente: string = '';
@@ -92,10 +93,7 @@ export class ActualizarDocenteComponent implements OnInit {
       }
     );
   }
-  descargarAnexo(id?: number): void {
-    const url = `http://localhost:8080/anexos/docente/${id}/archivo`;
-    window.open(url, '_blank');
-  }
+
   toggleAnexos(event: Event) {
     const input = event.target as HTMLInputElement;
     this.mostrarAnexos = input.checked;
@@ -127,20 +125,75 @@ export class ActualizarDocenteComponent implements OnInit {
         fecha_Anexo_D: new Date().toISOString().slice(0, 10)
       };
     } else {
-      alert('Debes ingresar el nombre y el archivo del anexo.');
+      this.mensaje=`Debe Ingresar el nombre del anexo`;
+      setTimeout(() => {
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+
+        // Ocultar mensaje después de unos segundos
+        setTimeout(() => {
+          this.mensaje = '';
+        }, 3000);
+
+      }, 100);
+
     }
   }
-  eliminarAnexo(id: number): void {
-    if (confirm('¿Estás seguro de eliminar este anexo del servidor?')) {
-      this.docenteServicio.eliminarAnexo(id).subscribe({
-        next: () => {
-          this.anexos = this.anexos.filter(a => a.id_Anexo_D !== id);
-          console.log('Anexo eliminado del servidor');
-        },
-        error: (err) => console.error('Error eliminando anexo', err)
-      });
-    }
+  
+  descargarAnexo(id?: number): void {
+  if (!id) return;
+    this.docenteServicio.descargarAnexo(id).subscribe(
+      response => {
+        const blob = response.body!;
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'anexo.pdf';
+
+        // Extraer el nombre del archivo desde el header (si existe)
+        if (contentDisposition) {
+          const matches = /filename="(.+)"/.exec(contentDisposition);
+          if (matches && matches[1]) {
+            filename = matches[1];
+          }
+        }
+        // Crear enlace invisible para forzar descarga
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error => {
+        console.error('Error al descargar el anexo:', error);
+      }
+    );
   }
+  //variable temporal para eliminar anexo
+  idAnexoAEliminar: number | null = null;
+
+
+  abrirModalEliminar(id: number) {
+    this.idAnexoAEliminar = id;
+  }
+
+
+  confirmarEliminacionAnexo() {
+    if (!this.idAnexoAEliminar) return;
+
+    this.docenteServicio.eliminarAnexo(this.idAnexoAEliminar).subscribe({
+      next: () => {
+        this.anexos = this.anexos.filter(a => a.id_Anexo_D !== this.idAnexoAEliminar);
+        console.log('Anexo eliminado del servidor');
+        this.idAnexoAEliminar = null; // limpiar
+      },
+      error: (err) => console.error('Error eliminando anexo', err)
+    });
+  }
+
+
   validarDui(event: Event) {
     const input = event.target as HTMLInputElement;
 

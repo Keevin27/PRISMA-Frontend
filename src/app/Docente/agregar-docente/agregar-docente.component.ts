@@ -35,7 +35,7 @@ export class AgregarDocenteComponent implements OnInit {
   mensaje: string = '';//mensajito que se presentara en el flotante
   onSubmit(form: NgForm) {
     if (!form.valid || !this.esMayorDeEdad(this.docente.fecha_Nacimiento_D) || !this.esCorreoValido(this.docente.correo_Docente)) {
-      this.mensaje = 'No se ha podido registrar el paquete escolar.';//agregar texto de que mostrara en el flotante
+      this.mensaje = 'No se ha podido ingresar el docente.';//agregar texto de que mostrara en el flotante
       setTimeout(() => {
 
         window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje

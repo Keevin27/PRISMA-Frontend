@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Docente } from '../docente';
 import { DocenteService } from '../docente.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../Auth/auth.service';
 
 @Component({
   selector: 'app-lista-docentes',
@@ -11,12 +12,13 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './lista-docentes.component.html',
   styleUrls: ['./lista-docentes.component.css']
 })
-export class ListaDocentesComponent {
+export class ListaDocentesComponent implements OnInit{
+  rolesUsuario: string[] = [];//PARA RESTRINGIR
   docentes:Docente[]; 
 
 
   mensaje: string = '';
-  constructor(private docenteServicio: DocenteService, private router: Router) {
+  constructor(private docenteServicio: DocenteService, private router: Router, private authService: AuthService) {//PARA RESTRINGIR
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { mensaje?: string };
     if (state?.mensaje) {
@@ -25,9 +27,13 @@ export class ListaDocentesComponent {
   }
 
   ngOnInit(): void {
+    this.rolesUsuario = this.authService.getUserRoles(); //PARA RESTRINGIR
     this.obtenerDocentes();
     if (this.mensaje) {
     setTimeout(() => this.mensaje = '', 2000);}
+  }
+  BloquearSecretaria(): boolean {  //PARA RESTRINGIR
+    return !this.rolesUsuario.includes('ROLE_SECRETARIA');
   }
 
   private obtenerDocentes() {

@@ -1,0 +1,68 @@
+<div class="container my-4 py-5">
+  <h2>Crear Usuario</h2>
+
+  <form (ngSubmit)="guardar()" class="row g-3 needs-validation" novalidate>
+
+    <!-- Correo -->
+    <div class="col-md-6">
+      <label for="correo" class="form-label">Correo</label>
+      <input
+        type="email"
+        id="correo"
+        class="form-control"
+        [(ngModel)]="usuario.correoUsuario"
+        name="correo"
+        required />
+      <div class="invalid-feedback">El correo es requerido.</div>
+    </div>
+
+    <!-- Contraseña -->
+    <div class="col-md-6">
+      <label for="password" class="form-label">Contraseña</label>
+      <input
+        type="password"
+        id="password"
+        class="form-control"
+        [(ngModel)]="usuario.passwordUsuario"
+        name="password"
+        required />
+      <div class="invalid-feedback">La contraseña es requerida.</div>
+    </div>
+
+    <!-- Activo -->
+    <div class="col-md-3 d-flex align-items-center">
+      <div class="form-check mt-3">
+        <input
+          type="checkbox"
+          id="activo"
+          class="form-check-input"
+          [(ngModel)]="usuario.usuarioActivo"
+          name="activo" />
+        <label for="activo" class="form-check-label">Activo</label>
+      </div>
+    </div>
+
+    <!-- Roles -->
+    <div class="col-md-9">
+      <label for="rolSelect" class="form-label">Rol</label>
+      <select
+        id="rolSelect"
+        class="form-select"
+        [(ngModel)]="usuario.rol"
+        name="rol"
+        required>
+        <option *ngFor="let rol of rolesDisponibles" [ngValue]="rol">
+          {{ rol.nombre.replace('ROLE_', '').toLowerCase() | titlecase }}
+        </option>
+      </select>
+      <div class="invalid-feedback">Seleccione un rol.</div>
+    </div>
+
+    <!-- Botón Guardar -->
+    <div class="col-12 d-flex justify-content-end">
+      <button type="submit" class="btn btn-success"> Guardar
+      </button>
+    </div>
+
+  </form>
+</div>

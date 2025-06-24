@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Alumno } from '../../Alumno/alumno';
 import { PaqueteEscolarService } from '../paquete-escolar.service';
@@ -12,6 +12,7 @@ import { GradoService } from '../../Services/grado.service';
 import { AlumnopaqueteService } from '../alumnopaquete.service';
 import { Alumnopaquete } from '../alumnopaquete';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../Auth/auth.service';
 
 @Component({
   selector: 'app-entregar-paquete-escolar',
@@ -20,7 +21,8 @@ import { forkJoin } from 'rxjs';
   templateUrl: './entregar-paquete-escolar.component.html',
   styleUrl: './entregar-paquete-escolar.component.css'
 })
-export class EntregarPaqueteEscolarComponent {
+export class EntregarPaqueteEscolarComponent implements OnInit {
+  rolesUsuario: string[] = [];
   alumnos: Alumno[] = []; //Almancena la lista de alumnos de un grado que se seleccione
   paquetesescolares: PaqueteEscolar[] = []; //Almacenara la lista de paquetes escolares activos
   grados: Grado[] = []; //Lista de grados de anyo actual
@@ -34,11 +36,16 @@ export class EntregarPaqueteEscolarComponent {
 
   constructor(private paqueteServicio: PaqueteEscolarService,
     private alumnoServicio: AlumnoService, private gradoServicio: GradoService,
-    private alumnopaqueteServicio: AlumnopaqueteService) { }
+    private alumnopaqueteServicio: AlumnopaqueteService, private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
+    this.rolesUsuario = this.authService.getUserRoles(); //PARA RESTRINGIR
     this.obtenerPaquetesActivos();
     this.obtenerGradosAnyoActual(this.anioActual);
+  }
+  BloquearDocente(): boolean {  //PARA RESTRINGIR
+    return !this.rolesUsuario.includes('ROLE_DOCENTE');
   }
   //Obtener lista de paquetes activos
   private obtenerPaquetesActivos() {

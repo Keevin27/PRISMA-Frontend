@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Alumno } from '../alumno';
 import { AlumnoService } from '../alumno.service';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Grado } from '../../Models/grado';
 import { GradoService } from '../../Services/grado.service';
+import { AuthService } from '../../Auth/auth.service';
 
 @Component({
   selector: 'app-lista-alumnos',
@@ -15,6 +16,7 @@ import { GradoService } from '../../Services/grado.service';
   styleUrls: ['./lista-alumnos.component.css']
 })
 export class ListaAlumnosComponent implements OnInit {
+  rolesUsuario: string[] = [];//PARA RESTRINGIR
   alumnos: Alumno[] = [];
   todosLosAlumnos: Alumno[] = [];
   filtroAnio: string = '';
@@ -25,12 +27,28 @@ export class ListaAlumnosComponent implements OnInit {
 
   constructor(
     private alumnoServicio: AlumnoService,
-    private gradoService: GradoService
-  ) {}
+    private gradoService: GradoService,
+    private router: Router,
+    private authService: AuthService //PARA RESTRINGIR
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state as { mensaje?: string };
+    if (state?.mensaje) {
+      this.mensaje = state.mensaje;
+    }
+  }
+  mensaje: string = '';
 
   // Inicializa el componente
   ngOnInit(): void {
+    this.rolesUsuario = this.authService.getUserRoles(); //PARA RESTRINGIR
     this.obtenerAlumnos();
+    if (this.mensaje) {
+      setTimeout(() => this.mensaje = '', 2000);
+    }
+  }
+  BloquearDocente(): boolean {  //PARA RESTRINGIR
+    return !this.rolesUsuario.includes('ROLE_DOCENTE');
   }
 
   // Obtiene todos los alumnos del servidor
@@ -53,13 +71,13 @@ export class ListaAlumnosComponent implements OnInit {
   // Extrae los años disponibles para el filtro
   cargarOpciones(): void {
     const aniosSet = new Set<number>();
-    
+
     this.todosLosAlumnos.forEach(alumno => {
       if (alumno.grado?.anioAcademico?.anio) {
         aniosSet.add(alumno.grado.anioAcademico.anio);
       }
     });
-    
+
     this.aniosDisponibles = Array.from(aniosSet).sort((a, b) => b - a);
     console.log('Años disponibles:', this.aniosDisponibles);
   }
@@ -68,11 +86,11 @@ export class ListaAlumnosComponent implements OnInit {
   onAnioChange(): void {
     this.filtroGrado = '';
     this.gradosDisponibles = [];
-    
+
     if (this.filtroAnio) {
       this.cargarGradosPorAnio(parseInt(this.filtroAnio));
     }
-    
+
     this.filtrarAlumnos();
   }
 
@@ -107,7 +125,7 @@ export class ListaAlumnosComponent implements OnInit {
 
       return cumpleFiltros;
     });
-    
+
     console.log(`Alumnos filtrados: ${this.alumnos.length} de ${this.todosLosAlumnos.length}`);
   }
 
@@ -119,16 +137,26 @@ export class ListaAlumnosComponent implements OnInit {
     this.alumnos = [...this.todosLosAlumnos];
   }
 
-  // Elimina un alumno después de confirmar
-  eliminarAlumno(id: number): void {
-    if (confirm('¿Estás seguro de eliminar este alumno?')) {
-      this.alumnoServicio.eliminarAlumno(id).subscribe({
+  //Eliminar Alumno
+  idAlumnoAEliminar: number | null = null;
+  abrirModalEliminar(id: number) {
+    this.idAlumnoAEliminar = id;
+  }
+  confirmarEliminacionAlumno() {
+    if (this.idAlumnoAEliminar != null) {
+      this.alumnoServicio.eliminarAlumno(this.idAlumnoAEliminar).subscribe({
         next: () => {
-          this.obtenerAlumnos();
+
+          this.alumnos = this.alumnos.filter(a => a.idAlumno !== this.idAlumnoAEliminar);
+          this.mensaje = `Se elimino el alumno.`;
+
+          // Oculta el mensaje después de 2 segundos
+          setTimeout(() => {
+            this.mensaje = '';
+          }, 2000);
         },
         error: (error) => {
           console.error('Error al eliminar alumno:', error);
-          alert('Error al eliminar el alumno');
         }
       });
     }
@@ -137,92 +165,89 @@ export class ListaAlumnosComponent implements OnInit {
   // Construye el nombre completo del grado con sección
   obtenerNombreCompletoGrado(grado: Grado): string {
     if (!grado) return '';
-    
+
     let nombreCompleto = '';
-    
+
     if (grado.nombre_grado) {
       nombreCompleto += grado.nombre_grado;
     }
-    
+
     if (grado.seccion) {
       nombreCompleto += ` - ${grado.seccion}`;
     }
-    
+
     return nombreCompleto;
   }
 
   // Obtiene el nombre del grado seleccionado en el filtro
   obtenerGradoSeleccionado(): string {
     if (!this.filtroGrado) return '';
-    
+
     const grado = this.gradosDisponibles.find(g => g.id_grado?.toString() === this.filtroGrado);
     return grado ? this.obtenerNombreCompletoGrado(grado) : '';
   }
 
   // PARA IMPRIMIR
-  
-  imprimirExpedienteIndividual(idAlumno: number): void {
-  const url = `http://localhost:8080/Alu/alumnos/${idAlumno}/imprimir`;
-  this.abrirPDFEnNuevaVentana(url);
-}
-  // Imprimir todos los alumnos (sin filtros)
-  imprimirTodosLosAlumnos(): void {
-    const url = 'http://localhost:8080/Alu/alumnos/imprimir-listado';
-    this.abrirPDFEnNuevaVentana(url);
+
+  imprimirExpedienteIndividual(idAlumno: number, nombre: string): void {
+    this.alumnoServicio.imprimirExpedienteAlumno(idAlumno).subscribe(
+      (pdfBlob) => {
+        const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `expediente_alumno_${nombre}_${idAlumno}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      (error) => {
+        console.error('Error al generar el PDF del alumno:', error);
+      }
+    );
   }
 
-  // Imprimir solo los alumnos filtrados
+  imprimirTodosLosAlumnos(): void {
+    this.alumnoServicio.imprimirListadoAlumnos().subscribe(
+      (pdfBlob) => {
+        const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `listado_alumnos.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      (error) => {
+        console.error('Error al generar el PDF del listado de alumnos:', error);
+      }
+    );
+  }
+
   imprimirAlumnosFiltrados(): void {
     if (this.hayFiltrosActivos()) {
-      // Si hay filtros, usar el endpoint con parámetros
-      let url = 'http://localhost:8080/Alu/alumnos/imprimir-listado-filtrado?';
-      const params: string[] = [];
-      
-      if (this.filtroAnio) {
-        params.push(`anio=${encodeURIComponent(this.filtroAnio)}`);
-      }
-      
-      if (this.filtroGrado) {
-        params.push(`grado=${encodeURIComponent(this.filtroGrado)}`);
-      }
-      
-      url += params.join('&');
-      this.abrirPDFEnNuevaVentana(url);
+      const filtros: any = {};
+      if (this.filtroAnio) filtros.anio = this.filtroAnio;
+      if (this.filtroGrado) filtros.grado = this.filtroGrado;
+
+      this.alumnoServicio.imprimirListadoAlumnosFiltrado(filtros).subscribe(
+        (pdfBlob) => {
+          const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `listado_alumnos_filtrado.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        (error) => {
+          console.error('Error al generar el PDF filtrado:', error);
+        }
+      );
     } else {
-      // Si no hay filtros, imprimir todos
       this.imprimirTodosLosAlumnos();
     }
   }
 
-  // Método principal que se llama desde el botón "Imprimir"
-  imprimirListado(): void {
-    if (this.totalAlumnos === 0) {
-      alert('No hay alumnos para imprimir');
-      return;
-    }
-
-    if (this.alumnosFiltrados === 0) {
-      alert('No hay alumnos que coincidan con los filtros para imprimir');
-      return;
-    }
-
-    // Imprimir según los filtros actuales
-    this.imprimirAlumnosFiltrados();
-  }
-
-  // Método auxiliar para abrir PDF en nueva ventana
-  private abrirPDFEnNuevaVentana(url: string): void {
-    try {
-      const nuevaVentana = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-      if (!nuevaVentana) {
-        // Si el popup fue bloqueado, intentar con location.href
-        alert('Por favor, permite ventanas emergentes para ver el PDF o usa Ctrl+Click para abrir en nueva pestaña');
-      }
-    } catch (error) {
-      console.error('Error al abrir PDF:', error);
-      alert('Error al generar el PDF. Por favor, intenta nuevamente.');
-    }
-  }
 
   // Método auxiliar para verificar si hay filtros activos
   private hayFiltrosActivos(): boolean {
