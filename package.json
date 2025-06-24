@@ -7,7 +7,7 @@
     "test": "ng test",
     "start": "node server.js",
     "build": "ng build --configuration=production",
-    "heroku-postbuild": "npm install --omit=optional && npm run build"
+    "heroku-postbuild": "npm install --omit=optional --include=dev && npm run build"
   },
   "private": true,
   "dependencies": {
