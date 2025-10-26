@@ -5,7 +5,7 @@
                 <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">Gestión
-                        de Alumnos
+                    de Alumnos
                 </li>
             </ol>
         </nav>
@@ -26,16 +26,16 @@
                     <form>
                         <div class="mb-2">
                             <label for="filtro_anio" class="form-label small">Año:</label>
-                            <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio" 
-                                    [(ngModel)]="filtroAnio" (change)="onAnioChange()">
+                            <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio"
+                                [(ngModel)]="filtroAnio" (change)="onAnioChange()">
                                 <option value="">Seleccionar año...</option>
                                 <option *ngFor="let anio of aniosDisponibles" [value]="anio">{{anio}}</option>
                             </select>
                         </div>
                         <div class="mb-2">
                             <label for="filtro_grado" class="form-label small">Grado:</label>
-                            <select id="filtro_grado" class="form-select form-select-sm" name="filtro_grado" 
-                                    [(ngModel)]="filtroGrado" (change)="filtrarAlumnos()" [disabled]="!filtroAnio">
+                            <select id="filtro_grado" class="form-select form-select-sm" name="filtro_grado"
+                                [(ngModel)]="filtroGrado" (change)="filtrarAlumnos()" [disabled]="!filtroAnio">
                                 <option value="">
                                     {{!filtroAnio ? 'Primero selecciona un año...' : 'Seleccionar grado...'}}
                                 </option>
@@ -62,7 +62,7 @@
             <!-- Mostrar filtros activos -->
             <div class="mb-2" *ngIf="filtroAnio || filtroGrado">
                 <small class="text-muted">
-                    <i class="bi bi-funnel-fill"></i> Filtros activos: 
+                    <i class="bi bi-funnel-fill"></i> Filtros activos:
                     <span *ngIf="filtroAnio" class="badge bg-primary me-1">Año: {{filtroAnio}}</span>
                     <span *ngIf="filtroGrado" class="badge bg-primary me-1">Grado: {{obtenerGradoSeleccionado()}}</span>
                     <button type="button" class="btn btn-link btn-sm p-0 ms-2" (click)="limpiarFiltros()">
@@ -74,16 +74,12 @@
             <div *ngIf="BloquearDocente()" class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
                 <div class="d-flex gap-2">
                     <!-- BOTÓN de función imprimirListado() -->
-                    <button class="btn btn-secondary" 
-                            data-bs-toggle="tooltip" 
-                            data-bs-placement="top" 
-                            [title]="obtenerDescripcionImpresion()"
-                            (click)="imprimirAlumnosFiltrados()">
+                    <button class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        [title]="obtenerDescripcionImpresion()" (click)="imprimirAlumnosFiltrados()">
                         <i class="bi bi-printer"></i> Imprimir
                     </button>
-                    <a class="btn btn-primary" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Agregar un nuevo alumno"
-                        routerLink="/alumnos/agregarAlumno" routerLinkActive="active">
+                    <a class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Agregar un nuevo alumno" routerLink="/alumnos/agregarAlumno" routerLinkActive="active">
                         <i class="bi bi-person-plus"></i> Agregar
                     </a>
                 </div>
@@ -103,41 +99,40 @@
                             <th>NIE</th>
                             <th>Nombre</th>
                             <th>Apellidos</th>
-                            <th>Grado</th>
+                            <!-- <th>Grado</th> -->
                             <th style="width: 15%; text-align: center;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let alumno of alumnos">
-                            <td>{{alumno.nie}}</td>
-                            <td>{{alumno.nombre_alumno}}</td>
-                            <td>{{alumno.apellido_alumno}}</td>
-                            <td>{{obtenerNombreCompletoGrado(alumno.grado)}}</td>
+                        <tr *ngFor="let matricula of matriculas">
+                            <td>{{matricula.alumno.nie}}</td>
+                            <td>{{matricula.alumno.nombre_alumno}}</td>
+                            <td>{{matricula.alumno.apellido_alumno}}</td>
+                            <!-- <td>{{obtenerNombreCompletoGrado(alumno.grado)}}</td> ALUMNO YA NO TIENE GRADO-->
                             <td>
                                 <div class="d-flex justify-content-left">
                                     <div *ngIf="BloquearDocente()">
                                         <a class="btn btn-success btn-sm mx-1"
-                                            [routerLink]="['/alumnos/ver', alumno.idAlumno]"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Ver">
+                                            [routerLink]="['/alumnos/ver', matricula.alumno.idAlumno]" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Ver">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </div>
-                                    <a class="btn btn-primary btn-sm mx-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar"
-                                        [routerLink]="['/alumnos', alumno.idAlumno]">
+                                    <a class="btn btn-primary btn-sm mx-1" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Editar"
+                                        [routerLink]="['/alumnos', matricula.alumno.idAlumno]">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a *ngIf="BloquearDocente()" class="btn btn-danger btn-sm mx-1 delete-btn"
-                                         title="Eliminar"
-                                        data-bs-toggle="modal" data-bs-target="#modalEliminar"
-                                        (click)="abrirModalEliminar(alumno.idAlumno!)">
+                                        title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                                        (click)="abrirModalEliminar(matricula.alumno.idAlumno!)">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                     <!-- control -->
-                                    <button *ngIf="BloquearDocente()" class="btn btn-secondary btn-sm mx-1" 
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top" 
-                                            title="Imprimir expediente individual"
-                                            (click)="imprimirExpedienteIndividual(alumno.idAlumno,alumno.nombre_alumno)">
+                                    <button *ngIf="BloquearDocente()" class="btn btn-secondary btn-sm mx-1"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Imprimir expediente individual"
+                                        (click)="imprimirExpedienteIndividual(matricula.alumno.idAlumno, matricula.alumno.nombre_alumno)">
                                         <i class="bi bi-printer"></i>
                                     </button>
                                 </div>
@@ -146,7 +141,8 @@
                     </tbody>
                 </table>
 
-                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="alumnosFiltrados === 0 && totalAlumnos > 0">
+                <div class="alert alert-info alert-dismissible fade show mt-1"
+                    *ngIf="alumnosFiltrados === 0 && totalAlumnos > 0">
                     <i class="bi bi-funnel"></i>
                     <label>No hay alumnos que coincidan con los filtros aplicados</label>
                     <button type="button" class="btn btn-link p-0 ms-2" (click)="limpiarFiltros()">
@@ -172,7 +168,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                ¿Estás seguro que deseas eliminar este Alumno?
+                <p><strong>¿Estás seguro que deseas eliminar este alumno?</strong></p>
+                <p>Esta acción puede afectar registros anteriores y no se puede deshacer.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
