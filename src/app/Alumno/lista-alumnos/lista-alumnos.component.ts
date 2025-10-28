@@ -7,6 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { Grado } from '../../Models/grado';
 import { GradoService } from '../../Services/grado.service';
 import { AuthService } from '../../Auth/auth.service';
+import { AnioAcademicoService } from '../../Services/anio-academico.service';
+import { AnioAcademico } from '../../Models/anio-academico';
+import { Matricula } from '../../Models/matricula';
+import { MatriculaService } from '../../Services/matricula.service';
 
 @Component({
   selector: 'app-lista-alumnos',
@@ -17,17 +21,21 @@ import { AuthService } from '../../Auth/auth.service';
 })
 export class ListaAlumnosComponent implements OnInit {
   rolesUsuario: string[] = [];//PARA RESTRINGIR
-  alumnos: Alumno[] = [];
-  todosLosAlumnos: Alumno[] = [];
+  // alumnos: Alumno[] = [];
+  // todosLosAlumnos: Alumno[] = [];
   filtroAnio: string = '';
   filtroGrado: string = '';
-  aniosDisponibles: number[] = [];
+  aniosDisponibles: AnioAcademico[] = [];
+  todasLasMatriculas: Matricula[] = [];
+  matriculas: Matricula[] = [];
   gradosDisponibles: Grado[] = [];
   anioActual: number = new Date().getFullYear();
 
   constructor(
     private alumnoServicio: AlumnoService,
     private gradoService: GradoService,
+    private anioAcademicoService: AnioAcademicoService,
+    private matriculaService: MatriculaService,
     private router: Router,
     private authService: AuthService //PARA RESTRINGIR
   ) {
@@ -53,33 +61,46 @@ export class ListaAlumnosComponent implements OnInit {
 
   // Obtiene todos los alumnos del servidor
   obtenerAlumnos(): void {
-    this.alumnoServicio.obtenerListaDeAlumnos().subscribe({
-      next: (data: Alumno[]) => {
-        console.log('Datos recibidos del servidor:', data);
-        this.todosLosAlumnos = data || [];
-        this.alumnos = [...this.todosLosAlumnos];
+
+    this.matriculaService.obtenerMatriculas().subscribe({
+      next: (data: Matricula[]) => {
+        this.todasLasMatriculas = data || [];
+        this.matriculas = [...this.todasLasMatriculas];
         this.cargarOpciones();
       },
-      error: (error) => {
-        console.error('Error al obtener alumnos:', error);
-        this.todosLosAlumnos = [];
-        this.alumnos = [];
+      error:(error) => {
+        console.error('ERROR AL OBTENER MATRICULAS', error);
+        this.todasLasMatriculas = [];
+        this.matriculas = [];
       }
-    });
+    })
+
+    // this.alumnoServicio.obtenerListaDeAlumnos().subscribe({
+    //   next: (data: Alumno[]) => {
+    //     console.log('Datos recibidos del servidor:', data);
+    //     this.todosLosAlumnos = data || [];
+    //     this.alumnos = [...this.todosLosAlumnos];
+    //     this.cargarOpciones();
+    //   },
+    //   error: (error) => {
+    //     console.error('Error al obtener alumnos:', error);
+    //     this.todosLosAlumnos = [];
+    //     this.alumnos = [];
+    //   }
+    // });
   }
 
   // Extrae los años disponibles para el filtro
   cargarOpciones(): void {
-    const aniosSet = new Set<number>();
 
-    this.todosLosAlumnos.forEach(alumno => {
-      if (alumno.grado?.anioAcademico?.anio) {
-        aniosSet.add(alumno.grado.anioAcademico.anio);
+    this.anioAcademicoService.obtenerAniosAcademicos().subscribe({
+      next: (data: AnioAcademico[]) => {
+        this.aniosDisponibles = data || [];
+      },
+      error: () => {
+        this.gradosDisponibles = [];
       }
-    });
-
-    this.aniosDisponibles = Array.from(aniosSet).sort((a, b) => b - a);
-    console.log('Años disponibles:', this.aniosDisponibles);
+    })
   }
 
   // Maneja el cambio de filtro por año
@@ -110,23 +131,40 @@ export class ListaAlumnosComponent implements OnInit {
 
   // Filtra la lista de alumnos según los criterios seleccionados
   filtrarAlumnos(): void {
-    this.alumnos = this.todosLosAlumnos.filter(alumno => {
-      let cumpleFiltros = true;
 
+    this.matriculas = this.todasLasMatriculas.filter(matricula => {
+      let cumplioFiltros = true;
       if (this.filtroAnio) {
-        const anioAlumno = alumno.grado?.anioAcademico?.anio?.toString();
-        cumpleFiltros = cumpleFiltros && (anioAlumno === this.filtroAnio);
+        const anio = matricula.grado?.anioAcademico?.anio?.toString();
+        cumplioFiltros = cumplioFiltros && (anio === this.filtroAnio);
       }
 
       if (this.filtroGrado) {
-        const gradoAlumno = alumno.grado?.id_grado?.toString();
-        cumpleFiltros = cumpleFiltros && (gradoAlumno === this.filtroGrado);
+        const gradoseleccionado = matricula.grado?.id_grado?.toString();
+        cumplioFiltros = cumplioFiltros && (gradoseleccionado === this.filtroGrado);
       }
 
-      return cumpleFiltros;
-    });
+      return cumplioFiltros;
 
-    console.log(`Alumnos filtrados: ${this.alumnos.length} de ${this.todosLosAlumnos.length}`);
+    })
+
+    // this.alumnos = this.todosLosAlumnos.filter(alumno => {
+    //   let cumpleFiltros = true;
+
+    //   if (this.filtroAnio) {
+    //     const anioAlumno = alumno.grado?.anioAcademico?.anio?.toString();
+    //     cumpleFiltros = cumpleFiltros && (anioAlumno === this.filtroAnio);
+    //   }
+
+    //   if (this.filtroGrado) {
+    //     const gradoAlumno = alumno.grado?.id_grado?.toString();
+    //     cumpleFiltros = cumpleFiltros && (gradoAlumno === this.filtroGrado);
+    //   }
+
+    //   return cumpleFiltros;
+    // });
+
+    console.log(`Alumnos filtrados: ${this.matriculas.length} de ${this.todasLasMatriculas.length}`);
   }
 
   // Resetea todos los filtros
@@ -134,7 +172,7 @@ export class ListaAlumnosComponent implements OnInit {
     this.filtroAnio = '';
     this.filtroGrado = '';
     this.gradosDisponibles = [];
-    this.alumnos = [...this.todosLosAlumnos];
+    this.matriculas = [...this.todasLasMatriculas];
   }
 
   //Eliminar Alumno
@@ -147,7 +185,7 @@ export class ListaAlumnosComponent implements OnInit {
       this.alumnoServicio.eliminarAlumno(this.idAlumnoAEliminar).subscribe({
         next: () => {
 
-          this.alumnos = this.alumnos.filter(a => a.idAlumno !== this.idAlumnoAEliminar);
+          this.matriculas = this.matriculas.filter(m => m.alumno.idAlumno !== this.idAlumnoAEliminar);
           this.mensaje = `Se elimino el alumno.`;
 
           // Oculta el mensaje después de 2 segundos
@@ -264,10 +302,10 @@ export class ListaAlumnosComponent implements OnInit {
   }
 
   get totalAlumnos(): number {
-    return this.todosLosAlumnos.length;
+    return this.todasLasMatriculas.length;
   }
 
   get alumnosFiltrados(): number {
-    return this.alumnos.length;
+    return this.matriculas.length;
   }
 }

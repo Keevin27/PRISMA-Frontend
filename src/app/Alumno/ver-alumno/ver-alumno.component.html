@@ -18,7 +18,7 @@
         <h5 class="mb-1">LOURDES COLON</h5>
         <h6 class="mb-0">EXPEDIENTE PERSONAL ALUMNO: DATOS PERSONALES</h6>
     </div>
-    <div class="card-body p-4">
+    <div *ngIf="matricula && matricula.alumno" class="card-body p-4">
         
         <!-- Datos Personales del Alumno -->
         <div class="mb-5">
@@ -34,7 +34,7 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">NIE:</label>
-                        <div class="fs-6 text-dark">{{alumno.nie || 'No especificado'}}</div>
+                        <div class="fs-6 text-dark">{{matricula.alumno.nie}}</div>
                     </div>
                 </div>
 
@@ -42,9 +42,9 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Estado:</label>
                         <div>
-                            <span class="badge fs-6 px-3 py-2" [class]="alumno.estado_alumno ? 'bg-success' : 'bg-danger'">
-                                <i class="bi" [class]="alumno.estado_alumno ? 'bi-check-circle' : 'bi-x-circle'"></i>
-                                {{alumno.estado_alumno ? 'Activo' : 'Inactivo'}}
+                            <span class="badge fs-6 px-3 py-2" [class]="matricula.alumno.estado_alumno ? 'bg-success' : 'bg-danger'">
+                                <i class="bi" [class]="matricula.alumno.estado_alumno ? 'bi-check-circle' : 'bi-x-circle'"></i>
+                                {{matricula.alumno.estado_alumno ? 'Activo' : 'Inactivo'}}
                             </span>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Nombre Completo:</label>
                         <div class="fs-6 text-dark">
-                            {{(alumno.nombre_alumno || '') + ' ' + (alumno.apellido_alumno || '') || 'No especificado'}}
+                            {{(matricula.alumno.nombre_alumno || '') + ' ' + (matricula.alumno.apellido_alumno || '') || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -62,14 +62,14 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Fecha de Nacimiento:</label>
-                        <div class="fs-6 text-dark">{{alumno.fecha_nacimiento_alumno || 'No especificado'}}</div>
+                        <div class="fs-6 text-dark">{{matricula.alumno.fecha_nacimiento_alumno || 'No especificado'}}</div>
                     </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6">
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Género:</label>
-                        <div class="fs-6 text-dark">{{(alumno.sexo_a === 'M' ? 'Masculino' : alumno.sexo_a === 'F' ? 'Femenino' : alumno.sexo_a) || 'No especificado'}}</div>
+                        <div class="fs-6 text-dark">{{(matricula.alumno.sexo_a === 'M' ? 'Masculino' : matricula.alumno.sexo_a === 'F' ? 'Femenino' : matricula.alumno.sexo_a) || 'No especificado'}}</div>
                     </div>
                 </div>
 
@@ -77,7 +77,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Grado:</label>
                         <div class="fs-6 text-dark">
-                            {{(alumno.grado && alumno.grado.nombre_grado) ? (alumno.grado.nombre_grado + ' - ' + alumno.grado.seccion) : 'No especificado'}}
+                            {{(matricula.grado && matricula.grado.nombre_grado) ? (matricula.grado.nombre_grado + ' - ' + matricula.grado.seccion) : 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Teléfono:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-phone me-2"></i>{{alumno.telefono_alumno || 'No especificado'}}
+                            <i class="bi bi-phone me-2"></i>{{matricula.alumno.telefono_alumno || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -108,7 +108,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Correo electrónico:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-envelope me-2"></i>{{alumno.correo_alumno || 'No especificado'}}
+                            <i class="bi bi-envelope me-2"></i>{{matricula.alumno.correo_alumno || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Dirección:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-geo-alt me-2"></i>{{alumno.direccion_a || 'No especificado'}}
+                            <i class="bi bi-geo-alt me-2"></i>{{matricula.alumno.direccion_a || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Vive con:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-house me-2"></i>{{alumno.vive_con || 'No especificado'}}
+                            <i class="bi bi-house me-2"></i>{{matricula.alumno.vive_con || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Enfermedad:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-clipboard-pulse me-2"></i>{{alumno.enfermedades || 'Ninguna'}}
+                            <i class="bi bi-clipboard-pulse me-2"></i>{{matricula.alumno.enfermedades || 'Ninguna'}}
                         </div>
                     </div>
                 </div>
@@ -157,7 +157,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Medicamento:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-capsule me-2"></i>{{alumno.medicamento || 'Ninguno'}}
+                            <i class="bi bi-capsule me-2"></i>{{matricula.alumno.medicamento || 'Ninguno'}}
                         </div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">DUI del Encargado:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-card-text me-2"></i>{{alumno.dui_encargado || 'No especificado'}}
+                            <i class="bi bi-card-text me-2"></i>{{matricula.alumno.dui_encargado || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Parentesco:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-people me-2"></i>{{alumno.parentezco_encargado || 'No especificado'}}
+                            <i class="bi bi-people me-2"></i>{{matricula.alumno.parentezco_encargado || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Teléfono del Encargado:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-phone me-2"></i>{{alumno.telefono_encargado || 'No especificado'}}
+                            <i class="bi bi-phone me-2"></i>{{matricula.alumno.telefono_encargado || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -206,7 +206,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Correo del Encargado:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-envelope me-2"></i>{{alumno.correo_encargado || 'No especificado'}}
+                            <i class="bi bi-envelope me-2"></i>{{matricula.alumno.correo_encargado || 'No especificado'}}
                         </div>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                     <div class="bg-light p-3 rounded-3 h-100">
                         <label class="form-label fw-bold text-secondary small mb-1">Lugar de trabajo:</label>
                         <div class="fs-6 text-dark">
-                            <i class="bi bi-building me-2"></i>{{alumno.lugar_de_trabajo || 'No especificado'}}
+                            <i class="bi bi-building me-2"></i>{{matricula.alumno.lugar_de_trabajo || 'No especificado'}}
                         </div>
                     </div>
                 </div>

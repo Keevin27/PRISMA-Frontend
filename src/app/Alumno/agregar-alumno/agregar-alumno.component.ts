@@ -143,45 +143,45 @@ export class AgregarAlumnoComponent implements OnInit {
       }
     }
 
-    // Validar que se haya seleccionado un grado
-    if (!alumnoData.grado || (typeof alumnoData.grado === 'object' && !alumnoData.grado.id_grado)) {
-      this.mensaje = 'Seleccione un grado valido.';
-      setTimeout(() => {
+    // // Validar que se haya seleccionado un grado ALUMNO YA NO TIENE GRADO
+    // if (!alumnoData.grado || (typeof alumnoData.grado === 'object' && !alumnoData.grado.id_grado)) {
+    //   this.mensaje = 'Seleccione un grado valido.';
+    //   setTimeout(() => {
 
-        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+    //     window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
 
-        // Ocultar mensaje después de unos segundos
-        setTimeout(() => {
-          this.mensaje = '';
-        }, 3000);
+    //     // Ocultar mensaje después de unos segundos
+    //     setTimeout(() => {
+    //       this.mensaje = '';
+    //     }, 3000);
 
-      }, 100);
-      return;
-    }
+    //   }, 100);
+    //   return;
+    // }
 
-    // Asegurar que el grado tenga el formato correcto
-    if (typeof alumnoData.grado === 'string' || typeof alumnoData.grado === 'number') {
-      const gradoSeleccionado = this.grados.find(g =>
-        (typeof alumnoData.grado === 'number' && g.id_grado === alumnoData.grado) ||
-        (typeof alumnoData.grado === 'string' && g.id_grado === parseInt(alumnoData.grado))
-      );
-      if (gradoSeleccionado) {
-        alumnoData.grado = gradoSeleccionado;
-      } else {
-        this.mensaje = 'Seleccione un grado valido.';
-        setTimeout(() => {
+    // // Asegurar que el grado tenga el formato correcto
+    // if (typeof alumnoData.grado === 'string' || typeof alumnoData.grado === 'number') {
+    //   const gradoSeleccionado = this.grados.find(g =>
+    //     (typeof alumnoData.grado === 'number' && g.id_grado === alumnoData.grado) ||
+    //     (typeof alumnoData.grado === 'string' && g.id_grado === parseInt(alumnoData.grado))
+    //   );
+    //   if (gradoSeleccionado) {
+    //     alumnoData.grado = gradoSeleccionado;
+    //   } else {
+    //     this.mensaje = 'Seleccione un grado valido.';
+    //     setTimeout(() => {
 
-          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+    //       window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
 
-          // Ocultar mensaje después de unos segundos
-          setTimeout(() => {
-            this.mensaje = '';
-          }, 3000);
+    //       // Ocultar mensaje después de unos segundos
+    //       setTimeout(() => {
+    //         this.mensaje = '';
+    //       }, 3000);
 
-        }, 100);
-        return;
-      }
-    }
+    //     }, 100);
+    //     return;
+    //   }
+    // }
 
     console.log('Datos a enviar:', alumnoData);
 
@@ -298,20 +298,20 @@ export class AgregarAlumnoComponent implements OnInit {
       return false;
     }
 
-    if (!this.alumno.grado) {
-      this.mensaje = 'seleccione el grado del alumno';//agregar texto de que mostrara en el flotante
-      setTimeout(() => {
+    // if (!this.alumno.grado) {
+    //   this.mensaje = 'seleccione el grado del alumno';//agregar texto de que mostrara en el flotante
+    //   setTimeout(() => {
 
-        window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+    //     window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
 
-        // Ocultar mensaje después de unos segundos
-        setTimeout(() => {
-          this.mensaje = '';
-        }, 3000);
+    //     // Ocultar mensaje después de unos segundos
+    //     setTimeout(() => {
+    //       this.mensaje = '';
+    //     }, 3000);
 
-      }, 100);
-      return false;
-    }
+    //   }, 100);
+    //   return false;
+    // }
 
     // Valido formato del NIE (7 dígitos)
     const nieRegex = /^\d{7}$/;

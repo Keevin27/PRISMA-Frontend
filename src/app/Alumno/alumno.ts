@@ -19,5 +19,4 @@ export class Alumno {
     dui_encargado:string;
     lugar_de_trabajo:string;
     estado_alumno:boolean;
-    grado: Grado;
 }
