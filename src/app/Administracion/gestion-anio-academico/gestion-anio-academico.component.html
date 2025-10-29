@@ -1,0 +1,382 @@
+<div class="container-fluid py-4">
+  <!-- Encabezado -->
+  <div class="bg-light p-3 mb-4 rounded">
+    <h2 class="text-center mb-0">Creación de años</h2>
+  </div>
+
+  <!-- Botón Crear Año -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="abrirModalCrearAnio()">
+      <i class="bi bi-plus-circle"></i> Crear año
+    </button>
+  </div>
+
+  <!-- Tabla de Años Académicos -->
+  <div class="table-responsive" style="overflow-x: auto;">
+    <table class="table table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>N°</th>
+          <th>Año</th>
+          <th>Estado</th>
+          <th>Matrícula</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let anio of aniosAcademicos; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ anio.anio }}</td>
+          <td>
+            <span 
+              class="badge"
+              [ngClass]="anio.anio_activo ? 'bg-success' : 'bg-secondary'">
+              {{ anio.anio_activo ? 'Activo' : 'Cerrado' }}
+            </span>
+          </td>
+          <td>
+            <span 
+              class="badge"
+              [ngClass]="!anio.anio_cerrado ? 'bg-success' : 'bg-secondary'">
+              {{ !anio.anio_cerrado ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <!-- Mostrar botón Crear oferta solo si no tiene oferta creada -->
+            <button 
+              *ngIf="!tieneOferta(anio) && !anio.anio_cerrado"
+              class="btn btn-sm btn-warning me-2"
+              (click)="abrirModalOferta(anio)">
+              <i class="bi bi-plus-circle"></i> Crear oferta
+            </button>
+
+            <!-- Mostrar Ver, Editar y Finalizar si ya tiene oferta -->
+            <ng-container *ngIf="tieneOferta(anio) && !anio.anio_cerrado">
+              <button 
+                class="btn btn-sm btn-success me-2"
+                title="Ver grados"
+                (click)="verGrados(anio)">
+                <i class="bi bi-eye"></i> Ver
+              </button>
+              <button 
+                class="btn btn-sm btn-primary me-2"
+                title="Editar"
+                (click)="abrirModalEditar(anio)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button 
+                class="btn btn-sm btn-danger me-2"
+                title="Finalizar año"
+                (click)="finalizarAnio(anio)">
+                <i class="bi bi-x-circle"></i> Finalizar
+              </button>
+            </ng-container>
+
+            <!-- Si el año está finalizado, solo mostrar Ver -->
+            <button 
+              *ngIf="anio.anio_cerrado"
+              class="btn btn-sm btn-success"
+              title="Ver grados"
+              (click)="verGrados(anio)">
+              <i class="bi bi-eye"></i> Ver
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="aniosAcademicos.length === 0">
+          <td colspan="5" class="text-center">No hay años académicos registrados</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal para Crear Año -->
+<div class="modal fade" 
+     [class.show]="mostrarModalCrearAnio" 
+     [style.display]="mostrarModalCrearAnio ? 'block' : 'none'"
+     [style.opacity]="mostrarModalCrearAnio ? '1' : '0'"
+     tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Crear Año Académico</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalCrearAnio()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="inputAnio" class="form-label">Año Académico</label>
+          <input 
+            type="number" 
+            class="form-control" 
+            id="inputAnio"
+            [(ngModel)]="nuevoAnio" 
+            placeholder="Ej: 2025"
+            min="2000"
+            max="2100">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCrearAnio()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="crearAnio()">Crear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop para modal de crear año -->
+<div class="modal-backdrop fade" 
+     [class.show]="mostrarModalCrearAnio" 
+     [style.opacity]="mostrarModalCrearAnio ? '0.5' : '0'"
+     *ngIf="mostrarModalCrearAnio"></div>
+
+<!-- Modal para Crear Oferta -->
+<div class="modal fade" 
+     [class.show]="mostrarModalOferta" 
+     [style.display]="mostrarModalOferta ? 'block' : 'none'"
+     [style.opacity]="mostrarModalOferta ? '1' : '0'"
+     tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Crear Oferta - Año {{ anioSeleccionado?.anio }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalOferta()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> Las secciones A, B y C son <strong>Matutino</strong>. Las secciones D, E y F son <strong>Vespertino</strong>.
+        </div>
+
+        <!-- Selección de grados y secciones (A-F) -->
+        <div *ngFor="let grado of grados" class="mb-4 border rounded p-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">Grado: {{ grado.nombre }}</h6>
+            <button 
+              class="btn btn-sm btn-outline-primary"
+              (click)="seleccionarTodasSecciones(grado)">
+              {{ grado.seleccionadas.length === grado.secciones.length ? 'Deseleccionar todas' : 'Seleccionar todas' }}
+            </button>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-2" *ngFor="let seccion of grado.secciones">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  [id]="grado.nombre + seccion"
+                  [checked]="grado.seleccionadas.includes(seccion)"
+                  (change)="toggleSeccion(grado, seccion)">
+                <label class="form-check-label" [for]="grado.nombre + seccion">
+                  Sección {{ seccion }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalOferta()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="guardarOferta()">Guardar Oferta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop del modal de oferta -->
+<div class="modal-backdrop fade" 
+     [class.show]="mostrarModalOferta" 
+     [style.opacity]="mostrarModalOferta ? '0.5' : '0'"
+     *ngIf="mostrarModalOferta"></div>
+
+<!-- Modal para Editar Año -->
+<div class="modal fade" 
+     [class.show]="mostrarModalEditar" 
+     [style.display]="mostrarModalEditar ? 'block' : 'none'"
+     [style.opacity]="mostrarModalEditar ? '1' : '0'"
+     tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Año {{ anioSeleccionado?.anio }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalEditar()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <div class="form-check form-switch">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="checkEstado"
+              [(ngModel)]="estadoEditar">
+            <label class="form-check-label" for="checkEstado">
+              Estado del año ({{ estadoEditar ? 'Activo' : 'Inactivo' }})
+            </label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="form-check form-switch">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="checkMatricula"
+              [(ngModel)]="matriculaEditar">
+            <label class="form-check-label" for="checkMatricula">
+              Matrícula ({{ matriculaEditar ? 'Activa' : 'Inactiva' }})
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="guardarEdicion()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop para modal de editar -->
+<div class="modal-backdrop fade" 
+     [class.show]="mostrarModalEditar" 
+     [style.opacity]="mostrarModalEditar ? '0.5' : '0'"
+     *ngIf="mostrarModalEditar"></div>
+
+<!-- Modal para Ver Grados -->
+<div class="modal fade" 
+     [class.show]="mostrarModalGrados" 
+     [style.display]="mostrarModalGrados ? 'block' : 'none'"
+     [style.opacity]="mostrarModalGrados ? '1' : '0'"
+     tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Grados del año {{ anioMostrar }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalGrados()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Botón para agregar más grados (solo si el año no está cerrado) -->
+        <div class="d-flex justify-content-end mb-3" *ngIf="!anioSeleccionadoGrados?.anio_cerrado">
+          <button class="btn btn-primary btn-sm" (click)="abrirModalAgregarGrado()">
+            <i class="bi bi-plus-circle"></i> Agregar Grado
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>Año</th>
+                <th>Grado</th>
+                <th>Sección</th>
+                <th>Turno</th>
+                <th *ngIf="!anioSeleccionadoGrados?.anio_cerrado">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let grado of gradosMostrar; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ grado.anio || anioMostrar }}</td>
+                <td>{{ grado.nombre_grado }}</td>
+                <td>{{ grado.seccion }}</td>
+                <td>{{ grado.turno_grado }}</td>
+                <td *ngIf="!anioSeleccionadoGrados?.anio_cerrado">
+                  <button 
+                    class="btn btn-sm btn-danger"
+                    title="Eliminar"
+                    (click)="eliminarGrado(grado)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="gradosMostrar.length === 0">
+                <td colspan="6" class="text-center">No hay grados registrados</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalGrados()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop para modal de grados -->
+<div class="modal-backdrop fade" 
+     [class.show]="mostrarModalGrados" 
+     [style.opacity]="mostrarModalGrados ? '0.5' : '0'"
+     *ngIf="mostrarModalGrados"></div>
+
+<!-- Modal para Agregar Grado -->
+<div class="modal fade" 
+     [class.show]="mostrarModalAgregarGrado" 
+     [style.display]="mostrarModalAgregarGrado ? 'block' : 'none'"
+     [style.opacity]="mostrarModalAgregarGrado ? '1' : '0'"
+     tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar Grados - Año {{ anioMostrar }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalAgregarGrado()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> 
+          Las secciones A, B y C son <strong>Matutino</strong>. Las secciones D, E y F son <strong>Vespertino</strong>.
+          <br>
+          <small>Las secciones en gris ya están agregadas y no se pueden duplicar.</small>
+        </div>
+
+        <!-- Selección de grados y secciones -->
+        <div *ngFor="let grado of gradosAgregar" class="mb-4 border rounded p-3">
+          <!-- Mostrar mensaje si todas las secciones ya existen -->
+          <div *ngIf="todasSeccionesExisten(grado.nombre)" class="alert alert-success mb-3">
+            <i class="bi bi-check-circle"></i> Todas las secciones de <strong>{{ grado.nombre }}</strong> ya están agregadas.
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">Grado: {{ grado.nombre }}</h6>
+            <button 
+              class="btn btn-sm btn-outline-primary"
+              [disabled]="todasSeccionesExisten(grado.nombre)"
+              (click)="seleccionarTodasSeccionesAgregar(grado)">
+              {{ grado.seleccionadas.length > 0 ? 'Deseleccionar todas' : 'Seleccionar todas disponibles' }}
+            </button>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-2" *ngFor="let seccion of grado.secciones">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  [id]="'agregar-' + grado.nombre + seccion"
+                  [checked]="grado.seleccionadas.includes(seccion)"
+                  [disabled]="seccionYaExiste(grado.nombre, seccion)"
+                  (change)="toggleSeccionAgregar(grado, seccion)">
+                <label 
+                  class="form-check-label" 
+                  [for]="'agregar-' + grado.nombre + seccion"
+                  [class.text-muted]="seccionYaExiste(grado.nombre, seccion)">
+                  Sección {{ seccion }}
+                  <span *ngIf="seccionYaExiste(grado.nombre, seccion)" class="badge bg-secondary ms-1">Existe</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalAgregarGrado()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="guardarGradosAdicionales()">Guardar Grados</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop para modal de agregar grado -->
+<div class="modal-backdrop fade" 
+     [class.show]="mostrarModalAgregarGrado" 
+     [style.opacity]="mostrarModalAgregarGrado ? '0.5' : '0'"
+     *ngIf="mostrarModalAgregarGrado"></div>
