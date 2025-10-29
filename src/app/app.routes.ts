@@ -20,6 +20,12 @@ import { AgregarMateriasComponent } from './Materia/agregar-materias/agregar-mat
 import { ActualizarMateriasComponent } from './Materia/actualizar-materias/actualizar-materias.component';
 import { AsignarMateriaDocenteComponent } from './Materia/asignar-materia-docente/asignar-materia-docente.component';
 
+import { ConsultarNotasMateriaComponent } from './Notas/components/consultar-notas-materia/consultar-notas-materia.component';
+import { ConsultarNotasAlumnoComponent } from './Notas/components/consultar-notas-alumno/consultar-notas-alumno.component';
+import { DetalleNotasAlumnoComponent } from './Notas/components/detalle-notas-alumno/detalle-notas-alumno.component';
+import { GestionActividadesComponent } from './Notas/components/gestion-actividades/gestion-actividades.component';
+import { AsignarNotasComponent } from './Notas/components/asignar-notas/asignar-notas.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -31,6 +37,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./home/home.component').then((m) => m.HomeComponent),
       },
+      
       {
         path: 'paquetesescolares',
         component: PaqueteEscolarComponent,
@@ -162,6 +169,39 @@ export const routes: Routes = [
         path: 'materias/:codigo',
         component: ActualizarMateriasComponent,
       },
+
+      // MÓDULO DE NOTAS
+      {
+        path: 'consultar-notas-materia',
+        component: ConsultarNotasMateriaComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'consultar-notas-alumno',
+        component: ConsultarNotasAlumnoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'detalle-notas-alumno/:nie',
+        component: DetalleNotasAlumnoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'gestion-actividades',
+        component: GestionActividadesComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'asignar-notas/:idActividad',
+        component: AsignarNotasComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+
     ],
   },
 

@@ -1,0 +1,236 @@
+<!-- Ubicación: src/app/Notas/components/asignar-notas/asignar-notas.component.html -->
+
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a routerLink="/gestion-actividades" class="text-decoration-none text-secondary">Gestión de Actividades</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Asignar Notas</li>
+            </ol>
+        </nav>
+    </div>
+    
+    <h2 class="text-center">Asignar Notas a Actividad</h2>
+
+    <div class="container">
+        <!-- Mensaje de feedback -->
+        <div *ngIf="mensaje" class="alert alert-success" role="alert">
+            {{ mensaje }}
+        </div>
+
+        <!-- Información de la actividad -->
+        <div *ngIf="datosActividad" class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="mb-2">{{ datosActividad.nombreActividad }}</h4>
+                        <p class="mb-0 text-muted">
+                            <i class="bi bi-award me-1"></i>
+                            Ponderación: <strong>{{ datosActividad.ponderacion }}%</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-secondary" (click)="volver()">
+                            <i class="bi bi-arrow-left me-1"></i> Volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Alumnos</h6>
+                        <h3>{{ calcularEstadisticas().total }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Con Nota</h6>
+                        <h3 class="text-success">{{ calcularEstadisticas().conNota }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Sin Nota</h6>
+                        <h3 class="text-warning">{{ calcularEstadisticas().sinNota }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Promedio</h6>
+                        <h3 class="text-primary">{{ calcularEstadisticas().promedio }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de alumnos -->
+        <h2>Listado de Estudiantes</h2>
+
+        <!-- Mensaje de carga -->
+        <div *ngIf="cargando" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando estudiantes...</p>
+        </div>
+
+        <!-- Tabla -->
+        <table *ngIf="!cargando" class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr class="align-middle">
+                    <th style="width: 8%; text-align: center;">No</th>
+                    <th style="width: 15%; text-align: center;">NIE</th>
+                    <th style="text-align: center;">Nombre Completo</th>
+                    <th style="width: 12%; text-align: center;">Nota</th>
+                    <th style="width: 15%; text-align: center;">Fecha Modificación</th>
+                    <th style="width: 15%; text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (alumno of alumnos; let i = $index; track alumno.nie) {
+                <tr class="align-middle">
+                    <td style="text-align: center;">{{ i + 1 }}</td>
+                    <td style="text-align: center;">{{ alumno.nie }}</td>
+                    <td>{{ alumno.nombreCompleto }}</td>
+                    
+                    <!-- Columna de Nota -->
+                    <td style="text-align: center;">
+                        @if (alumnoEditando === alumno) {
+                            <!-- Modo edición -->
+                            <input 
+                                type="number" 
+                                class="form-control form-control-sm" 
+                                [(ngModel)]="notaTemporal"
+                                (input)="validarNotaInput($event)"
+                                min="0" 
+                                max="10" 
+                                step="0.01"
+                                [disabled]="guardando"
+                                style="width: 80px; margin: 0 auto;">
+                        } @else {
+                            <!-- Modo vista -->
+                            @if (alumno.nota !== null && alumno.nota !== undefined) {
+                                <span class="badge" 
+                                      [ngClass]="alumno.nota >= 6 ? 'bg-success' : 'bg-danger'"
+                                      style="font-size: 1rem;">
+                                    {{ alumno.nota }}
+                                </span>
+                            } @else {
+                                <span class="text-muted">Sin nota</span>
+                            }
+                        }
+                    </td>
+                    
+                    <!-- Fecha de modificación -->
+                    <td style="text-align: center;">
+                        @if (alumno.fechaModificacion) {
+                            <small>{{ alumno.fechaModificacion }}</small>
+                        } @else {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    
+                    <!-- Acciones -->
+                    <td style="text-align: center;">
+                        @if (alumnoEditando === alumno) {
+                            <!-- Botones de guardar/cancelar -->
+                            <button 
+                                class="btn btn-success btn-sm me-1" 
+                                (click)="guardarNota(alumno)"
+                                [disabled]="guardando"
+                                data-bs-toggle="tooltip" 
+                                title="Guardar nota">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                            <button 
+                                class="btn btn-secondary btn-sm" 
+                                (click)="cancelarEdicion()"
+                                [disabled]="guardando"
+                                data-bs-toggle="tooltip" 
+                                title="Cancelar">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        } @else {
+                            <!-- Botones de editar/eliminar -->
+                            <button 
+                                class="btn btn-primary btn-sm me-1" 
+                                (click)="iniciarEdicion(alumno)"
+                                [disabled]="alumnoEditando !== null || guardando"
+                                data-bs-toggle="tooltip" 
+                                title="Editar nota">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            @if (alumno.nota !== null && alumno.nota !== undefined) {
+                                <button 
+                                    class="btn btn-danger btn-sm" 
+                                    (click)="eliminarNota(alumno)"
+                                    [disabled]="alumnoEditando !== null || guardando"
+                                    data-bs-toggle="tooltip" 
+                                    title="Eliminar nota">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            }
+                        }
+                    </td>
+                </tr>
+                }
+                
+                @if (alumnos.length === 0) {
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                        <p class="mt-2">No hay estudiantes registrados para esta actividad</p>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Información adicional de estadísticas -->
+        <div *ngIf="!cargando && alumnos.length > 0" class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Resumen de Calificaciones</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <p class="mb-1">
+                            <strong>Aprobados:</strong> 
+                            <span class="text-success">{{ calcularEstadisticas().aprobados }} 
+                                ({{ (calcularEstadisticas().aprobados / calcularEstadisticas().conNota * 100 || 0).toFixed(1) }}%)
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-1">
+                            <strong>Reprobados:</strong> 
+                            <span class="text-danger">{{ calcularEstadisticas().reprobados }} 
+                                ({{ (calcularEstadisticas().reprobados / calcularEstadisticas().conNota * 100 || 0).toFixed(1) }}%)
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-1">
+                            <strong>Progreso:</strong> 
+                            {{ calcularEstadisticas().conNota }} / {{ calcularEstadisticas().total }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
