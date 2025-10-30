@@ -25,6 +25,7 @@ import { ConsultarNotasAlumnoComponent } from './Notas/components/consultar-nota
 import { DetalleNotasAlumnoComponent } from './Notas/components/detalle-notas-alumno/detalle-notas-alumno.component';
 import { GestionActividadesComponent } from './Notas/components/gestion-actividades/gestion-actividades.component';
 import { AsignarNotasComponent } from './Notas/components/asignar-notas/asignar-notas.component';
+import { ReporteAnualAlumnoComponent } from './Notas/components/reporte-anual-alumno/reporte-anual-alumno.component';
 
 export const routes: Routes = [
   {
@@ -201,6 +202,12 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
       },
+      {
+  path: 'reporte-anual-alumno',
+  component: ReporteAnualAlumnoComponent,
+  canActivate: [AuthGuard],
+  data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+},
 
     ],
   },
