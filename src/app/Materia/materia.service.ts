@@ -49,6 +49,9 @@ export class MateriaService {
   obtenerGrados():Observable<Grado[]>{
     return this.httpClient.get<Grado[]>(`${this.baseURLGrado}`);
   }
+  obtenerGradosActivos(): Observable<Grado[]> {
+    return this.httpClient.get<Grado[]>(`${this.baseURLGrado}/activos`);
+  }
 
   obtenerAsignacionesPorMateria(codigoMateria:string):Observable<any[]>{
     const url = `${this.baseURLbloques}/materia/${encodeURIComponent(codigoMateria)}`;
@@ -59,5 +62,15 @@ export class MateriaService {
       })
     );
   }
+  eliminarAsignacion(duiDocente: string, codigoMateria: string, idGrado: number): Observable<void> {
+    const url = `${this.baseURLbloques}/${duiDocente}/${codigoMateria}/${idGrado}`;
+    return this.httpClient.delete<void>(url);
+  }
+
+  getGradosDisponiblesPorMateria(codigoMateria: string): Observable<any[]> {
+    return this.httpClient.get<any[]>(`${this.baseURLbloques}/grados-disponibles/${codigoMateria}`);
+  }
+
+
 
 }

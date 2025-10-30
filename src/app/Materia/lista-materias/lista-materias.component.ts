@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit} from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Materia } from '../materia';
 import { AuthService } from '../../Auth/auth.service';
 import { MateriaService } from '../materia.service';
@@ -8,7 +8,7 @@ import { MateriaService } from '../materia.service';
 @Component({
   selector: 'app-lista-materias',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './lista-materias.component.html',
   styleUrl: './lista-materias.component.css'
 })

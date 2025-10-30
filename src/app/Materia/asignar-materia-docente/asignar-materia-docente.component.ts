@@ -5,11 +5,12 @@ import { Materia } from '../materia';
 import { MateriaService } from '../materia.service';
 import { Docente } from '../../Docente/docente';
 import { Subscription } from 'rxjs';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-asignar-materia-docente',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './asignar-materia-docente.component.html',
   styleUrl: './asignar-materia-docente.component.css'
 })
@@ -32,20 +33,22 @@ export class AsignarMateriaDocenteComponent implements OnInit {
   ngOnInit(): void {  
     this.formAsignacion = this.fb.group({
       duiDocente: ['', Validators.required],
-      codigoMateria: ['', Validators.required],
-      anioAcademico: ['', [Validators.required, Validators.min(2024)]]
+      codigoMateria: ['', Validators.required]
     });
 
 
     this.cargarDocentes();
-    this.cargarGrados();
+    // this.cargarGrados();
     this.cargarMaterias();
 
     const subMat = this.formAsignacion.get('codigoMateria')!.valueChanges.subscribe((codigo: string) => {
       if (codigo) {
         this.cargarAsignaciones(codigo);
+        this.cargarGradosPorMateria(codigo);
       } else {
+        // this.asignacionesPorGrado = {};
         this.asignacionesPorGrado = {};
+        this.grados = [];
       }
       // limpiar selección de grados al cambiar materia
       this.gradosSeleccionados = [];
@@ -115,9 +118,7 @@ export class AsignarMateriaDocenteComponent implements OnInit {
       return true;
     }
     // si existe asignación y pertenece al mismo docente queremos que aparezca activo pero no editable (disabled)
-    if (asign && asign.duiDocente === this.formAsignacion.get('duiDocente')?.value) {
-      return true;
-    }
+   
     return false;
   }
 
@@ -134,34 +135,55 @@ export class AsignarMateriaDocenteComponent implements OnInit {
     return this.gradosSeleccionados.includes(numericId);
   }
 
-
-  /* gradosSeleccionados: number[] = []; */
   toggleGrado(grado: any,event:any) {
     event.stopPropagation();
-    /* const checked=(event.target as HTMLInputElement).checked; */
     const id = this.getGradoIdValue(grado);
-    if (!id) {
-      console.error('El grado no tiene un ID válido:', grado);
-      return;
-    }
-    const asign = this.asignacionesPorGrado[id];
-    if (asign) {
-      // si la asignación pertenece al docente actual, mantenerlo en seleccionados visualmente
-      if (asign.duiDocente === this.formAsignacion.get('duiDocente')?.value) {
-        const numericId = Number(id);
-        if (!this.gradosSeleccionados.includes(numericId)) this.gradosSeleccionados.push(numericId);
-      }
-      return;
-    }
     const checked = (event.target as HTMLInputElement).checked;
-    const numericId = Number(id);
+  const numericId = Number(id);
+  const duiDocente = this.formAsignacion.get('duiDocente')?.value;
+  const codigoMateria = this.formAsignacion.get('codigoMateria')?.value;
 
-    if (checked) {
-      if (!this.gradosSeleccionados.includes(numericId)) this.gradosSeleccionados.push(numericId);
-    } else {
-      this.gradosSeleccionados = this.gradosSeleccionados.filter(g => g !== numericId);
+  if (!duiDocente || !codigoMateria) return;
+
+  const asign = this.asignacionesPorGrado[id];
+
+  // Si el switch se ACTIVÓ
+  if (checked) {
+    if (!this.gradosSeleccionados.includes(numericId)) {
+      this.gradosSeleccionados.push(numericId);
     }
-    this.actualizarAnioDesdeGrados();
+  } 
+  // Si el switch se DESACTIVÓ
+  else {
+    // quitar de selección
+    this.gradosSeleccionados = this.gradosSeleccionados.filter(g => g !== numericId);
+
+    // si el grado ya estaba asignado antes, eliminar del backend
+    if (asign && asign.duiDocente === duiDocente) {
+      if (!confirm(`¿Desea eliminar la asignación del grado ${grado.nombre ?? numericId}?\nEsta acción no se puede deshacer.`)) {
+        (event.target as HTMLInputElement).checked = true;
+        return;
+      }
+      this.materiaService.eliminarAsignacion(duiDocente, codigoMateria, numericId).subscribe({
+        next: () => {
+          console.log(`Asignación eliminada: grado ${numericId}`);
+          // actualizar visualmente el registro
+          delete this.asignacionesPorGrado[id];
+          this.mensaje = `Asignación eliminada correctamente del grado ${grado.nombre ?? numericId}`;
+        },
+        error: (err) => {
+          console.error('Error al eliminar asignación', err);
+          this.mensaje = 'Error al eliminar la asignación. Intente nuevamente.';
+          // revertir visualmente el cambio
+          (event.target as HTMLInputElement).checked = true;
+          if (!this.gradosSeleccionados.includes(numericId))
+            this.gradosSeleccionados.push(numericId);
+        }
+      });
+    }
+  }
+
+  this.actualizarAnioDesdeGrados();
   }
   trackByGrado = (index: number, grado: any): string | number => {
   return this.getGradoIdValue(grado) || index;
@@ -174,7 +196,7 @@ export class AsignarMateriaDocenteComponent implements OnInit {
   private actualizarAnioDesdeGrados(): void {
     const seleccionados = this.grados.filter(g => this.gradosSeleccionados.includes(g.id));
     const anios = Array.from(new Set(seleccionados.map(g => this.getAnioFromGrado(g)).filter(a => a !== null))) as number[];
-    const anioControl = this.formAsignacion.get('anio');
+    const anioControl = this.formAsignacion.get('anioAcademico');
     this.anioDiferente = false;
 
     if(anios.length === 1) {
@@ -203,36 +225,52 @@ export class AsignarMateriaDocenteComponent implements OnInit {
       error: (err) => console.error('Error cargando docentes', err)
     });
   } 
-  cargarGrados() {
-    this.materiaService.obtenerGrados().subscribe({
+  cargarGradosPorMateria(codigoMateria: string) {
+    this.materiaService.obtenerGradosActivos().subscribe({
       next: (data) => {
         this.grados = data;
-        console.log('Grados cargados:', this.grados.length, this.grados);
+        console.log('Grados disponibles cargados:', this.grados.length, this.grados);
       },
       error: (err) => {
-        console.error('Error cargando grados', err);
+        console.error('Error cargando grados disponibles', err);
+        this.grados = [];
       }
     });
   }
 
 
+  // cargarGrados() {
+  //   this.materiaService.obtenerGradosActivos().subscribe({
+  //     next: (data) => {
+  //       this.grados = data;
+  //       console.log('Grados cargados:', this.grados.length, this.grados);
+  //     },
+  //     error: (err) => {
+  //       console.error('Error cargando grados', err);
+  //     }
+  //   });
+  // }
+
+
   guardarAsignacion() {
     this.formAsignacion.markAllAsTouched();
 
-    const anioAcademico= this.formAsignacion.getRawValue().anioAcademico;
     if (!this.formAsignacion.get('duiDocente')?.valid || !this.formAsignacion.get('codigoMateria')?.valid ){
       this.mensaje = 'Por favor complete todos los campos obligatorios.';
-      return;
-    }
-    if(
-      !anioAcademico||anioAcademico<2024){
-      this.mensaje = 'El año académico debe ser válido y no menor al año actual.';
       return;
     }
     if(this.gradosSeleccionados.length===0){
       this.mensaje = 'Seleccione al menos un grado.';
       return;
     }
+
+    const gradosSeleccionadosObjs = this.grados.filter(g => 
+      this.gradosSeleccionados.includes(Number(this.getGradoIdValue(g)))
+    );
+    const anios = Array.from(
+      new Set(gradosSeleccionadosObjs.map(g => g.anioAcademico?.anio ?? null).filter(a => a !== null))
+    );
+    const anioAcademico = anios[0];
     
 
     const asignacion = {
@@ -241,27 +279,28 @@ export class AsignarMateriaDocenteComponent implements OnInit {
       anioAcademico: anioAcademico,
       grados: this.gradosSeleccionados
     };
+    console.log('Enviando asignación:', asignacion);
 
     this.materiaService.asignarDocenteAMateria(asignacion).subscribe({
       next: () => {
         this.mensaje = 'Asignación guardada correctamente';
         // opcional: reset del formulario/selecciones
         this.formAsignacion.reset();
-        this.formAsignacion.get('anioAcademico')?.enable();
         this.gradosSeleccionados = [];
       },
       error: (err) => {
         console.error('Error al guardar la asignación', err);
-        this.mensaje = 'Error al guardar la asignación';
+        this.mensaje = 'Error al guardar la asignación'+ (err.error?.message || err.message);
       }
     });
   }
-  vaidoParaGuardar(): boolean {
-    const anioAcademico= this.formAsignacion.getRawValue().anioAcademico;
-    return this.formAsignacion.get('duiDocente')?.valid &&
-           this.formAsignacion.get('codigoMateria')?.valid &&
-           anioAcademico && anioAcademico>=2024 &&
-           this.gradosSeleccionados.length>0;
+  validoParaGuardar(): boolean {
+    return!! (
+      this.formAsignacion.get('duiDocente')?.valid &&
+      this.formAsignacion.get('codigoMateria')?.valid &&
+      this.gradosSeleccionados.length > 0
+    );
   }
+  
 }
 
