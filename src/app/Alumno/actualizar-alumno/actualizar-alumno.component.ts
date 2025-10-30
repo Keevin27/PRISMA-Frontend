@@ -7,6 +7,8 @@ import { Alumno } from '../alumno';
 import { AlumnoService } from '../alumno.service';
 import { Grado } from '../../Models/grado';
 import { GradoService } from '../../Services/grado.service';
+import { MatriculaService } from '../../Services/matricula.service';
+import { Matricula } from '../../Models/matricula';
 
 @Component({
   selector: 'app-actualizar-alumno',
@@ -16,7 +18,7 @@ import { GradoService } from '../../Services/grado.service';
   styleUrls: ['./actualizar-alumno.component.css']
 })
 export class ActualizarAlumnoComponent implements OnInit {
-  alumno: Alumno = new Alumno();
+  matricula: Matricula = new Matricula();
   idAlumno: number = 0;
   grados: Grado[] = [];
 
@@ -57,7 +59,7 @@ export class ActualizarAlumnoComponent implements OnInit {
 
   constructor(
     private alumnoService: AlumnoService,
-    private gradoService: GradoService,
+    private matriculaService: MatriculaService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
@@ -68,9 +70,9 @@ export class ActualizarAlumnoComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.idAlumno = parseInt(id);
-        // Primero cargar grados, luego cargar alumno
-        this.cargarGrados();
+        this.cargarAlumno();
       } else {
+        // Si NO hay ID, entonces sí redirigir
         console.error("No se recibió ID en la ruta");
         this.router.navigate(['/alumnos']);
       }
@@ -80,52 +82,21 @@ export class ActualizarAlumnoComponent implements OnInit {
     }
   }
 
-  cargarGrados(): void {
-    // Obtengo la lista de grados disponibles
-    this.gradoService.obtenerGradosPorAnyo(this.anioActual).subscribe({
-      next: (data: Grado[]) => {
-        this.grados = data;
-        // Después de cargar los grados, cargar el alumno
-        this.cargarAlumno();
-      },
-      error: (error: any) => {
-        console.error('Error al cargar grados:', error);
-        this.mensaje = `Error al cargar los grados.`;
-
-        // Oculta el mensaje después de 2 segundos
-        setTimeout(() => {
-          this.mensaje = '';
-        }, 2000);
-      }
-    });
-  }
-
   cargarAlumno(): void {
-    this.alumnoService.obtenerAlumnoPorId(this.idAlumno).subscribe({
+
+    this.matriculaService.findMatriculaByIdAlumno(this.idAlumno).subscribe({
       next: (data) => {
-        this.alumno = data;
-        // Convierto la fecha al formato que acepta el input HTML
-        if (this.alumno.fecha_nacimiento_alumno) {
-          const fecha = new Date(this.alumno.fecha_nacimiento_alumno);
-          (this.alumno as any).fecha_nacimiento_alumno = fecha.toISOString().split('T')[0];
+        this.matricula = data;
+
+        if (this.matricula.alumno.fecha_nacimiento_alumno) {
+          const fecha = new Date(this.matricula.alumno.fecha_nacimiento_alumno);
+          (this.matricula as any).alumno.fecha_nacimiento_alumno = fecha.toISOString().split('T')[0];
+        }
+        if (this.matricula.alumno.estado_alumno === undefined || this.matricula.alumno.estado_alumno === null) {
+          this.matricula.alumno.estado_alumno = true;
         }
 
-        // FIX: Buscar el grado correspondiente en la lista de grados disponibles
-        if (this.alumno.grado && this.grados.length > 0) {
-          const gradoEncontrado = this.grados.find(g =>
-            g.id_grado === this.alumno.grado.id_grado
-          );
-          if (gradoEncontrado) {
-            this.alumno.grado = gradoEncontrado;
-          }
-        }
-
-        // Asegurar que el estado se mantenga como booleano
-        if (this.alumno.estado_alumno === undefined || this.alumno.estado_alumno === null) {
-          this.alumno.estado_alumno = true;
-        }
-      },
-      error: (e) => {
+      }, error: (e) => {
         console.error("Error cargando alumno", e);
         this.mensaje = `Error al cargar los datos del alumno.`;
 
@@ -137,12 +108,13 @@ export class ActualizarAlumnoComponent implements OnInit {
           state: { mensaje: 'Alumno actualizado con exito.' }
         });
       }
+
     });
   }
 
   onSubmit(): void {
     console.log('Formulario enviado');
-    console.log('Datos del alumno:', this.alumno);
+    console.log('Datos del alumno:', this.matricula.alumno);
 
     if (this.validarFormulario()) {
       this.actualizarAlumno();
@@ -151,7 +123,7 @@ export class ActualizarAlumnoComponent implements OnInit {
 
   actualizarAlumno(): void {
     // Preparo los datos antes de enviar al servidor
-    const alumnoData = { ...this.alumno };
+    const alumnoData = { ...this.matricula.alumno };
 
     // Convierto la fecha del formato yyyy-mm-dd (input) al formato correcto
     if (alumnoData.fecha_nacimiento_alumno) {
@@ -168,17 +140,6 @@ export class ActualizarAlumnoComponent implements OnInit {
     // Convertir el estado a booleano si viene como string
     if (typeof alumnoData.estado_alumno === 'string') {
       alumnoData.estado_alumno = alumnoData.estado_alumno === 'true';
-    }
-
-    // Validar que se haya seleccionado un grado si existe
-    if (alumnoData.grado && (typeof alumnoData.grado === 'string' || typeof alumnoData.grado === 'number')) {
-      const gradoSeleccionado = this.grados.find(g =>
-        (typeof alumnoData.grado === 'number' && g.id_grado === alumnoData.grado) ||
-        (typeof alumnoData.grado === 'string' && g.id_grado === parseInt(alumnoData.grado))
-      );
-      if (gradoSeleccionado) {
-        alumnoData.grado = gradoSeleccionado;
-      }
     }
 
     console.log('Datos a enviar:', alumnoData);
@@ -212,28 +173,28 @@ export class ActualizarAlumnoComponent implements OnInit {
           // Oculta el mensaje después de 2 segundos
           setTimeout(() => {
 
-          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+            window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
 
-          // Ocultar mensaje después de unos segundos
-          setTimeout(() => {
-            this.mensaje = '';
-          }, 3000);
+            // Ocultar mensaje después de unos segundos
+            setTimeout(() => {
+              this.mensaje = '';
+            }, 3000);
 
-        }, 100);
+          }, 100);
         } else if (error.status === 404) {
           this.mensaje = `Alumno no encontrado`;
 
           // Oculta el mensaje después de 2 segundos
           setTimeout(() => {
 
-          window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
+            window.scrollTo({ top: 0, behavior: 'smooth' }); //Me lleva al inicio de la vista para poder leer el mensaje
 
-          // Ocultar mensaje después de unos segundos
-          setTimeout(() => {
-            this.mensaje = '';
-          }, 3000);
+            // Ocultar mensaje después de unos segundos
+            setTimeout(() => {
+              this.mensaje = '';
+            }, 3000);
 
-        }, 100);
+          }, 100);
         }
 
       }
@@ -243,46 +204,46 @@ export class ActualizarAlumnoComponent implements OnInit {
   validarFormulario(): boolean {
     const errores: string[] = [];
 
-    if (!this.alumno.nie || this.alumno.nie.toString().trim() === '') {
+    if (!this.matricula.alumno.nie || this.matricula.alumno.nie.toString().trim() === '') {
       errores.push('El NIE es obligatorio.');
-    } else if (!/^\d{7}$/.test(this.alumno.nie.toString())) {
+    } else if (!/^\d{7}$/.test(this.matricula.alumno.nie.toString())) {
       errores.push('El NIE debe tener 7 dígitos.');
     }
 
-    if (!this.alumno.nombre_alumno || this.alumno.nombre_alumno.trim() === '') {
+    if (!this.matricula.alumno.nombre_alumno || this.matricula.alumno.nombre_alumno.trim() === '') {
       errores.push('El nombre del alumno es obligatorio.');
     }
 
-    if (!this.alumno.apellido_alumno || this.alumno.apellido_alumno.trim() === '') {
+    if (!this.matricula.alumno.apellido_alumno || this.matricula.alumno.apellido_alumno.trim() === '') {
       errores.push('El apellido del alumno es obligatorio.');
     }
 
-    if (!this.alumno.fecha_nacimiento_alumno) {
+    if (!this.matricula.alumno.fecha_nacimiento_alumno) {
       errores.push('La fecha de nacimiento es obligatoria.');
     }
 
-    if (!this.alumno.sexo_a) {
+    if (!this.matricula.alumno.sexo_a) {
       errores.push('El sexo es obligatorio.');
     }
 
-    if (!this.alumno.direccion_a || this.alumno.direccion_a.trim() === '') {
+    if (!this.matricula.alumno.direccion_a || this.matricula.alumno.direccion_a.trim() === '') {
       errores.push('La dirección es obligatoria.');
     }
 
-    if (this.alumno.correo_alumno && !this.validarEmail(this.alumno.correo_alumno)) {
+    if (this.matricula.alumno.correo_alumno && !this.validarEmail(this.matricula.alumno.correo_alumno)) {
       errores.push('El formato del correo del alumno no es válido.');
     }
 
-    if (this.alumno.correo_encargado && !this.validarEmail(this.alumno.correo_encargado)) {
+    if (this.matricula.alumno.correo_encargado && !this.validarEmail(this.matricula.alumno.correo_encargado)) {
       errores.push('El formato del correo del encargado no es válido.');
     }
 
-    if (this.alumno.dui_encargado && !this.validarDUI(this.alumno.dui_encargado)) {
+    if (this.matricula.alumno.dui_encargado && !this.validarDUI(this.matricula.alumno.dui_encargado)) {
       errores.push('El formato del DUI del encargado no es válido (ej: 12345678-9).');
     }
 
     if (errores.length > 0) {
-      this.mensaje = errores[0]; 
+      this.mensaje = errores[0];
 
       // Mover al inicio
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -314,7 +275,7 @@ export class ActualizarAlumnoComponent implements OnInit {
     // Solo permite números y limita a 7 dígitos
     let valor = input.value.replace(/\D/g, '').substring(0, 7);
     input.value = valor;
-    this.alumno.nie = parseInt(valor) || 0;
+    this.matricula.alumno.nie = parseInt(valor) || 0;
   }
 
   validarTelefono(event: Event, campo: 'alumno' | 'encargado'): void {
@@ -324,9 +285,9 @@ export class ActualizarAlumnoComponent implements OnInit {
     input.value = valor;
 
     if (campo === 'alumno') {
-      this.alumno.telefono_alumno = valor;
+      this.matricula.alumno.telefono_alumno = valor;
     } else {
-      this.alumno.telefono_encargado = valor;
+      this.matricula.alumno.telefono_encargado = valor;
     }
   }
 
@@ -342,7 +303,7 @@ export class ActualizarAlumnoComponent implements OnInit {
 
     // Actualiza el valor en el input y en el modelo
     input.value = valor;
-    this.alumno.dui_encargado = valor;
+    this.matricula.alumno.dui_encargado = valor;
   }
 
   // Formateo automático del DUI mientras el usuario escribe
@@ -351,7 +312,7 @@ export class ActualizarAlumnoComponent implements OnInit {
     if (valor.length >= 8) {
       valor = valor.substring(0, 8) + '-' + valor.substring(8, 9);
     }
-    this.alumno.dui_encargado = valor;
+    this.matricula.alumno.dui_encargado = valor;
   }
 
   onEmailChange(event: Event, campo: 'alumno' | 'encargado'): void {
@@ -365,9 +326,9 @@ export class ActualizarAlumnoComponent implements OnInit {
     }
 
     if (campo === 'alumno') {
-      this.alumno.correo_alumno = email;
+      this.matricula.alumno.correo_alumno = email;
     } else {
-      this.alumno.correo_encargado = email;
+      this.matricula.alumno.correo_encargado = email;
     }
   }
 

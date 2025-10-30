@@ -22,11 +22,17 @@
     <a class="nav-link" routerLink="/entrega-paquetes-escolares" routerLinkActive="active" *ngIf="BloquearSecretaria()">Entrega de Paquetes Escolares</a>
   </li>
   <li class="nav-item">
+<<<<<<< HEAD
     <a class="nav-link" routerLink="/reporte-anual-alumno" routerLinkActive="active">Reporte anual de alumno</a>
     <a class="nav-link" routerLink="/gestion-actividades" routerLinkActive="active">Gestion de actividades</a>
     
     
   </li>
   
+=======
+    <a class="nav-link" routerLink="/materias" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Materias</a>
+    <a class="nav-link" routerLink="/materias/asignarMateriaADocente" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Asiganar Materias</a>
+  </li>
+>>>>>>> Jairo
 
 </ul>
