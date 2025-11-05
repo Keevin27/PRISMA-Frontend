@@ -55,6 +55,7 @@ export class GestionActividadesComponent implements OnInit {
   cargarBloques(): void {
     this.bloqueService.obtenerTodosBloques().subscribe({
       next: (data: any[]) => {
+        console.log('Bloques cargados:', data); // Debug
         this.bloques = data;
         this.bloquesDisponibles = data;
       },
@@ -74,8 +75,11 @@ export class GestionActividadesComponent implements OnInit {
     }
 
     this.cargando = true;
+    console.log('Consultando actividades:', this.bloqueSeleccionado, this.trimestreSeleccionado); // Debug
+    
     this.actividadesService.listarActividades(this.bloqueSeleccionado, this.trimestreSeleccionado).subscribe({
       next: (data: any) => {
+        console.log('Actividades recibidas:', data); // Debug
         this.datosBloque = {
           materia: data.materia,
           grado: data.grado,
@@ -95,6 +99,11 @@ export class GestionActividadesComponent implements OnInit {
   }
 
   abrirModalAgregar(): void {
+    if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {
+      this.mensaje = 'Primero debe consultar una materia y trimestre';
+      this.mostrarMensaje();
+      return;
+    }
     this.isEditing = false;
     this.actividadEditando = null;
     this.limpiarFormulario();
@@ -135,14 +144,6 @@ export class GestionActividadesComponent implements OnInit {
       return;
     }
 
-    const actividadData = {
-      idBloque: this.bloqueSeleccionado,
-      trimestre: this.trimestreSeleccionado,
-      nombreActividad: this.nombreActividad,
-      ponderacion: this.ponderacion,
-      fechaActividad: this.fechaActividad
-    };
-
     if (this.isEditing && this.actividadEditando) {
       // Actualizar
       const updateData = {
@@ -150,6 +151,8 @@ export class GestionActividadesComponent implements OnInit {
         ponderacion: this.ponderacion,
         fechaActividad: this.fechaActividad
       };
+
+      console.log('Actualizando actividad:', updateData); // Debug
 
       this.actividadesService.actualizarActividad(this.actividadEditando.idActividad, updateData).subscribe({
         next: (response: any) => {
@@ -166,16 +169,30 @@ export class GestionActividadesComponent implements OnInit {
       });
     } else {
       // Crear
+      const actividadData = {
+        idBloque: this.bloqueSeleccionado,
+        trimestre: this.trimestreSeleccionado,
+        nombreActividad: this.nombreActividad,
+        ponderacion: this.ponderacion,
+        fechaActividad: this.fechaActividad
+      };
+
+      console.log('Creando actividad con datos:', actividadData); // Debug
+      console.log('URL completa:', `http://localhost:8080/actividades/crear`); // Debug
+
       this.actividadesService.crearActividad(actividadData).subscribe({
         next: (response: any) => {
+          console.log('Respuesta del servidor:', response); // Debug
           this.mensaje = 'Actividad creada exitosamente';
           this.mostrarMensaje();
           this.cerrarModal();
           this.consultarActividades();
         },
         error: (error: any) => {
-          console.error('Error al crear:', error);
-          this.mensaje = 'Error al crear la actividad';
+          console.error('Error completo:', error); // Debug detallado
+          console.error('Status:', error.status); // Debug
+          console.error('Message:', error.message); // Debug
+          this.mensaje = 'Error al crear la actividad: ' + (error.error?.error || error.message);
           this.mostrarMensaje();
         }
       });
@@ -231,7 +248,7 @@ export class GestionActividadesComponent implements OnInit {
 
   calcularTotalPonderacion(): number {
     if (this.actividades.length === 0) return 0;
-    return this.actividades.reduce((sum, act) => sum + act.ponderacion, 0);
+    return this.actividades.reduce((sum, act) => sum + (act.ponderacion || 0), 0);
   }
 
   getPonderacionRestante(): number {

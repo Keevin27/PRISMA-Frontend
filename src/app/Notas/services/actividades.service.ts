@@ -1,8 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Actividad } from '../models/actividad.model';
-
+import { Actividad } from '../models/actividad.model'
 @Injectable({
   providedIn: 'root'
 })
