@@ -29,6 +29,7 @@
 
             <div class="col-lg-5 col-md-6 mb-3">
                 <label for="bloque" class="form-label fw-bold">Materia - Grado - Sección: <span class="text-danger">*</span></label>
+                
                 <select class="form-select" id="bloque" [(ngModel)]="bloqueSeleccionado" name="bloque">
     <option [value]="null">Seleccione una materia</option>
     <option *ngFor="let bloque of bloquesDisponibles" [value]="bloque.id_bloque">
@@ -37,6 +38,8 @@
         {{ bloque.grado?.seccion || '' }}
     </option>
 </select>
+
+
             </div>
 
             <div class="col-lg-3 col-md-6 mb-3">

@@ -13,4 +13,11 @@ export class BloqueService {
   obtenerTodosBloques(): Observable<any[]> {
     return this.httpClient.get<any[]>(`${this.baseURL}/bloques`);
   }
+//Nuevo metodo
+  obtenerMisBloquesDocente(): Observable<any[]> {
+    return this.httpClient.get<any[]>(`${this.baseURL}/mis-bloques`);
+  }
+
+
+
 }

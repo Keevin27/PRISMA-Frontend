@@ -7,6 +7,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ActividadesService } from '../../services/actividades.service';
 import { BloqueService } from '../../../Services/bloque.service';
+import { AuthService } from '../../../Auth/auth.service';
 
 @Component({
   selector: 'app-gestion-actividades',
@@ -45,6 +46,7 @@ export class GestionActividadesComponent implements OnInit {
   constructor(
     private actividadesService: ActividadesService,
     private bloqueService: BloqueService,
+    private authService: AuthService,
     private router: Router
   ) { }
 
@@ -52,20 +54,63 @@ export class GestionActividadesComponent implements OnInit {
     this.cargarBloques();
   }
 
-  cargarBloques(): void {
-    this.bloqueService.obtenerTodosBloques().subscribe({
-      next: (data: any[]) => {
-        console.log('Bloques cargados:', data); // Debug
-        this.bloques = data;
-        this.bloquesDisponibles = data;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar bloques:', error);
-        this.mensaje = 'Error al cargar las materias';
-        this.mostrarMensaje();
-      }
-    });
-  }
+cargarBloques(): void {
+    // Obtener roles del usuario usando tu AuthService existente
+    const roles = this.authService.getUserRoles();
+    
+    console.log('Roles del usuario:', roles);
+    
+    // Verificar si es DOCENTE
+    const esDocente = roles.includes('ROLE_DOCENTE');
+    
+    // Verificar si es ADMIN, DIRECTOR o SECRETARIA
+    const esAdmin = roles.some(rol => 
+      rol === 'ROLE_ADMIN' || 
+      rol === 'ROLE_DIRECTOR' || 
+      rol === 'ROLE_SECRETARIA'
+    );
+    
+    if (esDocente) {
+      console.log(' Cargando bloques del DOCENTE...');
+      this.bloqueService.obtenerMisBloquesDocente().subscribe({
+        next: (data: any[]) => {
+          console.log('Bloques del docente:', data);
+          this.bloques = data;
+          this.bloquesDisponibles = data;
+          
+          if (data.length === 0) {
+            this.mensaje = 'No tiene materias asignadas';
+            this.mostrarMensaje();
+          }
+        },
+        error: (error: any) => {
+          console.error('Error al cargar bloques del docente:', error);
+          this.mensaje = 'Error al cargar sus materias asignadas';
+          this.mostrarMensaje();
+        }
+      });
+    } 
+    else if (esAdmin) {
+      console.log(' Cargando TODOS los bloques (ADMIN)...');
+      this.bloqueService.obtenerTodosBloques().subscribe({
+        next: (data: any[]) => {
+          console.log(' Todos los bloques:', data);
+          this.bloques = data;
+          this.bloquesDisponibles = data;
+        },
+        error: (error: any) => {
+          console.error('Error al cargar bloques:', error);
+          this.mensaje = 'Error al cargar las materias';
+          this.mostrarMensaje();
+        }
+      });
+    } 
+    else {
+      console.warn(' Usuario sin rol válido');
+      this.mensaje = 'No tiene permisos para acceder a esta sección';
+      this.mostrarMensaje();
+    }
+}
 
   consultarActividades(): void {
     if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {

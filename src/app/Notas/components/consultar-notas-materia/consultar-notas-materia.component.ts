@@ -1,3 +1,5 @@
+// Ubicación: src/app/Notas/components/consultar-notas-materia/consultar-notas-materia.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -5,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { NotasService } from '../../services/notas.service';
 import { BloqueService } from '../../../Services/bloque.service';
+import { AuthService } from '../../../Auth/auth.service';
 
 @Component({
   selector: 'app-consultar-notas-materia',
@@ -16,8 +19,8 @@ import { BloqueService } from '../../../Services/bloque.service';
 export class ConsultarNotasMateriaComponent implements OnInit {
   bloques: any[] = [];
   bloquesDisponibles: any[] = [];
-  trimestreSeleccionado: number = 1;
   bloqueSeleccionado: any = null;
+  trimestreSeleccionado: number = 1;
   
   datosNotas: any = null;
   mensaje: string = '';
@@ -31,7 +34,8 @@ export class ConsultarNotasMateriaComponent implements OnInit {
 
   constructor(
     private notasService: NotasService,
-    private bloqueService: BloqueService
+    private bloqueService: BloqueService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -39,18 +43,61 @@ export class ConsultarNotasMateriaComponent implements OnInit {
   }
 
   cargarBloques(): void {
-    // Cargar todos los bloques (materias asignadas)
-    this.bloqueService.obtenerTodosBloques().subscribe({
-      next: (data: any[]) => {
-        this.bloques = data;
-        this.bloquesDisponibles = data;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar bloques:', error);
-        this.mensaje = 'Error al cargar las materias';
-        this.mostrarMensaje();
-      }
-    });
+    // Obtener roles del usuario usando tu AuthService existente
+    const roles = this.authService.getUserRoles();
+    
+    console.log('Roles del usuario:', roles);
+    
+    // Verificar si es DOCENTE
+    const esDocente = roles.includes('ROLE_DOCENTE');
+    
+    // Verificar si es ADMIN, DIRECTOR o SECRETARIA
+    const esAdmin = roles.some(rol => 
+      rol === 'ROLE_ADMIN' || 
+      rol === 'ROLE_DIRECTOR' || 
+      rol === 'ROLE_SECRETARIA'
+    );
+    
+    if (esDocente) {
+      console.log(' Cargando bloques del DOCENTE...');
+      this.bloqueService.obtenerMisBloquesDocente().subscribe({
+        next: (data: any[]) => {
+          console.log('Bloques del docente:', data);
+          this.bloques = data;
+          this.bloquesDisponibles = data;
+          
+          if (data.length === 0) {
+            this.mensaje = 'No tiene materias asignadas';
+            this.mostrarMensaje();
+          }
+        },
+        error: (error: any) => {
+          console.error('Error al cargar bloques del docente:', error);
+          this.mensaje = 'Error al cargar sus materias asignadas';
+          this.mostrarMensaje();
+        }
+      });
+    } 
+    else if (esAdmin) {
+      console.log(' Cargando TODOS los bloques (ADMIN)...');
+      this.bloqueService.obtenerTodosBloques().subscribe({
+        next: (data: any[]) => {
+          console.log(' Todos los bloques:', data);
+          this.bloques = data;
+          this.bloquesDisponibles = data;
+        },
+        error: (error: any) => {
+          console.error('Error al cargar bloques:', error);
+          this.mensaje = 'Error al cargar las materias';
+          this.mostrarMensaje();
+        }
+      });
+    } 
+    else {
+      console.warn(' Usuario sin rol válido');
+      this.mensaje = 'No tiene permisos para acceder a esta sección';
+      this.mostrarMensaje();
+    }
   }
 
   consultarNotas(): void {

@@ -11,8 +11,8 @@
   <div class="card shadow-sm p-3 mb-4">
     <div class="row align-items-end">
       <div class="col-md-5 mb-3">
-        <label class="form-label fw-semibold">Seleccione Materia (Bloque):</label>
-       <select class="form-select" id="bloque" [(ngModel)]="bloqueSeleccionado" name="bloque">
+<label class="form-label fw-semibold">Seleccione Materia (Bloque):</label>
+             <select class="form-select" id="bloque" [(ngModel)]="bloqueSeleccionado" name="bloque">
     <option [value]="null">Seleccione una materia</option>
     <option *ngFor="let bloque of bloquesDisponibles" [value]="bloque.id_bloque">
         {{ bloque.materia?.nombre_materia || 'Sin materia' }} - 

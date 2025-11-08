@@ -47,4 +47,6 @@ export class ActividadesService {
   eliminarNota(idNotaActividad: number): Observable<any> {
     return this.httpClient.delete<any>(`${this.baseURL}/eliminar-nota/${idNotaActividad}`);
   }
+
+
 }
