@@ -28,7 +28,7 @@ export class MatriculaComponent implements OnInit {
 
   // Filtros seleccionados
   anioSeleccionado: number | null = null;
-  nombreAnioActivo: string = ''; // <--- NUEVA VARIABLE PARA EL TEXTO FIJO
+  nombreAnioActivo: string = ''; // VARIABLE PARA EL TEXTO FIJO
   gradoSeleccionado: number | null = null;
 
   // Vista activa (pestañas)
@@ -62,7 +62,7 @@ export class MatriculaComponent implements OnInit {
     this.cargarAniosAcademicos();
   }
 
-  // ... (Métodos de mensajes igual que antes) ...
+  //Métodos de mensajes
   limpiarMensajes(): void {
     this.mensajeExito = null;
     this.mensajeError = null;
@@ -91,7 +91,7 @@ export class MatriculaComponent implements OnInit {
         this.aniosAcademicos = data;
         this.cargandoDatos = false;
         
-        // LÓGICA ACTUALIZADA: Buscar solo el activo
+        // Buscar solo el activo
         const anioActivo = this.aniosAcademicos.find(a => a.anio_activo);
         if (anioActivo) {
           this.anioSeleccionado = anioActivo.anio;
@@ -133,7 +133,7 @@ export class MatriculaComponent implements OnInit {
     });
   }
 
-  // ... (cargarAlumnos, cambiarVista, actualizarVista igual que antes) ...
+  //cargarAlumnos, cambiarVista, actualizarVista
   cargarAlumnos(): void {
     if (!this.anioSeleccionado || !this.gradoSeleccionado) {
       this.mostrarMensaje('advertencia', 'Debe seleccionar un año académico y un grado.');
@@ -189,7 +189,7 @@ export class MatriculaComponent implements OnInit {
     }
   }
 
-  // ... (Selección de alumnos igual) ...
+  // Selección de alumnos
   toggleSeleccion(idAlumno: number): void {
     if (this.alumnosSeleccionados.has(idAlumno)) {
       this.alumnosSeleccionados.delete(idAlumno);
@@ -213,7 +213,7 @@ export class MatriculaComponent implements OnInit {
            this.alumnosMostrados.every(m => this.alumnosSeleccionados.has(m.alumno.idAlumno));
   }
 
-  // ==================== MATRÍCULA Y DESMATRÍCULA (ACTUALIZADO COLORES) ====================
+  // ==================== MATRÍCULA Y DESMATRÍCULA ====================
 
   matricularSeleccionados(): void {
     this.limpiarMensajes();
@@ -281,10 +281,8 @@ export class MatriculaComponent implements OnInit {
       title: '¿Confirmar desmatrícula?',
       text: `Se desmatricularán ${this.alumnosSeleccionados.size} alumno(s) de este grado.`,
       icon: 'warning',
-      showCancelButton: true,
-      // EL BOTÓN PELIGROSO (DESMATRICULAR) DEBE SER EL CONFIRMAR AQUÍ, LO PONEMOS ROJO
+      showCancelButton: true, 
       confirmButtonColor: '#dc2626', 
-      // EL CANCELAR LO PONEMOS GRIS O NEUTRO
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Sí, desmatricular',
       cancelButtonText: 'Cancelar'
@@ -316,7 +314,7 @@ export class MatriculaComponent implements OnInit {
     });
   }
 
-  // ... (Utilidades y lógica extra igual) ...
+  //Utilidades y lógica extra
   limpiarSelecciones(): void {
     this.alumnosSeleccionados.clear();
   }
@@ -350,7 +348,7 @@ export class MatriculaComponent implements OnInit {
     return this.alumnosMatriculados.some(m => m.alumno.idAlumno === idAlumno);
   }
 
-  // ==================== INDIVIDUAL (ACTUALIZADO COLORES) ====================
+  // ==================== INDIVIDUAL ====================
 
   matricularAlumnoIndividual(idAlumno: number): void {
     this.limpiarMensajes();
@@ -370,9 +368,7 @@ export class MatriculaComponent implements OnInit {
       text: `Se matriculará a ${nombreAlumno} en ${this.obtenerNombreGrado(this.gradoSeleccionado)}.`,
       icon: 'question',
       showCancelButton: true,
-      // VERDE
       confirmButtonColor: '#16a34a',
-      // ROJO
       cancelButtonColor: '#dc2626',
       confirmButtonText: 'Sí, matricular',
       cancelButtonText: 'Cancelar'

@@ -1,18 +1,27 @@
+<!-- Contenedor principal con padding -->
 <div class="container-fluid py-4">
 
+  <!-- Mensaje de ÉXITO -->
   <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
     <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
+    <!-- Botón para cerrar el mensaje -->
     <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
   </div>
+
+  <!-- Mensaje de ERROR -->
   <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
     <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
     <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
   </div>
+
+  <!-- Mensaje de ADVERTENCIA -->
   <div *ngIf="mensajeAdvertencia" class="alert alert-warning alert-dismissible fade show" role="alert">
     <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
     <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
   </div>
 
+
+  <!-- Encabezado principal -->
   <div class="bg-light p-3 mb-4 rounded">
     <h2 class="text-center mb-0">
       <i class="bi bi-clipboard-check"></i>
@@ -21,6 +30,8 @@
     <p class="text-center text-muted mb-0">Administre las matrículas de los alumnos por año académico y grado</p>
   </div>
 
+
+  <!-- Card de filtros -->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
         <h5 class="mb-0">
@@ -28,40 +39,50 @@
             Filtros de Búsqueda
         </h5>
     </div>
+
     <div class="card-body">
         <div class="row g-3">
-            
+
+            <!-- Campo Año Académico -->
             <div class="col-md-6">
                 <label class="form-label">
                     <i class="bi bi-calendar-event"></i>
                     Año Académico
                 </label>
+
+                <!-- Solo muestra el nombre del año activo -->
                 <input 
                     type="text" 
                     class="form-control bg-light" 
                     [value]="nombreAnioActivo || 'Cargando...'" 
-                    readonly 
-                    style="font-weight: bold; color: #495057;">
+                    readonly>
             </div>
 
+            <!-- Campo para seleccionar grado -->
             <div class="col-md-6">
                 <label for="grado" class="form-label">
                     <i class="bi bi-mortarboard"></i>
                     Grado
                 </label>
+
                 <select 
                     id="grado" 
                     class="form-select"
                     [(ngModel)]="gradoSeleccionado" 
                     (change)="onGradoChange()"
                     [disabled]="!anioSeleccionado || cargandoDatos || grados.length === 0">
+
                     <option [ngValue]="null">Seleccione un grado</option>
+
+                    <!-- Cargar lista de grados -->
                     <option *ngFor="let grado of grados" [ngValue]="grado.id_grado">
-                    {{ grado.nombre_grado }} - Sección {{ grado.seccion }} ({{ grado.turno_grado }})
+                        {{ grado.nombre_grado }} - Sección {{ grado.seccion }} ({{ grado.turno_grado }})
                     </option>
                 </select>
             </div>
         </div>
+
+        <!-- Mensaje si todavía no se ha seleccionado grado -->
         <div class="alert alert-info mt-3 mb-0" *ngIf="anioSeleccionado && !gradoSeleccionado">
             <i class="bi bi-info-circle"></i>
             Seleccione un grado para ver los alumnos
@@ -69,7 +90,11 @@
     </div>
   </div>
 
+
+  <!-- Resumen de estadísticas -->
   <div class="row g-3 mb-4" *ngIf="gradoSeleccionado && !cargandoAlumnos">
+
+    <!-- Total alumnos -->
     <div class="col-md-3">
         <div class="card text-white bg-primary">
             <div class="card-body">
@@ -78,13 +103,13 @@
                 <h6 class="card-title mb-0">Total Alumnos</h6>
                 <h3 class="mb-0">{{ todosLosAlumnos.length }}</h3>
                 </div>
-                <div>
                 <i class="bi bi-people" style="font-size: 2.5rem;"></i>
-                </div>
             </div>
             </div>
         </div>
     </div>
+
+    <!-- Matriculados -->
     <div class="col-md-3">
         <div class="card text-white bg-success">
             <div class="card-body">
@@ -93,13 +118,13 @@
                 <h6 class="card-title mb-0">Matriculados</h6>
                 <h3 class="mb-0">{{ totalMatriculados }}</h3>
                 </div>
-                <div>
                 <i class="bi bi-person-check" style="font-size: 2.5rem;"></i>
-                </div>
             </div>
             </div>
         </div>
     </div>
+
+    <!-- No matriculados -->
     <div class="col-md-3">
         <div class="card text-white bg-warning">
             <div class="card-body">
@@ -108,13 +133,13 @@
                 <h6 class="card-title mb-0">No Matriculados</h6>
                 <h3 class="mb-0">{{ totalNoMatriculados }}</h3>
                 </div>
-                <div>
                 <i class="bi bi-person-plus" style="font-size: 2.5rem;"></i>
-                </div>
             </div>
             </div>
         </div>
     </div>
+
+    <!-- Cupo disponible (dinámico según valor) -->
     <div class="col-md-3">
         <div class="card text-white" [ngClass]="cupoDisponible < 10 ? 'bg-danger' : 'bg-info'">
             <div class="card-body">
@@ -123,18 +148,19 @@
                 <h6 class="card-title mb-0">Cupo Disponible</h6>
                 <h3 class="mb-0">{{ cupoDisponible }}</h3>
                 </div>
-                <div>
                 <i class="bi bi-ui-checks" style="font-size: 2.5rem;"></i>
-                </div>
             </div>
             </div>
         </div>
     </div>
+
   </div>
 
 
+  <!-- Sección principal de alumnos -->
   <div *ngIf="gradoSeleccionado">
-    
+
+    <!-- Cargando alumnos -->
     <div class="text-center py-5" *ngIf="cargandoAlumnos">
       <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Cargando...</span>
@@ -142,54 +168,75 @@
       <p class="mt-3">Cargando alumnos...</p>
     </div>
 
+
+    <!-- Card de lista de alumnos -->
     <div class="card" *ngIf="!cargandoAlumnos">
-      
+
+      <!-- Tabs de navegación -->
       <div class="card-header p-0">
         <ul class="nav nav-tabs card-header-tabs">
+
+            <!-- Tab: Todos -->
             <li class="nav-item">
                 <button 
                 class="nav-link"
                 [class.active]="vistaActiva === 'todos'"
                 (click)="cambiarVista('todos')">
                 <i class="bi bi-list-ul"></i>
-                Todos <span class="badge rounded-pill bg-secondary ms-1">{{ todosLosAlumnos.length }}</span>
+                Todos
+                <span class="badge rounded-pill bg-secondary ms-1">{{ todosLosAlumnos.length }}</span>
                 </button>
             </li>
+
+            <!-- Tab: Matriculados -->
             <li class="nav-item">
                 <button 
                 class="nav-link"
                 [class.active]="vistaActiva === 'matriculados'"
                 (click)="cambiarVista('matriculados')">
                 <i class="bi bi-check-circle"></i>
-                Matriculados <span class="badge rounded-pill bg-success ms-1">{{ totalMatriculados }}</span>
+                Matriculados
+                <span class="badge rounded-pill bg-success ms-1">{{ totalMatriculados }}</span>
                 </button>
             </li>
+
+            <!-- Tab: No matriculados -->
             <li class="nav-item">
                 <button 
                 class="nav-link"
                 [class.active]="vistaActiva === 'no-matriculados'"
                 (click)="cambiarVista('no-matriculados')">
                 <i class="bi bi-clock-history"></i>
-                No Matriculados <span class="badge rounded-pill bg-warning text-dark ms-1">{{ totalNoMatriculados }}</span>
+                No Matriculados
+                <span class="badge rounded-pill bg-warning text-dark ms-1">{{ totalNoMatriculados }}</span>
                 </button>
             </li>
         </ul>
       </div>
 
+
+      <!-- Barra de acciones -->
       <div class="card-body border-bottom bg-light">
         <div class="row align-items-center g-2">
             <div class="col-md-4">
+
+                <!-- Nada seleccionado -->
                 <span *ngIf="alumnosSeleccionados.size === 0" class="text-muted">
                 <i class="bi bi-info-circle"></i>
                 Seleccione alumnos para realizar acciones
                 </span>
+
+                <!-- Alumnos seleccionados -->
                 <span *ngIf="alumnosSeleccionados.size > 0" class="text-primary fw-bold">
                 <i class="bi bi-check-double"></i>
                 {{ alumnosSeleccionados.size }} alumno(s) seleccionado(s)
                 </span>
             </div>
+
             <div class="col-md-8 text-end">
                 <div class="d-flex gap-2 justify-content-end">
+
+                    <!-- Botón seleccionar todos -->
                     <button 
                         class="btn btn-sm btn-outline-secondary rounded-pill"
                         (click)="seleccionarTodos()"
@@ -197,6 +244,8 @@
                         <i class="bi bi-check-square"></i>
                         Seleccionar Todos
                     </button>
+
+                    <!-- Botón limpiar selección -->
                     <button 
                         class="btn btn-sm btn-outline-secondary rounded-pill"
                         (click)="deseleccionarTodos()"
@@ -205,6 +254,7 @@
                         Limpiar
                     </button>
 
+                    <!-- Botón desmatricular -->
                     <button 
                         class="btn btn-sm btn-danger rounded-pill"
                         (click)="desmatricularSeleccionados()"
@@ -213,32 +263,43 @@
                         <i class="bi bi-person-dash"></i>
                         Desmatricular
                     </button>
+
                 </div>
             </div>
         </div>
       </div>
 
+
+      <!-- Tabla de alumnos -->
       <div class="card-body p-0">
         <div class="table-responsive">
+
+          <!-- Tabla si hay alumnos -->
           <table class="table table-hover mb-0" *ngIf="alumnosMostrados.length > 0">
             <thead class="table-dark">
               <tr>
                 <th style="width: 50px;">
+                  <!-- Check para seleccionar todo -->
                   <input 
                     type="checkbox" 
                     class="form-check-input"
                     [checked]="todosSeleccionados()"
                     (change)="todosSeleccionados() ? deseleccionarTodos() : seleccionarTodos()">
                 </th>
+
                 <th style="width: 100px;">NIE</th>
                 <th>Nombre Completo</th>
                 <th style="width: 250px;">Matrícula</th>
               </tr>
             </thead>
+
             <tbody>
+
+              <!-- Loop de alumnos -->
               <tr *ngFor="let matricula of alumnosMostrados" 
                   [class.table-active]="estaSeleccionado(matricula.alumno.idAlumno)">
-                
+
+                <!-- Check individual -->
                 <td>
                   <input 
                     type="checkbox" 
@@ -247,35 +308,41 @@
                     (change)="toggleSeleccion(matricula.alumno.idAlumno)">
                 </td>
 
+                <!-- NIE -->
                 <td>
                   <strong class="text-primary">{{ matricula.alumno.nie }}</strong>
                 </td>
 
+                <!-- Nombre del alumno -->
                 <td>
                   <div>
                     <strong>{{ matricula.alumno.nombre_alumno }} {{ matricula.alumno.apellido_alumno }}</strong>
-                    </div>
+                  </div>
                 </td>
 
+                <!-- Estado de matrícula -->
                 <td>
+                  <!-- Si ya está matriculado -->
                   <span *ngIf="matricula.grado" class="badge bg-success">
                     <i class="bi bi-check-circle"></i>
                     {{ matricula.grado.nombre_grado }} - {{ matricula.grado.seccion }}
                   </span>
 
+                  <!-- Si no está matriculado -->
                   <button *ngIf="!matricula.grado" 
                           class="btn btn-primary btn-sm"
                           (click)="matricularAlumnoIndividual(matricula.alumno.idAlumno)"
-                          [disabled]="cupoDisponible <= 0"
-                          title="Matricular en {{ obtenerNombreGrado(gradoSeleccionado!) }}">
+                          [disabled]="cupoDisponible <= 0">
                     <i class="bi bi-plus-circle"></i> Matricular
                   </button>
+
                 </td>
-                
               </tr>
+
             </tbody>
           </table>
 
+          <!-- Mensaje cuando no hay alumnos -->
           <div class="text-center py-5" *ngIf="alumnosMostrados.length === 0">
             <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
             <h4 class="mt-3">No hay alumnos para mostrar</h4>
@@ -285,18 +352,24 @@
               <ng-container *ngIf="vistaActiva === 'no-matriculados'">No hay candidatos disponibles para matricular</ng-container>
             </p>
           </div>
+
         </div>
       </div>
+
     </div>
   </div>
 
+
+  <!-- Vista si NO se ha seleccionado grado -->
   <div class="text-center py-5" *ngIf="!gradoSeleccionado && !cargandoAlumnos">
     <i class="bi bi-search" style="font-size: 5rem; color: #ccc;"></i>
     <h3 class="mt-3">Seleccione un año y grado</h3>
-    <p class="text-muted">Para comenzar a gestionar matrículas, seleccione un año académico y un grado en los filtros de arriba.</p>
+    <p class="text-muted">Para comenzar a gestionar matrículas, seleccione un año académico y un grado.</p>
   </div>
+
 </div>
 
+<!-- Estilo opcional -->
 <style>
   .bg-pink {
     background-color: #e91e63 !important;

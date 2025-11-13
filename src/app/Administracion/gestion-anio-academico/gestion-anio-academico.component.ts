@@ -41,20 +41,17 @@ export class GestionAnioAcademicoComponent implements OnInit {
   anioSeleccionadoGrados: AnioAcademico | null = null;
   mostrarModalAgregarGrado: boolean = false;
 
-  // =====================================================
   // === SECCIÓN DE ALERTAS EN BANNER ===
-  // =====================================================
+
   mensajeExito: string | null = null;
   mensajeError: string | null = null;
   mensajeAdvertencia: string | null = null;
   private private_alertTimer: any = null;
-  // =====================================================
 
-  // =====================================================
   // === VARIABLE PARA ERROR EN MODAL ===
-  // =====================================================
+ 
   mensajeErrorModal: string | null = null;
-  // =====================================================
+
 
   // Estructura de grados con turnos por defecto
   grados: Grado[] = [
@@ -160,7 +157,7 @@ export class GestionAnioAcademicoComponent implements OnInit {
   ];
 
   // Para agregar grados adicionales
-  gradosAgregar: Grado[] = JSON.parse(JSON.stringify(this.grados)); // Copia profunda
+  gradosAgregar: Grado[] = JSON.parse(JSON.stringify(this.grados)); 
 
   constructor(
     private anioAcademicoService: AnioAcademicoService,
@@ -195,7 +192,6 @@ export class GestionAnioAcademicoComponent implements OnInit {
       this.limpiarMensajes();
     }, duracion);
   }
-  // ========================================================
 
   cargarAniosAcademicos(): void {
     this.limpiarMensajes(); // Limpia mensajes al cargar
@@ -248,14 +244,14 @@ export class GestionAnioAcademicoComponent implements OnInit {
     this.mensajeErrorModal = null; // Limpia el error del modal
 
     if (!this.nuevoAnio || this.nuevoAnio < 2000 || this.nuevoAnio > 2100) {
-      // CAMBIO: Mostrar error DENTRO del modal
+      // Mostrar error DENTRO del modal
       this.mensajeErrorModal = 'Por favor ingrese un año válido (Ej: 2025)';
       return;
     }
 
     this.anioAcademicoService.crearAnioAcademico(this.nuevoAnio).subscribe({
       next: (data) => {
-        // Esto está bien: cerramos modal y mostramos banner
+        // cerramos modal y mostramos banner
         this.mostrarMensaje('exito', `Año ${this.nuevoAnio} creado correctamente`);
         this.cargarAniosAcademicos();
         this.cerrarModalCrearAnio();
@@ -263,13 +259,12 @@ export class GestionAnioAcademicoComponent implements OnInit {
       error: (error) => {
         console.error('Error al crear año:', error);
         
-        // CAMBIO: Mostrar error DENTRO del modal
+        //Mostrar error DENTRO del modal
         if (error.status === 409) {
           this.mensajeErrorModal = `Error: El año ${this.nuevoAnio} ya existe`;
         } else {
           this.mensajeErrorModal = 'No se pudo crear el año académico';
         }
-        // Ya NO llamamos a this.mostrarMensaje('error', ...)
       }
     });
   }
@@ -320,8 +315,8 @@ export class GestionAnioAcademicoComponent implements OnInit {
       text: "Esta acción cerrará el año y desactivará la matrícula. No se puede revertir.",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc3545', // Rojo (Peligro)
-      cancelButtonColor: '#6c757d',  // Gris (Secundario)
+      confirmButtonColor: '#dc3545', 
+      cancelButtonColor: '#6c757d',  
       confirmButtonText: 'Sí, finalizar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
@@ -412,8 +407,8 @@ export class GestionAnioAcademicoComponent implements OnInit {
       text: `Se crearán ${gradosConSecciones.length} nuevos grados/secciones.`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#198754', // Verde (Éxito)
-      cancelButtonColor: '#6c757d',  // Gris
+      confirmButtonColor: '#198754', 
+      cancelButtonColor: '#6c757d',  
       confirmButtonText: 'Sí, crear',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
@@ -472,8 +467,8 @@ export class GestionAnioAcademicoComponent implements OnInit {
       text: `¿Está seguro de eliminar ${grado.nombre_grado} sección ${grado.seccion}?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc3545', // Rojo
-      cancelButtonColor: '#6c757d',  // Gris
+      confirmButtonColor: '#dc3545', 
+      cancelButtonColor: '#6c757d',  
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
@@ -572,16 +567,14 @@ export class GestionAnioAcademicoComponent implements OnInit {
       return;
     }
 
-    // ==========================================================
     // === CONFIRMACIÓN AGREGADA (LA QUE HABÍA QUITADO) ===
-    // ==========================================================
     Swal.fire({
       title: '¿Confirmar Creación?',
       text: `Se agregarán ${gradosConSecciones.length} nuevos grados/secciones a este año académico.`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#198754', // Verde (btn-success)
-      cancelButtonColor: '#6c757d',  // Gris (btn-secondary)
+      confirmButtonColor: '#198754', 
+      cancelButtonColor: '#6c757d',  
       confirmButtonText: 'Sí, agregar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
@@ -594,7 +587,7 @@ export class GestionAnioAcademicoComponent implements OnInit {
     
         this.gradoService.crearOferta(oferta).subscribe({
           next: (data) => {
-            // Usamos el banner de éxito con tu texto
+            // Usamos el banner de éxito
             this.mostrarMensaje('exito', `${data.length} grados agregados exitosamente`);
             this.cerrarModalAgregarGrado();
             if (this.anioSeleccionadoGrados) {

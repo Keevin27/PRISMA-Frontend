@@ -11,7 +11,7 @@ import { AnioAcademicoService } from '../../Services/anio-academico.service';
 import { AnioAcademico } from '../../Models/anio-academico';
 import { Matricula } from '../../Models/matricula';
 import { MatriculaService } from '../../Alumno/matricula.service';
-import Swal from 'sweetalert2'; // Importar Swal
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -26,15 +26,13 @@ export class ListaAlumnosComponent implements OnInit {
   rolesUsuario: string[] = [];
   filtroAnio: string = '';
   filtroGrado: string = '';
-  mostrarSinMatricula: boolean = true;
   aniosDisponibles: AnioAcademico[] = [];
-  todasLasMatriculas: Matricula[] = []; // TODAS las matrículas de la BD
-  matriculas: Matricula[] = []; // Las matrículas filtradas para mostrar
+  todasLasMatriculas: Matricula[] = [];
+  matriculas: Matricula[] = [];
   gradosDisponibles: Grado[] = [];
   
-  // PROPIEDADES PARA MATRÍCULA
-  todosLosAlumnos: Alumno[] = []; // TODOS los alumnos de la BD
-  alumnosSinMatricula: Alumno[] = []; // Alumnos sin matrícula filtrados
+  todosLosAlumnos: Alumno[] = [];
+  alumnosSinMatricula: Alumno[] = [];
   alumnoAMatricular: Alumno | null = null;
   anioActivo: AnioAcademico | null = null;
   nombreAnioActivoModal: string = 'Cargando...';
@@ -42,15 +40,13 @@ export class ListaAlumnosComponent implements OnInit {
   gradosParaMatricula: Grado[] = [];
   cuposDisponibles: Map<number, number> = new Map();
   
-  // PROPIEDADES PARA ALERTAS EN BANNER
   mensajeExito: string | null = null;
   mensajeError: string | null = null;
   mensajeAdvertencia: string | null = null;
   private private_alertTimer: any = null;
   mensajeModalError: string | null = null;
 
-  // NUEVA VARIABLE PARA EL CONTADOR TOTAL
-  totalAlumnosDelAnio: number = 0;
+  totalAlumnosDelAnio: number = 0; // Contador total
 
   constructor(
     private alumnoServicio: AlumnoService,
@@ -89,11 +85,9 @@ export class ListaAlumnosComponent implements OnInit {
 
   mostrarMensaje(tipo: 'exito' | 'error' | 'advertencia', mensaje: string, duracion: number = 5000): void {
     this.limpiarMensajes();
-
     if (tipo === 'exito') this.mensajeExito = mensaje;
     if (tipo === 'error') this.mensajeError = mensaje;
     if (tipo === 'advertencia') this.mensajeAdvertencia = mensaje;
-
     this.private_alertTimer = setTimeout(() => {
       this.limpiarMensajes();
     }, duracion);
@@ -103,14 +97,14 @@ export class ListaAlumnosComponent implements OnInit {
   obtenerAlumnos(): void {
     this.limpiarMensajes();
     
-    // 1. Cargar AÑOS (para encontrar el activo)
+    // 1. Cargar AÑOS
     this.anioAcademicoService.obtenerAniosAcademicos().subscribe({
       next: (dataAnios: AnioAcademico[]) => {
-        this.aniosDisponibles = dataAnios || [];
+        this.aniosDisponibles = dataAnios.sort((a, b) => b.anio - a.anio); // Ordenar años
         this.anioActivo = this.aniosDisponibles.find(a => a.anio_activo) || null;
         
         if (this.anioActivo) {
-          this.filtroAnio = this.anioActivo.anio.toString(); // Poner año activo por defecto
+          this.filtroAnio = this.anioActivo.anio.toString();
           this.nombreAnioActivoModal = `${this.anioActivo.anio} (Activo)`;
         } else {
           this.nombreAnioActivoModal = 'No hay año activo';
@@ -127,50 +121,40 @@ export class ListaAlumnosComponent implements OnInit {
               next: (alumnos: Alumno[]) => {
                 this.todosLosAlumnos = alumnos || [];
                 
-                // 4. Cargar grados del año activo (para el filtro)
-                if (this.anioActivo) {
-                  this.cargarGradosPorAnio(this.anioActivo.anio, true); // true = auto-filtrar
+                // 4. Cargar grados del año (activo por defecto) y FILTRAR
+                if (this.filtroAnio) {
+                  this.cargarGradosPorAnio(parseInt(this.filtroAnio), true); // true = auto-filtrar
                 } else {
                   this.filtrarAlumnos(); // Filtrar sin año (mostrará todo)
                 }
               },
-              error: (error) => {
-                this.mostrarMensaje('error', 'No se pudieron cargar los alumnos.');
-              }
+              error: (error) => this.mostrarMensaje('error', 'No se pudieron cargar los alumnos.')
             });
           },
-          error: (error) => {
-            this.mostrarMensaje('error', 'No se pudieron cargar las matrículas.');
-          }
+          error: (error) => this.mostrarMensaje('error', 'No se pudieron cargar las matrículas.')
         });
       },
-      error: () => {
-        this.mostrarMensaje('error', 'No se pudieron cargar los años académicos.');
-      }
+      error: () => this.mostrarMensaje('error', 'No se pudieron cargar los años académicos.')
     });
   }
 
-
-  // Carga los grados disponibles según el año seleccionado
   cargarGradosPorAnio(anio: number, autoFiltrar: boolean = false): void {
     this.gradoService.obtenerGradosPorAnyo(anio).subscribe({
       next: (data: Grado[]) => {
         this.gradosDisponibles = data || [];
         if (autoFiltrar) {
-          this.filtrarAlumnos(); // Auto-filtrar después de cargar grados
+          this.filtrarAlumnos();
         }
       },
       error: (error: any) => {
-        console.error(`Error al cargar grados para ${anio}:`, error);
         this.gradosDisponibles = [];
         if (autoFiltrar) {
-          this.filtrarAlumnos(); // Filtrar aunque fallen los grados
+          this.filtrarAlumnos();
         }
       }
     });
   }
   
-  // Maneja el cambio de filtro por año
   onAnioChange(): void {
     this.filtroGrado = '';
     this.gradosDisponibles = [];
@@ -178,78 +162,82 @@ export class ListaAlumnosComponent implements OnInit {
     this.alumnosSinMatricula = [];
 
     if (this.filtroAnio) {
-      this.cargarGradosPorAnio(parseInt(this.filtroAnio), true); // Carga grados y LUEGO filtra
+      this.cargarGradosPorAnio(parseInt(this.filtroAnio), true);
     } else {
-      this.filtrarAlumnos(); // Si quita el año, filtra todo
+      this.filtrarAlumnos();
     }
   }
 
-  // Filtra la lista de alumnos según los criterios seleccionados
+  /**
+   * Lógica de filtrado principal.
+   * Decide qué alumnos mostrar (matriculados vs. candidatos) 
+   * basándose en si el año seleccionado es el activo.
+   */
   filtrarAlumnos(): void {
-    let matDelAnio: Matricula[] = [];
-    let alumnosMatriculadosEnAnioIds: Set<number> = new Set();
-    let candidatosDelAnio: Alumno[] = [];
+    // Limpiar listas
+    this.matriculas = [];
+    this.alumnosSinMatricula = [];
+    this.totalAlumnosDelAnio = 0;
 
-    if (this.filtroAnio) {
-        // 1. Filtrar matrículas POR AÑO
-        matDelAnio = this.todasLasMatriculas.filter(matricula => 
-            matricula.grado?.anioAcademico?.anio?.toString() === this.filtroAnio
-        );
-        
-        // 2. Obtener IDs de alumnos matriculados ESE AÑO
-        alumnosMatriculadosEnAnioIds = new Set(matDelAnio.map(m => m.alumno.idAlumno));
-        
-        // 3. Obtener "sin matrícula" (candidatos) DE ESE AÑO
-        // Son todos los alumnos que NO están en la lista de matriculados de ese año
-        candidatosDelAnio = this.todosLosAlumnos.filter(
-            alumno => !alumnosMatriculadosEnAnioIds.has(alumno.idAlumno)
-        );
-
-    } else {
-        // Si NO HAY filtro de año, mostrar todo
-        matDelAnio = [...this.todasLasMatriculas];
-        
-        // "Sin matrícula" son los que no están en NINGUNA matrícula
-        const alumnosMatriculadosIds = new Set(this.todasLasMatriculas.map(m => m.alumno.idAlumno));
-        candidatosDelAnio = this.todosLosAlumnos.filter(
-            alumno => !alumnosMatriculadosIds.has(alumno.idAlumno)
-        );
+    if (!this.filtroAnio) {
+        // Si no hay año seleccionado, no mostrar nada
+        return;
     }
+
+    // Encontrar todas las matrículas del AÑO seleccionado
+    const matDelAnio = this.todasLasMatriculas.filter(matricula => 
+        matricula.grado?.anioAcademico?.anio?.toString() === this.filtroAnio
+    );
     
+    // Obtener IDs de alumnos matriculados ESE AÑO
+    const alumnosMatriculadosEnAnioIds = new Set(matDelAnio.map(m => m.alumno.idAlumno));
+
+    // Obtener "Candidatos" (Todos los alumnos - los matriculados en ESE año)
+    // Esta lista se usará si el año es el activo
+    const candidatosDelAnio = this.todosLosAlumnos.filter(
+        alumno => !alumnosMatriculadosEnAnioIds.has(alumno.idAlumno)
+    );
+
     // Asignar el TOTAL de alumnos de ese año
     this.totalAlumnosDelAnio = matDelAnio.length + candidatosDelAnio.length;
-
-    // Aplicar filtro de GRADO (si existe)
-    if (this.filtroGrado) {
+    
+    // Si el año seleccionado ES EL ACTIVO Y NO HAY FILTRO DE GRADO
+    if (this.esAnioActivoSeleccionado() && !this.filtroGrado) {
+        // Mostrar AMBOS: matriculados y candidatos
+        this.matriculas = matDelAnio;
+        this.alumnosSinMatricula = candidatosDelAnio;
+    
+    // Si hay filtro de GRADO (en cualquier año)
+    } else if (this.filtroGrado) {
+        // Mostrar SOLO los matriculados de ESE GRADO
         this.matriculas = matDelAnio.filter(matricula => 
             matricula.grado?.id_grado?.toString() === this.filtroGrado
         );
-    } else {
-        this.matriculas = matDelAnio; // Mostrar todas las del año
-    }
+        // Ocultar candidatos (porque ya filtramos por grado)
+        this.alumnosSinMatricula = [];
 
-    // Aplicar filtro de "Mostrar sin matrícula"
-    if (this.mostrarSinMatricula) {
-        // Si hay filtro de grado, NO mostramos "sin matrícula"
-        this.alumnosSinMatricula = this.filtroGrado ? [] : candidatosDelAnio;
+    // Si es un año PASADO (no activo) y SIN filtro de grado
     } else {
+        // Mostrar SOLO los que estuvieron matriculados ese año
+        this.matriculas = matDelAnio;
+        // Ocultar candidatos
         this.alumnosSinMatricula = [];
     }
   }
 
+  // Revisa si el filtroAnio es el anioActivo
+  esAnioActivoSeleccionado(): boolean {
+    return this.anioActivo?.anio.toString() === this.filtroAnio;
+  }
 
-  // Resetea todos los filtros
   limpiarFiltros(): void {
-    this.filtroAnio = '';
     this.filtroGrado = '';
-    this.mostrarSinMatricula = true;
-    this.gradosDisponibles = [];
     
-    // Al limpiar, volvemos a poner el año activo por defecto
     if (this.anioActivo) {
       this.filtroAnio = this.anioActivo.anio.toString();
       this.onAnioChange(); // Carga grados y filtra
     } else {
+      this.filtroAnio = '';
       this.filtrarAlumnos(); // Recalcular todo
     }
   }
@@ -282,15 +270,12 @@ export class ListaAlumnosComponent implements OnInit {
               next: (cantidad: number) => {
                 this.cuposDisponibles.set(grado.id_grado, 45 - cantidad);
               },
-              error: () => {
-                this.cuposDisponibles.set(grado.id_grado, 45);
-              }
+              error: () => this.cuposDisponibles.set(grado.id_grado, 45)
             });
           }
         });
       },
       error: (error: any) => {
-        console.error('Error al cargar grados para matrícula:', error);
         this.mensajeModalError = 'Error al cargar los grados disponibles';
         this.gradosParaMatricula = [];
       }
@@ -308,9 +293,7 @@ export class ListaAlumnosComponent implements OnInit {
       this.mensajeModalError = 'Debe seleccionar un grado';
       return;
     }
-
-    const cupoDisponible = this.obtenerCupoDisponible(parseInt(this.gradoMatriculaSeleccionado));
-    if (cupoDisponible <= 0) {
+    if (this.obtenerCupoDisponible(parseInt(this.gradoMatriculaSeleccionado)) <= 0) {
       this.mensajeModalError = 'El grado seleccionado no tiene cupos disponibles';
       return;
     }
@@ -347,14 +330,11 @@ export class ListaAlumnosComponent implements OnInit {
         const modalElement = document.getElementById('modalMatricular');
         if (modalElement) {
           const modal = bootstrap.Modal.getInstance(modalElement);
-          if (modal) {
-            modal.hide();
-          }
+          if (modal) modal.hide();
         }
 
         this.mostrarMensaje('exito', `Alumno ${this.alumnoAMatricular?.nombre_alumno} ${this.alumnoAMatricular?.apellido_alumno} matriculado exitosamente`);
-        
-        this.obtenerAlumnos(); // Recarga TODOS los datos
+        this.obtenerAlumnos();
         
         this.alumnoAMatricular = null;
         this.gradoMatriculaSeleccionado = '';
@@ -362,8 +342,6 @@ export class ListaAlumnosComponent implements OnInit {
         this.mensajeModalError = '';
       },
       error: (error: any) => {
-        console.error('Error al crear matrícula:', error);
-        
         if (error.error && error.error.error) {
           this.mensajeModalError = error.error.error;
         } else {
@@ -380,7 +358,6 @@ export class ListaAlumnosComponent implements OnInit {
   abrirModalEliminar(id: number): void {
     this.idAlumnoAEliminar = id;
     this.limpiarMensajes();
-    // Abrir modal de Bootstrap
     const modalElement = document.getElementById('modalEliminar');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
@@ -390,11 +367,8 @@ export class ListaAlumnosComponent implements OnInit {
 
   confirmarEliminacionAlumno(): void {
     if (this.idAlumnoAEliminar != null) {
-      const id = this.idAlumnoAEliminar; 
-
-      // Usamos Swal solo para la confirmación (que ya no es necesaria si usamos el modal de Bootstrap)
-      // PERO el modal de Bootstrap ya tiene su propia confirmación.
-      // Simplificamos: El botón "Sí, eliminar" del modal llama a esto.
+      const id = this.idAlumnoAEliminar;
+      this.idAlumnoAEliminar = null; // Limpiar antes de la llamada
       
       this.alumnoServicio.eliminarAlumno(id).subscribe({
         next: () => {
@@ -402,12 +376,10 @@ export class ListaAlumnosComponent implements OnInit {
           this.obtenerAlumnos(); // Recargamos todos los datos
         },
         error: (error: any) => {
-          console.error('Error al eliminar alumno:', error);
           this.mostrarMensaje('error', 'Error al eliminar el alumno. Puede que esté asociado a otros registros.');
         }
       });
     }
-    this.idAlumnoAEliminar = null; // Limpiamos el ID
   }
 
   // ============== FUNCIONES AUXILIARES ==============
@@ -440,18 +412,53 @@ export class ListaAlumnosComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       (error) => {
-        console.error('Error al generar el PDF del alumno:', error);
         this.mostrarMensaje('error', 'Error al generar el PDF del expediente.');
       }
     );
   }
 
   imprimirTodosLosAlumnos(): void {
-    // ... (código de impresión sin cambios)
+    this.limpiarMensajes();
+    this.alumnoServicio.imprimirListadoAlumnos().subscribe(
+      (pdfBlob) => {
+        const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `listado_alumnos.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      (error) => {
+        this.mostrarMensaje('error', 'Error al generar el PDF del listado.');
+      }
+    );
   }
 
   imprimirAlumnosFiltrados(): void {
-    // ... (código de impresión sin cambios)
+    this.limpiarMensajes();
+    if (this.hayFiltrosActivos()) {
+      const filtros: any = {};
+      if (this.filtroAnio) filtros.anio = this.filtroAnio;
+      if (this.filtroGrado) filtros.grado = this.filtroGrado;
+
+      this.alumnoServicio.imprimirListadoAlumnosFiltrado(filtros).subscribe(
+        (pdfBlob) => {
+          const blob = new Blob([pdfBlob], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `listado_alumnos_filtrado.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        (error) => {
+          this.mostrarMensaje('error', 'Error al generar el PDF filtrado.');
+        }
+      );
+    } else {
+      this.imprimirTodosLosAlumnos();
+    }
   }
 
   private hayFiltrosActivos(): boolean {
@@ -464,11 +471,6 @@ export class ListaAlumnosComponent implements OnInit {
     } else {
       return `Imprimir alumnos filtrados (${this.alumnosFiltrados})`;
     }
-  }
-
-  // Total de alumnos relevantes PARA EL AÑO SELECCIONADO
-  get totalAlumnos(): number {
-    return this.totalAlumnosDelAnio;
   }
 
   // Total de alumnos mostrados DESPUÉS de aplicar el filtro de grado

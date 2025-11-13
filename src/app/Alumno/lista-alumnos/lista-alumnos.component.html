@@ -14,9 +14,7 @@
 <div class="container-fluid">
     <h2>Alumnos</h2>
 
-    <!-- ===================================================== -->
-    <!-- === SECCIÓN DE ALERTAS EN BANNER === -->
-    <!-- ===================================================== -->
+    <!-- Alertas en Banner -->
     <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
         <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
@@ -29,7 +27,6 @@
         <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
         <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
     </div>
-    <!-- ===================================================== -->
 
     <div class="row">
         <!-- Filtro de Alumnos - Columna Izquierda -->
@@ -40,13 +37,11 @@
                     <form>
                         <div class="mb-2">
                             <label for="filtro_anio" class="form-label small">Año:</label>
-                            <!-- Este select permite ver todos los años, pero el .ts pondrá el activo por defecto -->
                             <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio"
                                 [(ngModel)]="filtroAnio" (change)="onAnioChange()">
                                 <option value="">Seleccionar año...</option>
                                 <option *ngFor="let anio of aniosDisponibles" [value]="anio.anio">
                                   {{anio.anio}}
-                                  <!-- Mostramos (Activo) si es el año activo -->
                                   <span *ngIf="anio.anio_activo"> (Activo)</span>
                                 </option>
                             </select>
@@ -63,17 +58,8 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="mb-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="mostrarSinMatricula" 
-                                    [(ngModel)]="mostrarSinMatricula" 
-                                    name="mostrarSinMatricula"
-                                    (change)="filtrarAlumnos()">
-                                <label class="form-check-label small" for="mostrarSinMatricula">
-                                    Mostrar sin matrícula
-                                </label>
-                            </div>
-                        </div>
+                        
+                        <!-- CHECKBOX "MOSTRAR SIN MATRÍCULA" ELIMINADO -->
                         
                         <div class="d-grid gap-2">
                             <button type="button" class="btn btn-primary btn-sm" (click)="filtrarAlumnos()">
@@ -117,7 +103,6 @@
             <div class="table-responsive">
                 <div class="mb-2">
                     <small class="text-muted">
-                        <!-- CONTADORES CORREGIDOS -->
                         Mostrando {{alumnosFiltrados}} de {{totalAlumnosDelAnio}} alumnos
                     </small>
                 </div>
@@ -133,6 +118,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Lista de Alumnos YA MATRICULADOS en el año/grado -->
                         <tr *ngFor="let matricula of matriculas">
                             <td>{{matricula.alumno.nie}}</td>
                             <td>{{matricula.alumno.nombre_alumno}}</td>
@@ -169,17 +155,22 @@
                             </td>
                         </tr>
                         
-                        <!-- Mostrar alumnos sin matrícula -->
+                        <!-- Lista de Alumnos SIN MATRICULA (Candidatos) -->
                         <tr *ngFor="let alumno of alumnosSinMatricula">
                             <td>{{alumno.nie}}</td>
                             <td>{{alumno.nombre_alumno}}</td>
                             <td>{{alumno.apellido_alumno}}</td>
                             <td>
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                                <!-- El botón de Matricular solo aparece si el año seleccionado es el ACTIVO -->
+                                <button *ngIf="esAnioActivoSeleccionado()" 
+                                        class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="modal" 
                                         data-bs-target="#modalMatricular"
                                         (click)="abrirModalMatricular(alumno)">
                                     <i class="bi bi-plus-circle"></i> Matricular
                                 </button>
+                                <!-- Si es un año pasado, no se muestra nada -->
+                                <span *ngIf="!esAnioActivoSeleccionado()" class="badge bg-secondary">Sin Matrícula</span>
                             </td>
                             <td>
                                 <div class="d-flex justify-content-left">
@@ -212,6 +203,7 @@
                     </tbody>
                 </table>
 
+                <!-- Mensajes de "Sin Resultados" -->
                 <div class="alert alert-info alert-dismissible fade show mt-1"
                     *ngIf="alumnosFiltrados === 0 && totalAlumnosDelAnio > 0">
                     <i class="bi bi-funnel"></i>
@@ -220,22 +212,21 @@
                         <small>Limpiar filtros</small>
                     </button>
                 </div>
-
                 <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="totalAlumnosDelAnio === 0 && !filtroAnio">
                     <i class="bi bi-exclamation-triangle"></i>
                     <label>No hay alumnos registrados</label>
                 </div>
-
                 <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="totalAlumnosDelAnio === 0 && filtroAnio">
                     <i class="bi bi-exclamation-triangle"></i>
                     <label>No hay alumnos registrados para el año {{filtroAnio}}</label>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal único para eliminar (YA ESTANDARIZADO) -->
+<!-- Modal único para eliminar -->
 <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalLabelEliminar" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -258,7 +249,7 @@
     </div>
 </div>
 
-<!-- MODAL MATRICULAR (MODIFICADO) -->
+<!-- MODAL MATRICULAR (con año bloqueado) -->
 <div class="modal fade" id="modalMatricular" tabindex="-1" aria-labelledby="modalLabelMatricular" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -293,7 +284,7 @@
                             </div>
                         </div>
 
-                        <!-- Select de Grado (ahora se basa en anioActivo) -->
+                        <!-- Select de Grado -->
                         <div class="mb-3">
                             <label for="grado_matricula" class="form-label">Grado <span class="text-danger">*</span></label>
                             <select id="grado_matricula" class="form-select" 
@@ -321,7 +312,6 @@
                 <button type="button" class="btn btn-secondary" (click)="limpiarMensajes()" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <!-- BOTÓN DE MATRICULAR AHORA ES VERDE (SUCCESS) -->
                 <button type="button" class="btn btn-success" 
                         (click)="confirmarMatricula()"
                         [disabled]="!anioActivo || !gradoMatriculaSeleccionado">
