@@ -54,47 +54,27 @@ export class GestionActividadesComponent implements OnInit {
     this.cargarBloques();
   }
 
-cargarBloques(): void {
-    // Obtener roles del usuario usando tu AuthService existente
+  cargarBloques(): void {
     const roles = this.authService.getUserRoles();
-    
-    console.log('Roles del usuario:', roles);
-    
-    // Verificar si es DOCENTE
     const esDocente = roles.includes('ROLE_DOCENTE');
     
-    // Verificar si es ADMIN, DIRECTOR o SECRETARIA
-    const esAdmin = roles.some(rol => 
-      rol === 'ROLE_ADMIN' || 
-      rol === 'ROLE_DIRECTOR' || 
-      rol === 'ROLE_SECRETARIA'
-    );
-    
     if (esDocente) {
-      console.log(' Cargando bloques del DOCENTE...');
       this.bloqueService.obtenerMisBloquesDocente().subscribe({
         next: (data: any[]) => {
-          console.log('Bloques del docente:', data);
+          console.log('Bloques del docente cargados:', data);
           this.bloques = data;
           this.bloquesDisponibles = data;
-          
-          if (data.length === 0) {
-            this.mensaje = 'No tiene materias asignadas';
-            this.mostrarMensaje();
-          }
         },
         error: (error: any) => {
           console.error('Error al cargar bloques del docente:', error);
-          this.mensaje = 'Error al cargar sus materias asignadas';
+          this.mensaje = 'Error al cargar las materias asignadas';
           this.mostrarMensaje();
         }
       });
-    } 
-    else if (esAdmin) {
-      console.log(' Cargando TODOS los bloques (ADMIN)...');
+    } else {
       this.bloqueService.obtenerTodosBloques().subscribe({
         next: (data: any[]) => {
-          console.log(' Todos los bloques:', data);
+          console.log('Todos los bloques cargados:', data);
           this.bloques = data;
           this.bloquesDisponibles = data;
         },
@@ -104,13 +84,8 @@ cargarBloques(): void {
           this.mostrarMensaje();
         }
       });
-    } 
-    else {
-      console.warn(' Usuario sin rol válido');
-      this.mensaje = 'No tiene permisos para acceder a esta sección';
-      this.mostrarMensaje();
     }
-}
+  }
 
   consultarActividades(): void {
     if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {
@@ -120,11 +95,11 @@ cargarBloques(): void {
     }
 
     this.cargando = true;
-    console.log('Consultando actividades:', this.bloqueSeleccionado, this.trimestreSeleccionado); // Debug
+    console.log('Consultando actividades:', this.bloqueSeleccionado, this.trimestreSeleccionado);
     
     this.actividadesService.listarActividades(this.bloqueSeleccionado, this.trimestreSeleccionado).subscribe({
       next: (data: any) => {
-        console.log('Actividades recibidas:', data); // Debug
+        console.log('Actividades recibidas:', data);
         this.datosBloque = {
           materia: data.materia,
           grado: data.grado,
@@ -149,6 +124,15 @@ cargarBloques(): void {
       this.mostrarMensaje();
       return;
     }
+
+    //Validar que no se haya completado el 100%
+    const totalPonderacion = this.calcularTotalPonderacion();
+    if (totalPonderacion >= 100) {
+      this.mensaje = 'Ya se completó el 100% de ponderación en este trimestre. No puede agregar más actividades.';
+      this.mostrarMensaje();
+      return;
+    }
+
     this.isEditing = false;
     this.actividadEditando = null;
     this.limpiarFormulario();
@@ -183,6 +167,24 @@ cargarBloques(): void {
       return;
     }
 
+    // Validacion que no exceda el 100%
+    if (!this.isEditing) {
+      const totalActual = this.calcularTotalPonderacion();
+      if (totalActual + this.ponderacion > 100) {
+        this.mensaje = `La ponderación excede el 100%. Disponible: ${100 - totalActual}%`;
+        this.mostrarMensaje();
+        return;
+      }
+    } else {
+      // Al editar, restar la ponderación anterior
+      const totalSinActual = this.calcularTotalPonderacion() - (this.actividadEditando.ponderacion || 0);
+      if (totalSinActual + this.ponderacion > 100) {
+        this.mensaje = `La ponderación excede el 100%. Disponible: ${100 - totalSinActual}%`;
+        this.mostrarMensaje();
+        return;
+      }
+    }
+
     if (!this.fechaActividad) {
       this.mensaje = 'Seleccione la fecha de la actividad';
       this.mostrarMensaje();
@@ -197,7 +199,7 @@ cargarBloques(): void {
         fechaActividad: this.fechaActividad
       };
 
-      console.log('Actualizando actividad:', updateData); // Debug
+      console.log('Actualizando actividad:', updateData);
 
       this.actividadesService.actualizarActividad(this.actividadEditando.idActividad, updateData).subscribe({
         next: (response: any) => {
@@ -222,19 +224,18 @@ cargarBloques(): void {
         fechaActividad: this.fechaActividad
       };
 
+      console.log('Creando actividad con datos:', actividadData);
 
       this.actividadesService.crearActividad(actividadData).subscribe({
         next: (response: any) => {
-          console.log('Respuesta del servidor:', response); // Debug
+          console.log('Respuesta del servidor:', response);
           this.mensaje = 'Actividad creada exitosamente';
           this.mostrarMensaje();
           this.cerrarModal();
           this.consultarActividades();
         },
         error: (error: any) => {
-          console.error('Error completo:', error); 
-          console.error('Status:', error.status); 
-          console.error('Message:', error.message); 
+          console.error('Error completo:', error);
           this.mensaje = 'Error al crear la actividad: ' + (error.error?.error || error.message);
           this.mostrarMensaje();
         }
@@ -296,5 +297,13 @@ cargarBloques(): void {
 
   getPonderacionRestante(): number {
     return Math.max(0, 100 - this.calcularTotalPonderacion());
+  }
+
+  //Verificar si el botón debe estar deshabilitado
+  puedeAgregarActividad(): boolean {
+    if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {
+      return false;
+    }
+    return this.calcularTotalPonderacion() < 100;
   }
 }
