@@ -222,8 +222,6 @@ cargarBloques(): void {
         fechaActividad: this.fechaActividad
       };
 
-      console.log('Creando actividad con datos:', actividadData); // Debug
-      console.log('URL completa:', `http://localhost:8080/actividades/crear`); // Debug
 
       this.actividadesService.crearActividad(actividadData).subscribe({
         next: (response: any) => {
@@ -234,9 +232,9 @@ cargarBloques(): void {
           this.consultarActividades();
         },
         error: (error: any) => {
-          console.error('Error completo:', error); // Debug detallado
-          console.error('Status:', error.status); // Debug
-          console.error('Message:', error.message); // Debug
+          console.error('Error completo:', error); 
+          console.error('Status:', error.status); 
+          console.error('Message:', error.message); 
           this.mensaje = 'Error al crear la actividad: ' + (error.error?.error || error.message);
           this.mostrarMensaje();
         }
