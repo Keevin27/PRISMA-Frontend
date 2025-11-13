@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradoService {
-  private baseURL = "http://localhost:8080/Grado"  // Sin barra al final
+  private baseURL = "http://localhost:8080/Grado"  
 
   constructor(private httpClient: HttpClient) { }
 

@@ -14,14 +14,24 @@
 <div class="container-fluid">
     <h2>Alumnos</h2>
 
+    <!-- ===================================================== -->
+    <!-- === SECCIÓN DE ALERTAS EN BANNER === -->
+    <!-- ===================================================== -->
+    <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
+        <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+    </div>
+    <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
+        <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+    </div>
+    <div *ngIf="mensajeAdvertencia" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
+        <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+    </div>
+    <!-- ===================================================== -->
+
     <div class="row">
-        <div *ngIf="mensaje" class="alert alert-success" role="alert">
-            {{ mensaje }}
-        </div>
-        <div *ngIf="mensajeError" class="alert alert-danger" role="alert">
-            {{ mensajeError }}
-        </div>
-        
         <!-- Filtro de Alumnos - Columna Izquierda -->
         <div class="col-lg-2 col-md-3 mb-4">
             <div class="card">
@@ -30,10 +40,15 @@
                     <form>
                         <div class="mb-2">
                             <label for="filtro_anio" class="form-label small">Año:</label>
+                            <!-- Este select permite ver todos los años, pero el .ts pondrá el activo por defecto -->
                             <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio"
                                 [(ngModel)]="filtroAnio" (change)="onAnioChange()">
                                 <option value="">Seleccionar año...</option>
-                                <option *ngFor="let anio of aniosDisponibles" [value]="anio.anio">{{anio.anio}}</option>
+                                <option *ngFor="let anio of aniosDisponibles" [value]="anio.anio">
+                                  {{anio.anio}}
+                                  <!-- Mostramos (Activo) si es el año activo -->
+                                  <span *ngIf="anio.anio_activo"> (Activo)</span>
+                                </option>
                             </select>
                         </div>
                         <div class="mb-2">
@@ -48,7 +63,6 @@
                                 </option>
                             </select>
                         </div>
-                        <!-- NUEVO: Checkbox para mostrar alumnos sin matrícula -->
                         <div class="mb-2">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="mostrarSinMatricula" 
@@ -76,7 +90,6 @@
 
         <!-- Contenido Principal - Columna Derecha -->
         <div class="col-lg-10 col-md-9">
-            <!-- Mostrar filtros activos -->
             <div class="mb-2" *ngIf="filtroAnio || filtroGrado">
                 <small class="text-muted">
                     <i class="bi bi-funnel-fill"></i> Filtros activos:
@@ -90,7 +103,6 @@
 
             <div *ngIf="BloquearDocente()" class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
                 <div class="d-flex gap-2">
-                    <!-- BOTÓN de función imprimirListado() -->
                     <button class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
                         [title]="obtenerDescripcionImpresion()" (click)="imprimirAlumnosFiltrados()">
                         <i class="bi bi-printer"></i> Imprimir
@@ -103,10 +115,10 @@
             </div>
 
             <div class="table-responsive">
-                <!-- Mostrar cantidad de resultados -->
                 <div class="mb-2">
                     <small class="text-muted">
-                        Mostrando {{alumnosFiltrados}} de {{totalAlumnos}} alumnos
+                        <!-- CONTADORES CORREGIDOS -->
+                        Mostrando {{alumnosFiltrados}} de {{totalAlumnosDelAnio}} alumnos
                     </small>
                 </div>
 
@@ -143,7 +155,7 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a *ngIf="BloquearDocente()" class="btn btn-danger btn-sm mx-1 delete-btn"
-                                        title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                                        title="Eliminar"
                                         (click)="abrirModalEliminar(matricula.alumno.idAlumno!)">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -184,7 +196,7 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <a *ngIf="BloquearDocente()" class="btn btn-danger btn-sm mx-1 delete-btn"
-                                        title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                                        title="Eliminar"
                                         (click)="abrirModalEliminar(alumno.idAlumno!)">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -201,7 +213,7 @@
                 </table>
 
                 <div class="alert alert-info alert-dismissible fade show mt-1"
-                    *ngIf="alumnosFiltrados === 0 && totalAlumnos > 0">
+                    *ngIf="alumnosFiltrados === 0 && totalAlumnosDelAnio > 0">
                     <i class="bi bi-funnel"></i>
                     <label>No hay alumnos que coincidan con los filtros aplicados</label>
                     <button type="button" class="btn btn-link p-0 ms-2" (click)="limpiarFiltros()">
@@ -209,22 +221,27 @@
                     </button>
                 </div>
 
-                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="totalAlumnos === 0">
+                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="totalAlumnosDelAnio === 0 && !filtroAnio">
                     <i class="bi bi-exclamation-triangle"></i>
                     <label>No hay alumnos registrados</label>
+                </div>
+
+                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="totalAlumnosDelAnio === 0 && filtroAnio">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <label>No hay alumnos registrados para el año {{filtroAnio}}</label>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal único para eliminar -->
+<!-- Modal único para eliminar (YA ESTANDARIZADO) -->
 <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalLabelEliminar" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-primarytext-white">
+            <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="modalLabelEliminar">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <p><strong>¿Estás seguro que deseas eliminar este alumno?</strong></p>
@@ -241,7 +258,7 @@
     </div>
 </div>
 
-<!-- NUEVO: Modal para matricular alumno -->
+<!-- MODAL MATRICULAR (MODIFICADO) -->
 <div class="modal fade" id="modalMatricular" tabindex="-1" aria-labelledby="modalLabelMatricular" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -249,7 +266,7 @@
                 <h5 class="modal-title" id="modalLabelMatricular">
                     <i class="bi bi-card-checklist"></i> Matricular Alumno
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close btn-close-white" (click)="limpiarMensajes()" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <div *ngIf="alumnoAMatricular">
@@ -259,29 +276,33 @@
                     </div>
                     
                     <form>
+                        <!-- AÑO ACADÉMICO BLOQUEADO -->
                         <div class="mb-3">
-                            <label for="anio_matricula" class="form-label">Año Académico <span class="text-danger">*</span></label>
-                            <select id="anio_matricula" class="form-select" 
-                                    [(ngModel)]="anioMatriculaSeleccionado" 
-                                    name="anio_matricula"
-                                    (change)="onAnioMatriculaChange()"
-                                    required>
-                                <option value="">Seleccionar año académico...</option>
-                                <option *ngFor="let anio of aniosDisponibles" [value]="anio.anio">
-                                    {{anio.anio}}
-                                </option>
-                            </select>
+                            <label for="anio_matricula_bloqueado" class="form-label">Año Académico <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-secondary text-white border-secondary">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    class="form-control fw-bold text-dark bg-white" 
+                                    id="anio_matricula_bloqueado"
+                                    [value]="nombreAnioActivoModal" 
+                                    readonly 
+                                    style="cursor: not-allowed;">
+                            </div>
                         </div>
 
+                        <!-- Select de Grado (ahora se basa en anioActivo) -->
                         <div class="mb-3">
                             <label for="grado_matricula" class="form-label">Grado <span class="text-danger">*</span></label>
                             <select id="grado_matricula" class="form-select" 
                                     [(ngModel)]="gradoMatriculaSeleccionado" 
                                     name="grado_matricula"
-                                    [disabled]="!anioMatriculaSeleccionado || gradosParaMatricula.length === 0"
+                                    [disabled]="!anioActivo || gradosParaMatricula.length === 0"
                                     required>
                                 <option value="">
-                                    {{!anioMatriculaSeleccionado ? 'Primero selecciona un año...' : 'Seleccionar grado...'}}
+                                    {{!anioActivo ? 'Cargando año...' : 'Seleccionar grado...'}}
                                 </option>
                                 <option *ngFor="let grado of gradosParaMatricula" [value]="grado.id_grado">
                                     {{obtenerNombreCompletoGrado(grado)}} (Cupo: {{obtenerCupoDisponible(grado.id_grado)}}/45)
@@ -297,12 +318,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" (click)="limpiarMensajes()" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" 
+                <!-- BOTÓN DE MATRICULAR AHORA ES VERDE (SUCCESS) -->
+                <button type="button" class="btn btn-success" 
                         (click)="confirmarMatricula()"
-                        [disabled]="!anioMatriculaSeleccionado || !gradoMatriculaSeleccionado">
+                        [disabled]="!anioActivo || !gradoMatriculaSeleccionado">
                     <i class="bi bi-check-circle"></i> Matricular
                 </button>
             </div>

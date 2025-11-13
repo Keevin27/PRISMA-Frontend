@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Matricula } from '../Models/matricula';
@@ -10,6 +10,7 @@ export class MatriculaService {
   private baseURL = "http://localhost:8080/Matricula";
 
   constructor(private httpClient: HttpClient) { }
+
 
   // Obtener todas las matrículas
   obtenerMatriculas(): Observable<Matricula[]> {
@@ -54,5 +55,34 @@ export class MatriculaService {
   // Contar alumnos matriculados en un grado
   contarAlumnosPorGrado(idGrado: number): Observable<number> {
     return this.httpClient.get<number>(`${this.baseURL}/contar/${idGrado}`);
+  }
+
+
+  /**
+   * Obtener alumnos matriculados y no matriculados para un grado específico
+   * Retorna: { matriculados: [], noMatriculados: [], totalMatriculados: 0, totalNoMatriculados: 0, cupoDisponible: 0 }
+   */
+  obtenerAlumnosPorGrado(idGrado: number, anio: number): Observable<any> {
+    const params = new HttpParams()
+      .set('idGrado', idGrado.toString())
+      .set('anio', anio.toString());
+    
+    return this.httpClient.get<any>(`${this.baseURL}/alumnos-por-grado`, { params });
+  }
+
+  /**
+   * Matricular múltiples alumnos a la vez
+   * payload: { idGrado: number, idsAlumnos: number[] }
+   */
+  matricularMultiples(payload: { idGrado: number | null; idsAlumnos: number[] }): Observable<any> {
+    return this.httpClient.post<any>(`${this.baseURL}/matricular-multiples`, payload);
+  }
+
+  /**
+   * Desmatricular múltiples alumnos
+   * payload: { idsAlumnos: number[] }
+   */
+  desmatricularMultiples(payload: { idsAlumnos: number[] }): Observable<any> {
+    return this.httpClient.delete<any>(`${this.baseURL}/desmatricular-multiples`, { body: payload });
   }
 }

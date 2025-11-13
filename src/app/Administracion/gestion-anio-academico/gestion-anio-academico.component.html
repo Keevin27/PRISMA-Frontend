@@ -1,4 +1,18 @@
 <div class="container-fluid py-4">
+  <!-- Alertas en Banner -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+  </div>
+  <div *ngIf="mensajeAdvertencia" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+  </div>
+
   <!-- Encabezado -->
   <div class="bg-light p-3 mb-4 rounded">
     <h2 class="text-center mb-0">Creación de años</h2>
@@ -114,10 +128,17 @@
             min="2000"
             max="2100">
         </div>
+        
+        <!-- ALERTA PARA ERROR DE AÑO DUPLICADO -->
+        <div *ngIf="mensajeErrorModal" class="alert alert-danger mt-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeErrorModal }}
+        </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="cerrarModalCrearAnio()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="crearAnio()">Crear</button>
+        <!-- Botón de crear ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="crearAnio()">Crear</button>
       </div>
     </div>
   </div>
@@ -129,7 +150,7 @@
      [style.opacity]="mostrarModalCrearAnio ? '0.5' : '0'"
      *ngIf="mostrarModalCrearAnio"></div>
 
-<!-- Modal para Crear Oferta -->
+<!-- Modal para Crear Oferta CON TURNOS -->
 <div class="modal fade" 
      [class.show]="mostrarModalOferta" 
      [style.display]="mostrarModalOferta ? 'block' : 'none'"
@@ -137,46 +158,97 @@
      tabindex="-1">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Crear Oferta - Año {{ anioSeleccionado?.anio }}</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalOferta()"></button>
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-calendar-plus"></i> Crear Oferta - Año {{ anioSeleccionado?.anio }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModalOferta()"></button>
       </div>
       <div class="modal-body">
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> Las secciones A, B y C son <strong>Matutino</strong>. Las secciones D, E y F son <strong>Vespertino</strong>.
+          <i class="bi bi-info-circle"></i> 
+          <strong>Instrucciones:</strong> Seleccione las secciones que desea crear. Por defecto, las secciones A, B y C son <strong>Matutino</strong>, y las secciones D, E y F son <strong>Vespertino</strong>. Puede cambiar el turno usando los radio buttons.
         </div>
 
-        <!-- Selección de grados y secciones (A-F) -->
-        <div *ngFor="let grado of grados" class="mb-4 border rounded p-3">
+        <!-- Grados con secciones y turnos -->
+        <div *ngFor="let grado of grados" class="mb-4 border rounded p-3 bg-light">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0">Grado: {{ grado.nombre }}</h6>
+            <h6 class="mb-0 fw-bold">
+              <i class="bi bi-mortarboard"></i> {{ grado.nombre }}
+            </h6>
             <button 
-              class="btn btn-sm btn-outline-primary"
+              class="btn btn-sm"
+              [ngClass]="todasSeccionesSeleccionadas(grado) ? 'btn-outline-danger' : 'btn-outline-primary'"
               (click)="seleccionarTodasSecciones(grado)">
-              {{ grado.seleccionadas.length === grado.secciones.length ? 'Deseleccionar todas' : 'Seleccionar todas' }}
+              <i [class]="todasSeccionesSeleccionadas(grado) ? 'bi bi-x-circle' : 'bi bi-check-all'"></i>
+              {{ todasSeccionesSeleccionadas(grado) ? 'Deseleccionar todas' : 'Seleccionar todas' }}
             </button>
           </div>
           
           <div class="row">
-            <div class="col-md-2" *ngFor="let seccion of grado.secciones">
-              <div class="form-check">
-                <input 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  [id]="grado.nombre + seccion"
-                  [checked]="grado.seleccionadas.includes(seccion)"
-                  (change)="toggleSeccion(grado, seccion)">
-                <label class="form-check-label" [for]="grado.nombre + seccion">
-                  Sección {{ seccion }}
-                </label>
+            <div class="col-md-4 col-lg-2 mb-3" *ngFor="let seccion of grado.secciones">
+              <div class="card h-100" [class.border-primary]="seccion.seleccionada">
+                <div class="card-body p-2">
+                  <!-- Checkbox de selección -->
+                  <div class="form-check mb-2">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      [id]="grado.nombre + '-' + seccion.letra"
+                      [(ngModel)]="seccion.seleccionada">
+                    <label 
+                      class="form-check-label fw-bold" 
+                      [for]="grado.nombre + '-' + seccion.letra">
+                      Sección {{ seccion.letra }}
+                    </label>
+                  </div>
+
+                  <!-- Radio buttons para turno -->
+                  <div class="ms-3" *ngIf="seccion.seleccionada">
+                    <small class="text-muted d-block mb-1">Turno:</small>
+                    <div class="form-check form-check-inline">
+                      <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        [name]="grado.nombre + '-' + seccion.letra + '-turno'"
+                        [id]="grado.nombre + '-' + seccion.letra + '-matutino'"
+                        [value]="'Matutino'"
+                        [(ngModel)]="seccion.turno">
+                      <label 
+                        class="form-check-label small" 
+                        [for]="grado.nombre + '-' + seccion.letra + '-matutino'">
+                        <i class="bi bi-sun"></i> M
+                      </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        [name]="grado.nombre + '-' + seccion.letra + '-turno'"
+                        [id]="grado.nombre + '-' + seccion.letra + '-vespertino'"
+                        [value]="'Vespertino'"
+                        [(ngModel)]="seccion.turno">
+                      <label 
+                        class="form-check-label small" 
+                        [for]="grado.nombre + '-' + seccion.letra + '-vespertino'">
+                        <i class="bi bi-moon"></i> V
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cerrarModalOferta()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="guardarOferta()">Guardar Oferta</button>
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalOferta()">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <!-- Botón de guardar ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="guardarOferta()">
+          <i class="bi bi-save"></i> Guardar Oferta
+        </button>
       </div>
     </div>
   </div>
@@ -228,7 +300,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="guardarEdicion()">Guardar Cambios</button>
+        <!-- Botón de guardar ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="guardarEdicion()">Guardar Cambios</button>
       </div>
     </div>
   </div>
@@ -278,7 +351,12 @@
                 <td>{{ grado.anio || anioMostrar }}</td>
                 <td>{{ grado.nombre_grado }}</td>
                 <td>{{ grado.seccion }}</td>
-                <td>{{ grado.turno_grado }}</td>
+                <td>
+                  <span class="badge" [ngClass]="grado.turno_grado === 'Matutino' ? 'bg-warning' : 'bg-info'">
+                    <i [class]="grado.turno_grado === 'Matutino' ? 'bi bi-sun' : 'bi bi-moon'"></i>
+                    {{ grado.turno_grado }}
+                  </span>
+                </td>
                 <td *ngIf="!anioSeleccionadoGrados?.anio_cerrado">
                   <button 
                     class="btn btn-sm btn-danger"
@@ -308,7 +386,7 @@
      [style.opacity]="mostrarModalGrados ? '0.5' : '0'"
      *ngIf="mostrarModalGrados"></div>
 
-<!-- Modal para Agregar Grado -->
+<!-- Modal para Agregar Grado CON TURNOS -->
 <div class="modal fade" 
      [class.show]="mostrarModalAgregarGrado" 
      [style.display]="mostrarModalAgregarGrado ? 'block' : 'none'"
@@ -316,60 +394,109 @@
      tabindex="-1">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Agregar Grados - Año {{ anioMostrar }}</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalAgregarGrado()"></button>
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle"></i> Agregar Grados - Año {{ anioMostrar }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModalAgregarGrado()"></button>
       </div>
       <div class="modal-body">
         <div class="alert alert-info">
           <i class="bi bi-info-circle"></i> 
-          Las secciones A, B y C son <strong>Matutino</strong>. Las secciones D, E y F son <strong>Vespertino</strong>.
-          <br>
-          <small>Las secciones en gris ya están agregadas y no se pueden duplicar.</small>
+          <strong>Instrucciones:</strong> Seleccione las secciones que desea agregar. Las secciones en <span class="badge bg-secondary">gris</span> ya existen y no se pueden duplicar.
         </div>
 
-        <!-- Selección de grados y secciones -->
-        <div *ngFor="let grado of gradosAgregar" class="mb-4 border rounded p-3">
+        <!-- Grados con secciones -->
+        <div *ngFor="let grado of gradosAgregar" class="mb-4 border rounded p-3 bg-light">
           <!-- Mostrar mensaje si todas las secciones ya existen -->
           <div *ngIf="todasSeccionesExisten(grado.nombre)" class="alert alert-success mb-3">
             <i class="bi bi-check-circle"></i> Todas las secciones de <strong>{{ grado.nombre }}</strong> ya están agregadas.
           </div>
 
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0">Grado: {{ grado.nombre }}</h6>
+            <h6 class="mb-0 fw-bold">
+              <i class="bi bi-mortarboard"></i> {{ grado.nombre }}
+            </h6>
             <button 
               class="btn btn-sm btn-outline-primary"
               [disabled]="todasSeccionesExisten(grado.nombre)"
               (click)="seleccionarTodasSeccionesAgregar(grado)">
-              {{ grado.seleccionadas.length > 0 ? 'Deseleccionar todas' : 'Seleccionar todas disponibles' }}
+              <i class="bi bi-check-all"></i>
+              Seleccionar todas disponibles
             </button>
           </div>
           
           <div class="row">
-            <div class="col-md-2" *ngFor="let seccion of grado.secciones">
-              <div class="form-check">
-                <input 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  [id]="'agregar-' + grado.nombre + seccion"
-                  [checked]="grado.seleccionadas.includes(seccion)"
-                  [disabled]="seccionYaExiste(grado.nombre, seccion)"
-                  (change)="toggleSeccionAgregar(grado, seccion)">
-                <label 
-                  class="form-check-label" 
-                  [for]="'agregar-' + grado.nombre + seccion"
-                  [class.text-muted]="seccionYaExiste(grado.nombre, seccion)">
-                  Sección {{ seccion }}
-                  <span *ngIf="seccionYaExiste(grado.nombre, seccion)" class="badge bg-secondary ms-1">Existe</span>
-                </label>
+            <div class="col-md-4 col-lg-2 mb-3" *ngFor="let seccion of grado.secciones">
+              <div class="card h-100" 
+                   [class.border-primary]="seccion.seleccionada && !seccionYaExiste(grado.nombre, seccion.letra)"
+                   [class.bg-secondary]="seccionYaExiste(grado.nombre, seccion.letra)"
+                   [class.bg-opacity-10]="seccionYaExiste(grado.nombre, seccion.letra)">
+                <div class="card-body p-2">
+                  <!-- Checkbox de selección -->
+                  <div class="form-check mb-2">
+                    <input 
+                      class="form-check-input" 
+                      type="checkbox" 
+                      [id]="'agregar-' + grado.nombre + '-' + seccion.letra"
+                      [checked]="seccion.seleccionada && !seccionYaExiste(grado.nombre, seccion.letra)"
+                      [disabled]="seccionYaExiste(grado.nombre, seccion.letra)"
+                      (change)="toggleSeccionAgregar(grado, seccion)">
+                    <label 
+                      class="form-check-label fw-bold" 
+                      [for]="'agregar-' + grado.nombre + '-' + seccion.letra"
+                      [class.text-muted]="seccionYaExiste(grado.nombre, seccion.letra)">
+                      Sección {{ seccion.letra }}
+                      <span *ngIf="seccionYaExiste(grado.nombre, seccion.letra)" class="badge bg-secondary ms-1">Existe</span>
+                    </label>
+                  </div>
+
+                  <!-- Radio buttons para turno -->
+                  <div class="ms-3" *ngIf="seccion.seleccionada && !seccionYaExiste(grado.nombre, seccion.letra)">
+                    <small class="text-muted d-block mb-1">Turno:</small>
+                    <div class="form-check form-check-inline">
+                      <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        [name]="'agregar-' + grado.nombre + '-' + seccion.letra + '-turno'"
+                        [id]="'agregar-' + grado.nombre + '-' + seccion.letra + '-matutino'"
+                        [value]="'Matutino'"
+                        [(ngModel)]="seccion.turno">
+                      <label 
+                        class="form-check-label small" 
+                        [for]="'agregar-' + grado.nombre + '-' + seccion.letra + '-matutino'">
+                        <i class="bi bi-sun"></i> M
+                      </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        [name]="'agregar-' + grado.nombre + '-' + seccion.letra + '-turno'"
+                        [id]="'agregar-' + grado.nombre + '-' + seccion.letra + '-vespertino'"
+                        [value]="'Vespertino'"
+                        [(ngModel)]="seccion.turno">
+                      <label 
+                        class="form-check-label small" 
+                        [for]="'agregar-' + grado.nombre + '-' + seccion.letra + '-vespertino'">
+                        <i class="bi bi-moon"></i> V
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="cerrarModalAgregarGrado()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="guardarGradosAdicionales()">Guardar Grados</button>
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalAgregarGrado()">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <!-- Botón de guardar ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="guardarGradosAdicionales()">
+          <i class="bi bi-save"></i> Guardar Grados
+        </button>
       </div>
     </div>
   </div>
