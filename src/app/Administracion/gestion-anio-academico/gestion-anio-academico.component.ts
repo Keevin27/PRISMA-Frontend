@@ -5,6 +5,17 @@ import { AnioAcademicoService } from '../../Services/anio-academico.service';
 import { GradoService } from '../../Services/grado.service';
 import { AnioAcademico } from '../../Models/anio-academico';
 
+interface Seccion {
+  letra: string;
+  seleccionada: boolean;
+  turno: string;
+}
+
+interface Grado {
+  nombre: string;
+  secciones: Seccion[];
+}
+
 @Component({
   selector: 'app-gestion-anio-academico',
   standalone: true,
@@ -14,54 +25,126 @@ import { AnioAcademico } from '../../Models/anio-academico';
 })
 export class GestionAnioAcademicoComponent implements OnInit {
   aniosAcademicos: AnioAcademico[] = [];
-  aniosConOferta: Set<number> = new Set(); // IDs de años que tienen oferta
+  aniosConOferta: Set<number> = new Set();
   nuevoAnio: number = new Date().getFullYear();
   
-  // Para el modal de crear año
   mostrarModalCrearAnio: boolean = false;
-
-  // Para el modal de crear oferta
   mostrarModalOferta: boolean = false;
   anioSeleccionado: AnioAcademico | null = null;
-  turnoSeleccionado: string = 'Matutino';
-
-  // Para el modal de editar
   mostrarModalEditar: boolean = false;
   estadoEditar: boolean = false;
   matriculaEditar: boolean = false;
-
-  // Para mostrar grados en modal
   mostrarModalGrados: boolean = false;
   gradosMostrar: any[] = [];
   anioMostrar: number = 0;
   anioSeleccionadoGrados: AnioAcademico | null = null;
+  mostrarModalAgregarGrado: boolean = false;
+
+  // Estructura de grados con turnos por defecto
+  grados: Grado[] = [
+    { 
+      nombre: 'Primero', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Segundo', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Tercero', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Cuarto', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Quinto', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Sexto', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Séptimo', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Octavo', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    },
+    { 
+      nombre: 'Noveno', 
+      secciones: [
+        { letra: 'A', seleccionada: false, turno: 'Matutino' },
+        { letra: 'B', seleccionada: false, turno: 'Matutino' },
+        { letra: 'C', seleccionada: false, turno: 'Matutino' },
+        { letra: 'D', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'E', seleccionada: false, turno: 'Vespertino' },
+        { letra: 'F', seleccionada: false, turno: 'Vespertino' }
+      ]
+    }
+  ];
 
   // Para agregar grados adicionales
-  mostrarModalAgregarGrado: boolean = false;
-  gradosAgregar = [
-    { nombre: 'Primero', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Segundo', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Tercero', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Cuarto', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Quinto', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Sexto', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Séptimo', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Octavo', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Noveno', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] }
-  ];
-
-  // Grados de 1° a 9° con secciones A-F
-  grados = [
-    { nombre: 'Primero', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Segundo', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Tercero', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Cuarto', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Quinto', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Sexto', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Séptimo', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Octavo', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] },
-    { nombre: 'Noveno', secciones: ['A', 'B', 'C', 'D', 'E', 'F'], seleccionadas: [] as string[] }
-  ];
+  gradosAgregar: Grado[] = JSON.parse(JSON.stringify(this.grados)); // Copia profunda
 
   constructor(
     private anioAcademicoService: AnioAcademicoService,
@@ -76,8 +159,6 @@ export class GestionAnioAcademicoComponent implements OnInit {
     this.anioAcademicoService.obtenerAniosAcademicos().subscribe({
       next: (data) => {
         this.aniosAcademicos = data.sort((a, b) => b.anio - a.anio);
-        
-        // Verificar cuáles años tienen oferta creada
         this.aniosAcademicos.forEach(anio => {
           this.verificarOferta(anio);
         });
@@ -175,7 +256,6 @@ export class GestionAnioAcademicoComponent implements OnInit {
     });
   }
 
-  // Método para finalizar año
   finalizarAnio(anio: AnioAcademico): void {
     const confirmacion = confirm(`¿Está seguro de finalizar el año ${anio.anio}? Esta acción cerrará el año y desactivará la matrícula.`);
     
@@ -202,7 +282,7 @@ export class GestionAnioAcademicoComponent implements OnInit {
 
   abrirModalOferta(anio: AnioAcademico): void {
     this.anioSeleccionado = anio;
-    this.grados.forEach(g => g.seleccionadas = []);
+    this.resetearGrados();
     this.mostrarModalOferta = true;
   }
 
@@ -211,45 +291,59 @@ export class GestionAnioAcademicoComponent implements OnInit {
     this.anioSeleccionado = null;
   }
 
-  toggleSeccion(grado: any, seccion: string): void {
-    const index = grado.seleccionadas.indexOf(seccion);
-    if (index > -1) {
-      grado.seleccionadas.splice(index, 1);
-    } else {
-      grado.seleccionadas.push(seccion);
-    }
+  // Resetear todos los grados (deseleccionar todo)
+  resetearGrados(): void {
+    this.grados.forEach(grado => {
+      grado.secciones.forEach(seccion => {
+        seccion.seleccionada = false;
+        // Restaurar turnos por defecto
+        seccion.turno = ['A', 'B', 'C'].includes(seccion.letra) ? 'Matutino' : 'Vespertino';
+      });
+    });
   }
 
-  seleccionarTodasSecciones(grado: any): void {
-    if (grado.seleccionadas.length === grado.secciones.length) {
-      grado.seleccionadas = [];
-    } else {
-      grado.seleccionadas = [...grado.secciones];
-    }
+  // Toggle de selección de sección
+  toggleSeccion(grado: Grado, seccion: Seccion): void {
+    seccion.seleccionada = !seccion.seleccionada;
   }
 
-  // Método auxiliar para determinar el turno según la sección
-  obtenerTurnoPorSeccion(seccion: string): string {
-    const seccionesMatutinas = ['A', 'B', 'C'];
-    return seccionesMatutinas.includes(seccion) ? 'Matutino' : 'Vespertino';
+  // Seleccionar/Deseleccionar todas las secciones de un grado
+  seleccionarTodasSecciones(grado: Grado): void {
+    const todasSeleccionadas = grado.secciones.every(s => s.seleccionada);
+    grado.secciones.forEach(seccion => {
+      seccion.seleccionada = !todasSeleccionadas;
+    });
+  }
+
+  // Verificar si todas las secciones están seleccionadas
+  todasSeccionesSeleccionadas(grado: Grado): boolean {
+    return grado.secciones.every(s => s.seleccionada);
   }
 
   guardarOferta(): void {
     if (!this.anioSeleccionado) return;
 
-    const gradosConSecciones = this.grados
-      .filter(g => g.seleccionadas.length > 0)
-      .map(g => ({
-        nombre: g.nombre,
-        secciones: g.seleccionadas
-      }));
+    const gradosConSecciones: any[] = [];
+
+    this.grados.forEach(grado => {
+      const seccionesSeleccionadas = grado.secciones.filter(s => s.seleccionada);
+      
+      if (seccionesSeleccionadas.length > 0) {
+        seccionesSeleccionadas.forEach(seccion => {
+          gradosConSecciones.push({
+            nombre: grado.nombre,
+            seccion: seccion.letra,
+            turno: seccion.turno
+          });
+        });
+      }
+    });
 
     if (gradosConSecciones.length === 0) {
       alert('Advertencia: Debe seleccionar al menos una sección');
       return;
     }
 
-    // Crear oferta con turnos automáticos por sección
     const oferta = {
       idAnioAcademico: this.anioSeleccionado.id_anio_academico,
       grados: gradosConSecciones
@@ -301,7 +395,6 @@ export class GestionAnioAcademicoComponent implements OnInit {
     this.gradoService.eliminarGrado(grado.id_grado).subscribe({
       next: () => {
         alert('Éxito: Grado eliminado correctamente');
-        // Recargar la lista de grados
         if (this.anioSeleccionadoGrados) {
           this.verGrados(this.anioSeleccionadoGrados);
         }
@@ -315,58 +408,85 @@ export class GestionAnioAcademicoComponent implements OnInit {
 
   // Métodos para agregar grados adicionales
   abrirModalAgregarGrado(): void {
-    this.gradosAgregar.forEach(g => g.seleccionadas = []);
-    this.mostrarModalAgregarGrado = true;
+  // Crear copia profunda y resetear selecciones
+  this.gradosAgregar = JSON.parse(JSON.stringify(this.grados));
+  
+  // Deseleccionar TODAS las secciones al abrir el modal
+  this.gradosAgregar.forEach(grado => {
+    grado.secciones.forEach(seccion => {
+      seccion.seleccionada = false;
+    });
+  });
+  
+  this.mostrarModalAgregarGrado = true;
+}
+
+  resetearGradosAgregar(): void {
+    this.gradosAgregar = JSON.parse(JSON.stringify(this.grados));
   }
 
-  // Verificar si una combinación grado-sección ya existe
   seccionYaExiste(nombreGrado: string, seccion: string): boolean {
     return this.gradosMostrar.some(g => 
       g.nombre_grado === nombreGrado && g.seccion === seccion
     );
   }
 
-  // Método para verificar si todas las secciones de un grado ya existen
   todasSeccionesExisten(nombreGrado: string): boolean {
     const grado = this.gradosAgregar.find(g => g.nombre === nombreGrado);
     if (!grado) return false;
     
-    return grado.secciones.every(seccion => this.seccionYaExiste(nombreGrado, seccion));
+    return grado.secciones.every(seccion => this.seccionYaExiste(nombreGrado, seccion.letra));
   }
 
   cerrarModalAgregarGrado(): void {
     this.mostrarModalAgregarGrado = false;
   }
 
-  toggleSeccionAgregar(grado: any, seccion: string): void {
-    const index = grado.seleccionadas.indexOf(seccion);
-    if (index > -1) {
-      grado.seleccionadas.splice(index, 1);
-    } else {
-      grado.seleccionadas.push(seccion);
-    }
+  toggleSeccionAgregar(grado: Grado, seccion: Seccion): void {
+  // Solo permitir toggle si la sección NO existe
+  if (!this.seccionYaExiste(grado.nombre, seccion.letra)) {
+    seccion.seleccionada = !seccion.seleccionada;
+  } else {
+    // Si ya existe, forzar a false
+    seccion.seleccionada = false;
   }
+}
 
-  seleccionarTodasSeccionesAgregar(grado: any): void {
-    if (grado.seleccionadas.length === grado.secciones.length) {
-      grado.seleccionadas = [];
-    } else {
-      grado.seleccionadas = [...grado.secciones];
-    }
+  seleccionarTodasSeccionesAgregar(grado: Grado): void {
+    const todasSeleccionadas = grado.secciones
+      .filter(s => !this.seccionYaExiste(grado.nombre, s.letra))
+      .every(s => s.seleccionada);
+    
+    grado.secciones.forEach(seccion => {
+      if (!this.seccionYaExiste(grado.nombre, seccion.letra)) {
+        seccion.seleccionada = !todasSeleccionadas;
+      }
+    });
   }
 
   guardarGradosAdicionales(): void {
     if (!this.anioSeleccionadoGrados) return;
 
-    const gradosConSecciones = this.gradosAgregar
-      .filter(g => g.seleccionadas.length > 0)
-      .map(g => ({
-        nombre: g.nombre,
-        secciones: g.seleccionadas
-      }));
+    const gradosConSecciones: any[] = [];
+
+    this.gradosAgregar.forEach(grado => {
+      const seccionesSeleccionadas = grado.secciones.filter(s => 
+        s.seleccionada && !this.seccionYaExiste(grado.nombre, s.letra)
+      );
+      
+      if (seccionesSeleccionadas.length > 0) {
+        seccionesSeleccionadas.forEach(seccion => {
+          gradosConSecciones.push({
+            nombre: grado.nombre,
+            seccion: seccion.letra,
+            turno: seccion.turno
+          });
+        });
+      }
+    });
 
     if (gradosConSecciones.length === 0) {
-      alert('Advertencia: Debe seleccionar al menos una sección');
+      alert('Advertencia: Debe seleccionar al menos una sección nueva');
       return;
     }
 
@@ -379,7 +499,6 @@ export class GestionAnioAcademicoComponent implements OnInit {
       next: (data) => {
         alert(`Éxito: ${data.length} grados agregados correctamente`);
         this.cerrarModalAgregarGrado();
-        // Recargar la lista de grados
         if (this.anioSeleccionadoGrados) {
           this.verGrados(this.anioSeleccionadoGrados);
         }
