@@ -1,4 +1,18 @@
 <div class="container-fluid py-4">
+  <!-- Alertas en Banner -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+  </div>
+  <div *ngIf="mensajeAdvertencia" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+  </div>
+
   <!-- Encabezado -->
   <div class="bg-light p-3 mb-4 rounded">
     <h2 class="text-center mb-0">Creación de años</h2>
@@ -114,10 +128,17 @@
             min="2000"
             max="2100">
         </div>
+        
+        <!-- ALERTA PARA ERROR DE AÑO DUPLICADO -->
+        <div *ngIf="mensajeErrorModal" class="alert alert-danger mt-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeErrorModal }}
+        </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="cerrarModalCrearAnio()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="crearAnio()">Crear</button>
+        <!-- Botón de crear ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="crearAnio()">Crear</button>
       </div>
     </div>
   </div>
@@ -224,7 +245,8 @@
         <button type="button" class="btn btn-secondary" (click)="cerrarModalOferta()">
           <i class="bi bi-x-circle"></i> Cancelar
         </button>
-        <button type="button" class="btn btn-primary" (click)="guardarOferta()">
+        <!-- Botón de guardar ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="guardarOferta()">
           <i class="bi bi-save"></i> Guardar Oferta
         </button>
       </div>
@@ -278,7 +300,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="guardarEdicion()">Guardar Cambios</button>
+        <!-- Botón de guardar ahora es VERDE -->
+        <button type="button" class="btn btn-success" (click)="guardarEdicion()">Guardar Cambios</button>
       </div>
     </div>
   </div>
@@ -363,7 +386,7 @@
      [style.opacity]="mostrarModalGrados ? '0.5' : '0'"
      *ngIf="mostrarModalGrados"></div>
 
-<!-- Modal para Agregar Grado CON TURNOS - CORREGIDO -->
+<!-- Modal para Agregar Grado CON TURNOS -->
 <div class="modal fade" 
      [class.show]="mostrarModalAgregarGrado" 
      [style.display]="mostrarModalAgregarGrado ? 'block' : 'none'"
@@ -410,7 +433,7 @@
                    [class.bg-secondary]="seccionYaExiste(grado.nombre, seccion.letra)"
                    [class.bg-opacity-10]="seccionYaExiste(grado.nombre, seccion.letra)">
                 <div class="card-body p-2">
-                  <!-- Checkbox de selección - CORREGIDO -->
+                  <!-- Checkbox de selección -->
                   <div class="form-check mb-2">
                     <input 
                       class="form-check-input" 
@@ -470,6 +493,7 @@
         <button type="button" class="btn btn-secondary" (click)="cerrarModalAgregarGrado()">
           <i class="bi bi-x-circle"></i> Cancelar
         </button>
+        <!-- Botón de guardar ahora es VERDE -->
         <button type="button" class="btn btn-success" (click)="guardarGradosAdicionales()">
           <i class="bi bi-save"></i> Guardar Grados
         </button>

@@ -61,6 +61,16 @@ export const routes: Routes = [
         data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
 
+        {
+        path: 'matriculas',
+        loadComponent: () =>
+          import('./Administracion/matricula/matricula.component').then(
+            (m) => m.MatriculaComponent
+          ),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_DOCENTE'] }
+      },
+
       {
         path: 'entrega-paquetes-escolares', component: EntregarPaqueteEscolarComponent,
         canActivate: [AuthGuard],

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AnioAcademicoService } from '../../Services/anio-academico.service';
 import { GradoService } from '../../Services/grado.service';
 import { AnioAcademico } from '../../Models/anio-academico';
+import Swal from 'sweetalert2'; 
 
 interface Seccion {
   letra: string;
@@ -39,6 +40,21 @@ export class GestionAnioAcademicoComponent implements OnInit {
   anioMostrar: number = 0;
   anioSeleccionadoGrados: AnioAcademico | null = null;
   mostrarModalAgregarGrado: boolean = false;
+
+  // =====================================================
+  // === SECCIÓN DE ALERTAS EN BANNER ===
+  // =====================================================
+  mensajeExito: string | null = null;
+  mensajeError: string | null = null;
+  mensajeAdvertencia: string | null = null;
+  private private_alertTimer: any = null;
+  // =====================================================
+
+  // =====================================================
+  // === VARIABLE PARA ERROR EN MODAL ===
+  // =====================================================
+  mensajeErrorModal: string | null = null;
+  // =====================================================
 
   // Estructura de grados con turnos por defecto
   grados: Grado[] = [
@@ -155,7 +171,34 @@ export class GestionAnioAcademicoComponent implements OnInit {
     this.cargarAniosAcademicos();
   }
 
+  // ==================== GESTIÓN DE ALERTAS ====================
+  limpiarMensajes(): void {
+    this.mensajeExito = null;
+    this.mensajeError = null;
+    this.mensajeAdvertencia = null;
+    if (this.private_alertTimer) {
+      clearTimeout(this.private_alertTimer);
+    }
+    // También limpiamos el error del modal por si acaso
+    this.mensajeErrorModal = null; 
+  }
+
+  mostrarMensaje(tipo: 'exito' | 'error' | 'advertencia', mensaje: string, duracion: number = 5000): void {
+    this.limpiarMensajes();
+
+    if (tipo === 'exito') this.mensajeExito = mensaje;
+    if (tipo === 'error') this.mensajeError = mensaje;
+    if (tipo === 'advertencia') this.mensajeAdvertencia = mensaje;
+
+    // Timer para ocultar el mensaje automáticamente
+    this.private_alertTimer = setTimeout(() => {
+      this.limpiarMensajes();
+    }, duracion);
+  }
+  // ========================================================
+
   cargarAniosAcademicos(): void {
+    this.limpiarMensajes(); // Limpia mensajes al cargar
     this.anioAcademicoService.obtenerAniosAcademicos().subscribe({
       next: (data) => {
         this.aniosAcademicos = data.sort((a, b) => b.anio - a.anio);
@@ -165,7 +208,7 @@ export class GestionAnioAcademicoComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar años académicos:', error);
-        alert('Error: No se pudieron cargar los años académicos');
+        this.mostrarMensaje('error', 'No se pudieron cargar los años académicos');
       }
     });
   }
@@ -189,39 +232,51 @@ export class GestionAnioAcademicoComponent implements OnInit {
 
   // Métodos para el modal de crear año
   abrirModalCrearAnio(): void {
+    this.limpiarMensajes();
     this.nuevoAnio = new Date().getFullYear();
     this.mostrarModalCrearAnio = true;
+    this.mensajeErrorModal = null; // Limpiamos al abrir
   }
 
   cerrarModalCrearAnio(): void {
     this.mostrarModalCrearAnio = false;
+    this.mensajeErrorModal = null; // Limpiamos al cerrar
   }
 
   crearAnio(): void {
+    this.limpiarMensajes(); // Limpia el banner principal
+    this.mensajeErrorModal = null; // Limpia el error del modal
+
     if (!this.nuevoAnio || this.nuevoAnio < 2000 || this.nuevoAnio > 2100) {
-      alert('Error: Por favor ingrese un año válido');
+      // CAMBIO: Mostrar error DENTRO del modal
+      this.mensajeErrorModal = 'Por favor ingrese un año válido (Ej: 2025)';
       return;
     }
 
     this.anioAcademicoService.crearAnioAcademico(this.nuevoAnio).subscribe({
       next: (data) => {
-        alert(`Éxito: Año ${this.nuevoAnio} creado correctamente`);
+        // Esto está bien: cerramos modal y mostramos banner
+        this.mostrarMensaje('exito', `Año ${this.nuevoAnio} creado correctamente`);
         this.cargarAniosAcademicos();
         this.cerrarModalCrearAnio();
       },
       error: (error) => {
         console.error('Error al crear año:', error);
+        
+        // CAMBIO: Mostrar error DENTRO del modal
         if (error.status === 409) {
-          alert(`Error: El año ${this.nuevoAnio} ya existe`);
+          this.mensajeErrorModal = `Error: El año ${this.nuevoAnio} ya existe`;
         } else {
-          alert('Error: No se pudo crear el año académico');
+          this.mensajeErrorModal = 'No se pudo crear el año académico';
         }
+        // Ya NO llamamos a this.mostrarMensaje('error', ...)
       }
     });
   }
 
   // Métodos para el modal de editar
   abrirModalEditar(anio: AnioAcademico): void {
+    this.limpiarMensajes();
     this.anioSeleccionado = anio;
     this.estadoEditar = anio.anio_activo;
     this.matriculaEditar = !anio.anio_cerrado;
@@ -235,6 +290,7 @@ export class GestionAnioAcademicoComponent implements OnInit {
 
   guardarEdicion(): void {
     if (!this.anioSeleccionado) return;
+    this.limpiarMensajes();
 
     const actualizacion = {
       anio_activo: this.estadoEditar,
@@ -245,42 +301,54 @@ export class GestionAnioAcademicoComponent implements OnInit {
       next: (data) => {
         this.anioSeleccionado!.anio_activo = data.anio_activo;
         this.anioSeleccionado!.anio_cerrado = data.anio_cerrado;
-        alert('Éxito: Cambios guardados correctamente');
+        this.mostrarMensaje('exito', 'Cambios guardados correctamente');
         this.cerrarModalEditar();
         this.cargarAniosAcademicos();
       },
       error: (error) => {
         console.error('Error al actualizar:', error);
-        alert('Error: No se pudieron guardar los cambios');
+        this.mostrarMensaje('error', 'No se pudieron guardar los cambios');
       }
     });
   }
 
   finalizarAnio(anio: AnioAcademico): void {
-    const confirmacion = confirm(`¿Está seguro de finalizar el año ${anio.anio}? Esta acción cerrará el año y desactivará la matrícula.`);
+    this.limpiarMensajes();
     
-    if (!confirmacion) return;
-
-    const finalizacion = {
-      anio_activo: false,
-      anio_cerrado: true
-    };
-
-    this.anioAcademicoService.actualizarEstado(anio.id_anio_academico, finalizacion).subscribe({
-      next: (data) => {
-        anio.anio_activo = false;
-        anio.anio_cerrado = true;
-        alert(`Éxito: El año ${anio.anio} ha sido finalizado`);
-        this.cargarAniosAcademicos();
-      },
-      error: (error) => {
-        console.error('Error al finalizar año:', error);
-        alert('Error: No se pudo finalizar el año');
+    Swal.fire({
+      title: `¿Finalizar el año ${anio.anio}?`,
+      text: "Esta acción cerrará el año y desactivará la matrícula. No se puede revertir.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545', // Rojo (Peligro)
+      cancelButtonColor: '#6c757d',  // Gris (Secundario)
+      confirmButtonText: 'Sí, finalizar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const finalizacion = {
+          anio_activo: false,
+          anio_cerrado: true
+        };
+    
+        this.anioAcademicoService.actualizarEstado(anio.id_anio_academico, finalizacion).subscribe({
+          next: (data) => {
+            anio.anio_activo = false;
+            anio.anio_cerrado = true;
+            this.mostrarMensaje('exito', `El año ${anio.anio} ha sido finalizado`);
+            this.cargarAniosAcademicos();
+          },
+          error: (error) => {
+            console.error('Error al finalizar año:', error);
+            this.mostrarMensaje('error', 'No se pudo finalizar el año');
+          }
+        });
       }
     });
   }
 
   abrirModalOferta(anio: AnioAcademico): void {
+    this.limpiarMensajes();
     this.anioSeleccionado = anio;
     this.resetearGrados();
     this.mostrarModalOferta = true;
@@ -291,23 +359,19 @@ export class GestionAnioAcademicoComponent implements OnInit {
     this.anioSeleccionado = null;
   }
 
-  // Resetear todos los grados (deseleccionar todo)
   resetearGrados(): void {
     this.grados.forEach(grado => {
       grado.secciones.forEach(seccion => {
         seccion.seleccionada = false;
-        // Restaurar turnos por defecto
         seccion.turno = ['A', 'B', 'C'].includes(seccion.letra) ? 'Matutino' : 'Vespertino';
       });
     });
   }
 
-  // Toggle de selección de sección
   toggleSeccion(grado: Grado, seccion: Seccion): void {
     seccion.seleccionada = !seccion.seleccionada;
   }
 
-  // Seleccionar/Deseleccionar todas las secciones de un grado
   seleccionarTodasSecciones(grado: Grado): void {
     const todasSeleccionadas = grado.secciones.every(s => s.seleccionada);
     grado.secciones.forEach(seccion => {
@@ -315,19 +379,17 @@ export class GestionAnioAcademicoComponent implements OnInit {
     });
   }
 
-  // Verificar si todas las secciones están seleccionadas
   todasSeccionesSeleccionadas(grado: Grado): boolean {
     return grado.secciones.every(s => s.seleccionada);
   }
 
   guardarOferta(): void {
+    this.limpiarMensajes();
     if (!this.anioSeleccionado) return;
 
     const gradosConSecciones: any[] = [];
-
     this.grados.forEach(grado => {
       const seccionesSeleccionadas = grado.secciones.filter(s => s.seleccionada);
-      
       if (seccionesSeleccionadas.length > 0) {
         seccionesSeleccionadas.forEach(seccion => {
           gradosConSecciones.push({
@@ -340,34 +402,49 @@ export class GestionAnioAcademicoComponent implements OnInit {
     });
 
     if (gradosConSecciones.length === 0) {
-      alert('Advertencia: Debe seleccionar al menos una sección');
+      this.mostrarMensaje('advertencia', 'Debe seleccionar al menos una sección');
       return;
     }
 
-    const oferta = {
-      idAnioAcademico: this.anioSeleccionado.id_anio_academico,
-      grados: gradosConSecciones
-    };
-
-    this.gradoService.crearOferta(oferta).subscribe({
-      next: (data) => {
-        alert(`Éxito: Oferta creada con ${data.length} grados`);
-        this.cerrarModalOferta();
-        this.cargarAniosAcademicos();
-      },
-      error: (error) => {
-        console.error('Error al crear oferta:', error);
-        alert('Error: No se pudo crear la oferta');
+    // AÑADIMOS LA CONFIRMACIÓN CON SWAL
+    Swal.fire({
+      title: '¿Confirmar Creación?',
+      text: `Se crearán ${gradosConSecciones.length} nuevos grados/secciones.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#198754', // Verde (Éxito)
+      cancelButtonColor: '#6c757d',  // Gris
+      confirmButtonText: 'Sí, crear',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const oferta = {
+          idAnioAcademico: this.anioSeleccionado!.id_anio_academico,
+          grados: gradosConSecciones
+        };
+    
+        this.gradoService.crearOferta(oferta).subscribe({
+          next: (data) => {
+            this.mostrarMensaje('exito', `Oferta creada con ${data.length} grados`);
+            this.cerrarModalOferta();
+            this.cargarAniosAcademicos();
+          },
+          error: (error) => {
+            console.error('Error al crear oferta:', error);
+            this.mostrarMensaje('error', 'No se pudo crear la oferta');
+          }
+        });
       }
     });
   }
 
   verGrados(anio: AnioAcademico): void {
+    this.limpiarMensajes();
     this.anioSeleccionadoGrados = anio;
     this.gradoService.obtenerGradosPorAnyo(anio.anio).subscribe({
       next: (grados) => {
         if (grados.length === 0) {
-          alert('Información: No hay grados registrados para este año');
+          this.mostrarMensaje('advertencia', 'No hay grados registrados para este año', 3000); // 3 segundos
           return;
         }
         this.gradosMostrar = grados;
@@ -376,7 +453,7 @@ export class GestionAnioAcademicoComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar grados:', error);
-        alert('Error: No se pudieron cargar los grados');
+        this.mostrarMensaje('error', 'No se pudieron cargar los grados');
       }
     });
   }
@@ -388,38 +465,47 @@ export class GestionAnioAcademicoComponent implements OnInit {
   }
 
   eliminarGrado(grado: any): void {
-    const confirmacion = confirm(`¿Está seguro de eliminar el grado ${grado.nombre_grado} sección ${grado.seccion}?`);
-    
-    if (!confirmacion) return;
+    this.limpiarMensajes();
 
-    this.gradoService.eliminarGrado(grado.id_grado).subscribe({
-      next: () => {
-        alert('Éxito: Grado eliminado correctamente');
-        if (this.anioSeleccionadoGrados) {
-          this.verGrados(this.anioSeleccionadoGrados);
-        }
-      },
-      error: (error) => {
-        console.error('Error al eliminar grado:', error);
-        alert('Error: No se pudo eliminar el grado');
+    Swal.fire({
+      title: '¿Eliminar Grado?',
+      text: `¿Está seguro de eliminar ${grado.nombre_grado} sección ${grado.seccion}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545', // Rojo
+      cancelButtonColor: '#6c757d',  // Gris
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.gradoService.eliminarGrado(grado.id_grado).subscribe({
+          next: () => {
+            this.mostrarMensaje('exito', 'Grado eliminado correctamente');
+            if (this.anioSeleccionadoGrados) {
+              // Recarga la lista de grados en el modal
+              this.verGrados(this.anioSeleccionadoGrados);
+            }
+          },
+          error: (error) => {
+            console.error('Error al eliminar grado:', error);
+            this.mostrarMensaje('error', 'No se pudo eliminar el grado. Verifique que no tenga alumnos matriculados.');
+          }
+        });
       }
     });
   }
 
   // Métodos para agregar grados adicionales
   abrirModalAgregarGrado(): void {
-  // Crear copia profunda y resetear selecciones
-  this.gradosAgregar = JSON.parse(JSON.stringify(this.grados));
-  
-  // Deseleccionar TODAS las secciones al abrir el modal
-  this.gradosAgregar.forEach(grado => {
-    grado.secciones.forEach(seccion => {
-      seccion.seleccionada = false;
+    this.limpiarMensajes();
+    this.gradosAgregar = JSON.parse(JSON.stringify(this.grados));
+    this.gradosAgregar.forEach(grado => {
+      grado.secciones.forEach(seccion => {
+        seccion.seleccionada = false;
+      });
     });
-  });
-  
-  this.mostrarModalAgregarGrado = true;
-}
+    this.mostrarModalAgregarGrado = true;
+  }
 
   resetearGradosAgregar(): void {
     this.gradosAgregar = JSON.parse(JSON.stringify(this.grados));
@@ -434,7 +520,6 @@ export class GestionAnioAcademicoComponent implements OnInit {
   todasSeccionesExisten(nombreGrado: string): boolean {
     const grado = this.gradosAgregar.find(g => g.nombre === nombreGrado);
     if (!grado) return false;
-    
     return grado.secciones.every(seccion => this.seccionYaExiste(nombreGrado, seccion.letra));
   }
 
@@ -443,14 +528,12 @@ export class GestionAnioAcademicoComponent implements OnInit {
   }
 
   toggleSeccionAgregar(grado: Grado, seccion: Seccion): void {
-  // Solo permitir toggle si la sección NO existe
-  if (!this.seccionYaExiste(grado.nombre, seccion.letra)) {
-    seccion.seleccionada = !seccion.seleccionada;
-  } else {
-    // Si ya existe, forzar a false
-    seccion.seleccionada = false;
+    if (!this.seccionYaExiste(grado.nombre, seccion.letra)) {
+      seccion.seleccionada = !seccion.seleccionada;
+    } else {
+      seccion.seleccionada = false;
+    }
   }
-}
 
   seleccionarTodasSeccionesAgregar(grado: Grado): void {
     const todasSeleccionadas = grado.secciones
@@ -465,15 +548,14 @@ export class GestionAnioAcademicoComponent implements OnInit {
   }
 
   guardarGradosAdicionales(): void {
+    this.limpiarMensajes();
     if (!this.anioSeleccionadoGrados) return;
 
     const gradosConSecciones: any[] = [];
-
     this.gradosAgregar.forEach(grado => {
       const seccionesSeleccionadas = grado.secciones.filter(s => 
         s.seleccionada && !this.seccionYaExiste(grado.nombre, s.letra)
       );
-      
       if (seccionesSeleccionadas.length > 0) {
         seccionesSeleccionadas.forEach(seccion => {
           gradosConSecciones.push({
@@ -486,27 +568,46 @@ export class GestionAnioAcademicoComponent implements OnInit {
     });
 
     if (gradosConSecciones.length === 0) {
-      alert('Advertencia: Debe seleccionar al menos una sección nueva');
+      this.mostrarMensaje('advertencia', 'Debe seleccionar al menos una sección nueva');
       return;
     }
 
-    const oferta = {
-      idAnioAcademico: this.anioSeleccionadoGrados.id_anio_academico,
-      grados: gradosConSecciones
-    };
-
-    this.gradoService.crearOferta(oferta).subscribe({
-      next: (data) => {
-        alert(`Éxito: ${data.length} grados agregados correctamente`);
-        this.cerrarModalAgregarGrado();
-        if (this.anioSeleccionadoGrados) {
-          this.verGrados(this.anioSeleccionadoGrados);
-        }
-      },
-      error: (error) => {
-        console.error('Error al agregar grados:', error);
-        alert('Error: No se pudieron agregar los grados');
+    // ==========================================================
+    // === CONFIRMACIÓN AGREGADA (LA QUE HABÍA QUITADO) ===
+    // ==========================================================
+    Swal.fire({
+      title: '¿Confirmar Creación?',
+      text: `Se agregarán ${gradosConSecciones.length} nuevos grados/secciones a este año académico.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#198754', // Verde (btn-success)
+      cancelButtonColor: '#6c757d',  // Gris (btn-secondary)
+      confirmButtonText: 'Sí, agregar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Si confirman, ejecutamos la lógica para guardar
+        const oferta = {
+          idAnioAcademico: this.anioSeleccionadoGrados!.id_anio_academico,
+          grados: gradosConSecciones
+        };
+    
+        this.gradoService.crearOferta(oferta).subscribe({
+          next: (data) => {
+            // Usamos el banner de éxito con tu texto
+            this.mostrarMensaje('exito', `${data.length} grados agregados exitosamente`);
+            this.cerrarModalAgregarGrado();
+            if (this.anioSeleccionadoGrados) {
+              this.verGrados(this.anioSeleccionadoGrados);
+            }
+          },
+          error: (error) => {
+            console.error('Error al agregar grados:', error);
+            this.mostrarMensaje('error', 'No se pudieron agregar los grados');
+          }
+        });
       }
     });
+
   }
 }
