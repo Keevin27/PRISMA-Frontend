@@ -19,6 +19,7 @@ import { ForbiddenComponent } from './forbidden/forbidden.component';
 import { AgregarMateriasComponent } from './Materia/agregar-materias/agregar-materias.component';
 import { ActualizarMateriasComponent } from './Materia/actualizar-materias/actualizar-materias.component';
 import { AsignarMateriaDocenteComponent } from './Materia/asignar-materia-docente/asignar-materia-docente.component';
+import { GenerarHorarioComponent } from './Horario/generar-horario/generar-horario.component';
 
 import { ConsultarNotasMateriaComponent } from './Notas/components/consultar-notas-materia/consultar-notas-materia.component';
 import { ConsultarNotasAlumnoComponent } from './Notas/components/consultar-notas-alumno/consultar-notas-alumno.component';
@@ -278,9 +279,10 @@ export const routes: Routes = [
 {
     path: 'administracion/asig-orientadores',
     component: AsigOrientadoresComponent
-  }
+  },
 
 
+      { path: 'generar-horarios', component: GenerarHorarioComponent },
     ],
   },
 
