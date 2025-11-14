@@ -1,108 +1,112 @@
-<div class="container-fluid py-4">
-  <!-- Alertas en Banner -->
-  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
-    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
-  </div>
-  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
-    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
-  </div>
-  <div *ngIf="mensajeAdvertencia" class="alert alert-warning alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
-    <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+<div class="p-4 mt-5">
+  <!-- Breadcrumb -->
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Años Académicos</li>
+      </ol>
+    </nav>
   </div>
 
   <!-- Encabezado -->
-  <div class="bg-light p-3 mb-4 rounded">
-    <h2 class="text-center mb-0">Creación de años</h2>
-  </div>
+  <h2 class="text-center">Gestión de Años Académicos</h2>
 
-  <!-- Botón Crear Año -->
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary" (click)="abrirModalCrearAnio()">
-      <i class="bi bi-plus-circle"></i> Crear año
-    </button>
-  </div>
+  <div class="container">
+    <!-- Alertas -->
+    <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
+      <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+    </div>
+    <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
+      <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+    </div>
+    <div *ngIf="mensajeAdvertencia" class="alert alert-warning alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeAdvertencia }}
+      <button type="button" class="btn-close" (click)="limpiarMensajes()" aria-label="Close"></button>
+    </div>
 
-  <!-- Tabla de Años Académicos -->
-  <div class="table-responsive" style="overflow-x: auto;">
-    <table class="table table-hover">
-      <thead class="table-dark">
-        <tr>
-          <th>N°</th>
-          <th>Año</th>
-          <th>Estado</th>
-          <th>Matrícula</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let anio of aniosAcademicos; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ anio.anio }}</td>
-          <td>
-            <span 
-              class="badge"
-              [ngClass]="anio.anio_activo ? 'bg-success' : 'bg-secondary'">
-              {{ anio.anio_activo ? 'Activo' : 'Cerrado' }}
-            </span>
-          </td>
-          <td>
-            <span 
-              class="badge"
-              [ngClass]="!anio.anio_cerrado ? 'bg-success' : 'bg-secondary'">
-              {{ !anio.anio_cerrado ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td>
-            <!-- Mostrar botón Crear oferta solo si no tiene oferta creada -->
-            <button 
-              *ngIf="!tieneOferta(anio) && !anio.anio_cerrado"
-              class="btn btn-sm btn-warning me-2"
-              (click)="abrirModalOferta(anio)">
-              <i class="bi bi-plus-circle"></i> Crear oferta
-            </button>
+    <!-- Botón Crear Año -->
+    <div class="d-flex justify-content-end align-items-center mb-2">
+      <button class="btn btn-primary me-2"
+              (click)="abrirModalCrearAnio()"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="Crear nuevo año académico">
+        <i class="bi bi-plus-lg"></i> Crear año
+      </button>
+    </div>
 
-            <!-- Mostrar Ver, Editar y Finalizar si ya tiene oferta -->
-            <ng-container *ngIf="tieneOferta(anio) && !anio.anio_cerrado">
-              <button 
-                class="btn btn-sm btn-success me-2"
-                title="Ver grados"
-                (click)="verGrados(anio)">
+    <!-- Tabla de Años Académicos -->
+    <h2>Listado de Años Académicos</h2>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr class="align-middle text-center">
+            <th style="width: 5%;">N°</th>
+            <th style="width: 15%;">Año</th>
+            <th style="width: 15%;">Estado</th>
+            <th style="width: 15%;">Matrícula</th>
+            <th style="width: 30%;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let anio of aniosAcademicos; let i = index">
+            <td class="text-center">{{ i + 1 }}</td>
+            <td class="text-center">{{ anio.anio }}</td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="anio.anio_activo ? 'bg-success' : 'bg-secondary'">
+                {{ anio.anio_activo ? 'Activo' : 'Cerrado' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="!anio.anio_cerrado ? 'bg-success' : 'bg-secondary'">
+                {{ !anio.anio_cerrado ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <!-- Crear oferta -->
+              <button *ngIf="!tieneOferta(anio) && !anio.anio_cerrado"
+                      class="btn btn-sm btn-warning me-2"
+                      (click)="abrirModalOferta(anio)"
+                      data-bs-toggle="tooltip" title="Crear oferta">
+                <i class="bi bi-plus-circle"></i> Crear oferta
+              </button>
+
+              <!-- Ver, Editar, Finalizar -->
+              <ng-container *ngIf="tieneOferta(anio) && !anio.anio_cerrado">
+                <button class="btn btn-sm btn-success me-2"
+                        (click)="verGrados(anio)" data-bs-toggle="tooltip" title="Ver grados">
+                  <i class="bi bi-eye"></i> Ver
+                </button>
+                <button class="btn btn-sm btn-primary me-2"
+                        (click)="abrirModalEditar(anio)" data-bs-toggle="tooltip" title="Editar año">
+                  <i class="bi bi-pencil"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-danger me-2"
+                        (click)="finalizarAnio(anio)" data-bs-toggle="tooltip" title="Finalizar año">
+                  <i class="bi bi-x-circle"></i> Finalizar
+                </button>
+              </ng-container>
+
+              <!-- Ver si está cerrado -->
+              <button *ngIf="anio.anio_cerrado"
+                      class="btn btn-sm btn-success"
+                      (click)="verGrados(anio)" data-bs-toggle="tooltip" title="Ver grados">
                 <i class="bi bi-eye"></i> Ver
               </button>
-              <button 
-                class="btn btn-sm btn-primary me-2"
-                title="Editar"
-                (click)="abrirModalEditar(anio)">
-                <i class="bi bi-pencil"></i> Editar
-              </button>
-              <button 
-                class="btn btn-sm btn-danger me-2"
-                title="Finalizar año"
-                (click)="finalizarAnio(anio)">
-                <i class="bi bi-x-circle"></i> Finalizar
-              </button>
-            </ng-container>
-
-            <!-- Si el año está finalizado, solo mostrar Ver -->
-            <button 
-              *ngIf="anio.anio_cerrado"
-              class="btn btn-sm btn-success"
-              title="Ver grados"
-              (click)="verGrados(anio)">
-              <i class="bi bi-eye"></i> Ver
-            </button>
-          </td>
-        </tr>
-        <tr *ngIf="aniosAcademicos.length === 0">
-          <td colspan="5" class="text-center">No hay años académicos registrados</td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+          </tr>
+          <tr *ngIf="aniosAcademicos.length === 0">
+            <td colspan="5" class="text-center">No hay años académicos registrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
 
 <!-- Modal para Crear Año -->
 <div class="modal fade" 
@@ -110,7 +114,7 @@
      [style.display]="mostrarModalCrearAnio ? 'block' : 'none'"
      [style.opacity]="mostrarModalCrearAnio ? '1' : '0'"
      tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Crear Año Académico</h5>
@@ -155,7 +159,7 @@
      [style.display]="mostrarModalOferta ? 'block' : 'none'"
      [style.opacity]="mostrarModalOferta ? '1' : '0'"
      tabindex="-1">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">
@@ -265,7 +269,7 @@
      [style.display]="mostrarModalEditar ? 'block' : 'none'"
      [style.opacity]="mostrarModalEditar ? '1' : '0'"
      tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Editar Año {{ anioSeleccionado?.anio }}</h5>
@@ -318,7 +322,7 @@
      [style.display]="mostrarModalGrados ? 'block' : 'none'"
      [style.opacity]="mostrarModalGrados ? '1' : '0'"
      tabindex="-1">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Grados del año {{ anioMostrar }}</h5>
@@ -391,7 +395,7 @@
      [style.display]="mostrarModalAgregarGrado ? 'block' : 'none'"
      [style.opacity]="mostrarModalAgregarGrado ? '1' : '0'"
      tabindex="-1">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title">

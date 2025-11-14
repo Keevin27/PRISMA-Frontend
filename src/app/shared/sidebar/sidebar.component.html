@@ -9,53 +9,98 @@
 
   <!-- Navegación -->
   <ul class="nav nav-pills flex-column p-3 gap-2">
+
+    <!-- Inicio -->
     <li class="nav-item">
       <a class="nav-link text-white d-flex align-items-center" routerLink="/home" routerLinkActive="active">
         <i class="bi bi-house me-2"></i> Inicio
       </a>
     </li>
+
+    <!-- Alumnos -->
     <li class="nav-item">
       <a class="nav-link text-white d-flex align-items-center" routerLink="/alumnos" routerLinkActive="active">
         <i class="bi bi-people me-2"></i> Alumnos
       </a>
     </li>
+
+    <!-- Docentes -->
     <li class="nav-item" *ngIf="BloquearDocente()">
       <a class="nav-link text-white d-flex align-items-center" routerLink="/docentes" routerLinkActive="active">
         <i class="bi bi-person-badge me-2"></i> Docentes
       </a>
     </li>
+
+    <!-- Paquetes Escolares -->
     <li class="nav-item" *ngIf="BloquearDocente()">
       <a class="nav-link text-white d-flex align-items-center" routerLink="/paquetesescolares" routerLinkActive="active">
         <i class="bi bi-box-seam me-2"></i> Paquetes Escolares
       </a>
     </li>
+
+    <!-- Asistencia -->
     <li class="nav-item" *ngIf="BloquearSecretaria()">
       <a class="nav-link text-white d-flex align-items-center" routerLink="/asistenciaalumno" routerLinkActive="active">
         <i class="bi bi-check2-square me-2"></i> Asistencia
       </a>
     </li>
+
+    <!-- Entrega de Paquetes -->
     <li class="nav-item" *ngIf="BloquearSecretaria()">
       <a class="nav-link text-white d-flex align-items-center" routerLink="/entrega-paquetes-escolares" routerLinkActive="active">
         <i class="bi bi-truck me-2"></i> Entrega de Paquetes
       </a>
     </li>
 
-      <li class="nav-item">
-    <a class="nav-link" routerLink="/gestion-ano-academico" routerLinkActive="active" *ngIf="BloquearDocente()">Gestión de Año Académico</a>
-  </li>
-   <li class="nav-item" >
-    <a class="nav-link" routerLink="/matriculas" routerLinkActive="active">Matriculas</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/reporte-anual-alumno" routerLinkActive="active" *ngIf="BloquearDocente()">Reporte anual de alumno</a>
-    <a class="nav-link" routerLink="/gestion-actividades" routerLinkActive="active" *ngIf="BloquearDirectora()">Gestion de actividades</a>
-    <a class="nav-link" routerLink="/consultar-notas-materia" routerLinkActive="active" *ngIf="BloquearDirectora()">Notas por materia</a>
-  </li>
-  <li>
-    <a class="nav-link" routerLink="/materias" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Materias</a>
-    <a class="nav-link" routerLink="/materias/asignarMateriaADocente" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Asignar Materias</a>
-  </li>
-  
+    <!-- Gestión Año Académico -->
+    <li class="nav-item" *ngIf="BloquearDocente()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/gestion-ano-academico" routerLinkActive="active">
+        <i class="bi bi-calendar-event me-2"></i> Gestión de Año Académico
+      </a>
+    </li>
+
+    <!-- Matrículas -->
+    <li class="nav-item">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/matriculas" routerLinkActive="active">
+        <i class="bi bi-journal-check me-2"></i> Matrículas
+      </a>
+    </li>
+
+    <!-- Reporte anual de alumno -->
+    <li class="nav-item" *ngIf="BloquearDocente()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/reporte-anual-alumno" routerLinkActive="active">
+        <i class="bi bi-bar-chart-line me-2"></i> Reporte anual de alumno
+      </a>
+    </li>
+
+    <!-- Gestión de actividades -->
+    <li class="nav-item" *ngIf="BloquearDirectora()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/gestion-actividades" routerLinkActive="active">
+        <i class="bi bi-calendar-check me-2"></i> Gestión de actividades
+      </a>
+    </li>
+
+    <!-- Notas por materia -->
+    <li class="nav-item" *ngIf="BloquearDirectora()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/consultar-notas-materia" routerLinkActive="active">
+        <i class="bi bi-card-list me-2"></i> Notas por materia
+      </a>
+    </li>
+
+    <!-- Materias -->
+    <li class="nav-item" *ngIf="BloquearSecretaria() && BloquearDocente()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/materias" routerLinkActive="active">
+        <i class="bi bi-book me-2"></i> Materias
+      </a>
+    </li>
+
+    <!-- Asignar Materias -->
+    <li class="nav-item" *ngIf="BloquearSecretaria() && BloquearDocente()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/materias/asignarMateriaADocente" routerLinkActive="active">
+        <i class="bi bi-person-lines-fill me-2"></i> Asignar Materias
+      </a>
+    </li>
+
   </ul>
 
   <!-- Bloque fijo abajo -->
