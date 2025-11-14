@@ -8,11 +8,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { ActividadesService } from '../../services/actividades.service';
 import { BloqueService } from '../../../Services/bloque.service';
 import { AuthService } from '../../../Auth/auth.service';
+import { SelectorAnioComponent } from '../selector-anio/selector-anio.component';
+import { AnioAcademicoService } from '../../../Services/anio-academico.service'; 
+
 
 @Component({
   selector: 'app-gestion-actividades',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, SelectorAnioComponent],
   templateUrl: './gestion-actividades.component.html',
   styleUrl: './gestion-actividades.component.css'
 })
@@ -26,6 +29,9 @@ export class GestionActividadesComponent implements OnInit {
   datosBloque: any = null;
   mensaje: string = '';
   cargando: boolean = false;
+//Año academico
+ anioSeleccionado: number | null = null;
+  anioEsActivo: boolean = false;
 
   // Modal para agregar/editar actividad
   mostrarModal: boolean = false;
@@ -47,19 +53,43 @@ export class GestionActividadesComponent implements OnInit {
     private actividadesService: ActividadesService,
     private bloqueService: BloqueService,
     private authService: AuthService,
+    private anioService: AnioAcademicoService, 
     private router: Router
   ) { }
 
-  ngOnInit(): void {
-    this.cargarBloques();
-  }
+ngOnInit(): void {
+  this.anioService.anioSeleccionado$.subscribe(anio => {
+    console.log('gestion-actividades: anio seleccionado (sub):', anio);
+    this.anioSeleccionado = anio;
+
+    if (anio === null) {
+      this.anioEsActivo = false;
+      this.cargarBloques(); // opcional: carga bloques para "sin año"
+      return;
+    }
+
+    // usar el método que ahora usa cache/refresh en el service
+    this.anioService.esAnioActivo(anio).subscribe(esActivo => {
+      console.log('gestion-actividades: respuesta esAnioActivo ->', esActivo);
+      this.anioEsActivo = esActivo;
+
+      // Una vez verificado el estado, recargamos bloques (asi evitamos race)
+      this.cargarBloques();
+    });
+  });
+}
 
   cargarBloques(): void {
+    if (!this.anioSeleccionado) {
+      console.warn(' No hay año seleccionado');
+      return;
+    }
+
     const roles = this.authService.getUserRoles();
     const esDocente = roles.includes('ROLE_DOCENTE');
     
     if (esDocente) {
-      this.bloqueService.obtenerMisBloquesDocente().subscribe({
+      this.bloqueService.obtenerMisBloquesDocente(this.anioSeleccionado).subscribe({
         next: (data: any[]) => {
           console.log('Bloques del docente cargados:', data);
           this.bloques = data;
@@ -72,7 +102,7 @@ export class GestionActividadesComponent implements OnInit {
         }
       });
     } else {
-      this.bloqueService.obtenerTodosBloques().subscribe({
+      this.bloqueService.obtenerTodosBloques(this.anioSeleccionado).subscribe({
         next: (data: any[]) => {
           console.log('Todos los bloques cargados:', data);
           this.bloques = data;
@@ -86,6 +116,20 @@ export class GestionActividadesComponent implements OnInit {
       });
     }
   }
+
+    private verificarSiEsActivo(): void {
+    if (!this.anioSeleccionado) {
+      this.anioEsActivo = false;
+      return;
+    }
+
+    this.anioService.esAnioActivo(this.anioSeleccionado).subscribe(esActivo => {
+      this.anioEsActivo = esActivo;
+      console.log('Año es activo:', esActivo);
+    });
+  }
+
+
 
   consultarActividades(): void {
     if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {
@@ -118,14 +162,20 @@ export class GestionActividadesComponent implements OnInit {
     });
   }
 
+ //  validar año activo
   abrirModalAgregar(): void {
+    if (!this.anioEsActivo) {
+      this.mensaje = 'No puede crear actividades en un año académico inactivo';
+      this.mostrarMensaje();
+      return;
+    }
+
     if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {
       this.mensaje = 'Primero debe consultar una materia y trimestre';
       this.mostrarMensaje();
       return;
     }
 
-    //Validar que no se haya completado el 100%
     const totalPonderacion = this.calcularTotalPonderacion();
     if (totalPonderacion >= 100) {
       this.mensaje = 'Ya se completó el 100% de ponderación en este trimestre. No puede agregar más actividades.';
@@ -138,6 +188,7 @@ export class GestionActividadesComponent implements OnInit {
     this.limpiarFormulario();
     this.mostrarModal = true;
   }
+
 
   abrirModalEditar(actividad: any): void {
     this.isEditing = true;
@@ -300,7 +351,10 @@ export class GestionActividadesComponent implements OnInit {
   }
 
   //Verificar si el botón debe estar deshabilitado
-  puedeAgregarActividad(): boolean {
+ puedeAgregarActividad(): boolean {
+    if (!this.anioEsActivo) {
+      return false;
+    }
     if (!this.bloqueSeleccionado || !this.trimestreSeleccionado) {
       return false;
     }

@@ -8,11 +8,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { NotasService } from '../../services/notas.service';
 import { BloqueService } from '../../../Services/bloque.service';
 import { AuthService } from '../../../Auth/auth.service';
+import { AnioAcademicoService } from '../../../Services/anio-academico.service'; 
+import { SelectorAnioComponent } from '../selector-anio/selector-anio.component'; 
 
 @Component({
   selector: 'app-consultar-notas-materia',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, SelectorAnioComponent],
   templateUrl: './consultar-notas-materia.component.html',
   styleUrl: './consultar-notas-materia.component.css'
 })
@@ -26,6 +28,8 @@ export class ConsultarNotasMateriaComponent implements OnInit {
   mensaje: string = '';
   cargando: boolean = false;
 
+anioSeleccionado: number | null = null;  
+
   trimestres = [
     { value: 1, label: 'Primer Trimestre' },
     { value: 2, label: 'Segundo Trimestre' },
@@ -35,39 +39,40 @@ export class ConsultarNotasMateriaComponent implements OnInit {
   constructor(
     private notasService: NotasService,
     private bloqueService: BloqueService,
-    private authService: AuthService
+    private authService: AuthService,
+    private anioService: AnioAcademicoService
   ) { }
 
   ngOnInit(): void {
-    this.cargarBloques();
+    this.anioService.anioSeleccionado$.subscribe(anio => {
+      if (anio) {
+        this.anioSeleccionado = anio;
+        this.cargarBloques();
+      }
+    });
   }
 
-  cargarBloques(): void {
-    // Obtener roles del usuario usando tu AuthService existente
+    cargarBloques(): void {
+    if (!this.anioSeleccionado) {
+      console.warn(' No hay año seleccionado');
+      return;
+    }
+
     const roles = this.authService.getUserRoles();
-    
-    console.log('Roles del usuario:', roles);
-    
-    // Verificar si es DOCENTE
     const esDocente = roles.includes('ROLE_DOCENTE');
     
-    // Verificar si es ADMIN, DIRECTOR o SECRETARIA
-    const esAdmin = roles.some(rol => 
-      rol === 'ROLE_ADMIN' || 
-      rol === 'ROLE_DIRECTOR' || 
-      rol === 'ROLE_SECRETARIA'
-    );
+    console.log('Usuario logueado:', { roles, esDocente });
     
     if (esDocente) {
-      console.log(' Cargando bloques del DOCENTE...');
-      this.bloqueService.obtenerMisBloquesDocente().subscribe({
+      console.log(' Cargando bloques del DOCENTE para año:', this.anioSeleccionado);
+      this.bloqueService.obtenerMisBloquesDocente(this.anioSeleccionado).subscribe({
         next: (data: any[]) => {
-          console.log('Bloques del docente:', data);
+          console.log(' Bloques del docente:', data);
           this.bloques = data;
           this.bloquesDisponibles = data;
           
           if (data.length === 0) {
-            this.mensaje = 'No tiene materias asignadas';
+            this.mensaje = 'No tiene materias asignadas para este año';
             this.mostrarMensaje();
           }
         },
@@ -78,9 +83,9 @@ export class ConsultarNotasMateriaComponent implements OnInit {
         }
       });
     } 
-    else if (esAdmin) {
-      console.log(' Cargando TODOS los bloques (ADMIN)...');
-      this.bloqueService.obtenerTodosBloques().subscribe({
+    else {
+      console.log(' Cargando TODOS los bloques (ADMIN) para año:', this.anioSeleccionado);
+      this.bloqueService.obtenerTodosBloques(this.anioSeleccionado).subscribe({
         next: (data: any[]) => {
           console.log(' Todos los bloques:', data);
           this.bloques = data;
@@ -92,11 +97,6 @@ export class ConsultarNotasMateriaComponent implements OnInit {
           this.mostrarMensaje();
         }
       });
-    } 
-    else {
-      console.warn(' Usuario sin rol válido');
-      this.mensaje = 'No tiene permisos para acceder a esta sección';
-      this.mostrarMensaje();
     }
   }
 

@@ -6,12 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ActividadesService } from '../../services/actividades.service';
-
+import { AnioAcademicoService } from '../../../Services/anio-academico.service';
+import { SelectorAnioComponent } from '../selector-anio/selector-anio.component';
 @Component({
   selector: 'app-asignar-notas',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
-  templateUrl: './asignar-notas.component.html',
+imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, SelectorAnioComponent],  templateUrl: './asignar-notas.component.html',
   styleUrl: './asignar-notas.component.css'
 })
 export class AsignarNotasComponent implements OnInit {
@@ -22,6 +22,9 @@ export class AsignarNotasComponent implements OnInit {
   cargando: boolean = false;
   guardando: boolean = false;
 
+  // Variables para año académico
+  anioSeleccionado: number | null = null;
+  anioEsActivo: boolean = false;
   // Para edición de notas
   alumnoEditando: any = null;
   notaTemporal: number = 0;
@@ -29,12 +32,20 @@ export class AsignarNotasComponent implements OnInit {
   constructor(
     private actividadesService: ActividadesService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private anioService: AnioAcademicoService
   ) { }
 
   ngOnInit(): void {
     this.idActividad = +this.route.snapshot.params['idActividad'] || 0;
     
+  this.anioService.anioSeleccionado$.subscribe(anio => {
+    if (anio) {
+      this.anioSeleccionado = anio;
+      this.verificarSiEsActivo();
+    }
+  });
+
     if (this.idActividad > 0) {
       this.cargarAlumnosParaNotas();
     } else {
@@ -65,6 +76,13 @@ export class AsignarNotasComponent implements OnInit {
   }
 
   iniciarEdicion(alumno: any): void {
+
+      if (!this.anioEsActivo) {
+    this.mensaje = 'No puede editar notas en un año académico inactivo';
+    this.mostrarMensaje();
+    return;
+  }
+
     this.alumnoEditando = alumno;
     this.notaTemporal = alumno.nota || 0;
   }
@@ -75,6 +93,13 @@ export class AsignarNotasComponent implements OnInit {
   }
 
   guardarNota(alumno: any): void {
+
+    if (!this.anioEsActivo) {
+    this.mensaje = 'No puede guardar notas en un año académico inactivo';
+    this.mostrarMensaje();
+    return;
+  }
+
     // Validar nota
     if (this.notaTemporal < 0 || this.notaTemporal > 10) {
       this.mensaje = 'La nota debe estar entre 0 y 10';
@@ -115,6 +140,13 @@ export class AsignarNotasComponent implements OnInit {
   }
 
   eliminarNota(alumno: any): void {
+
+    if (!this.anioEsActivo) {
+    this.mensaje = 'No puede eliminar notas en un año académico inactivo';
+    this.mostrarMensaje();
+    return;
+  }
+
     if (!alumno.idNotaActividad) {
       this.mensaje = 'No hay nota para eliminar';
       this.mostrarMensaje();
@@ -226,4 +258,22 @@ export class AsignarNotasComponent implements OnInit {
       reprobados: reprobados
     };
   }
+
+  // Verificar si el año es activo
+private verificarSiEsActivo(): void {
+  if (!this.anioSeleccionado) {
+    this.anioEsActivo = false;
+    return;
+  }
+
+  this.anioService.esAnioActivo(this.anioSeleccionado).subscribe(esActivo => {
+    this.anioEsActivo = esActivo;
+  });
+}
+
+// Helper para verificar si se puede editar
+puedeEditar(): boolean {
+  return this.anioEsActivo;
+}
+
 }

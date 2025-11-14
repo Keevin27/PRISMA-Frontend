@@ -11,6 +11,10 @@
     </div>
 </div>
 
+<div class="px-4">
+  <app-selector-anio></app-selector-anio>
+</div>
+
 <div *ngIf="mensaje && !mostrarReporte" class="alert alert-danger" role="alert">
     {{ mensaje }}
 </div>
@@ -152,8 +156,7 @@
                     <div class="text-center mb-4">
                         <h4 class="fw-bold">CENTRO ESCOLAR GUSTAVO VIDES VALDES</h4>
                         <h5>LOURDES COLÓN</h5>
-                        <h6 class="text-muted">REPORTE ANUAL DE CALIFICACIONES - AÑO {{ anioActual }}</h6>
-                    </div>
+                    <h6 class="text-muted">REPORTE ANUAL DE CALIFICACIONES - AÑO {{ anioSeleccionado }}</h6></div>
 
                     <!-- Datos del Alumno -->
                     <div class="alert alert-light border">

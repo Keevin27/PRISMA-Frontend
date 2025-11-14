@@ -35,8 +35,7 @@ export class NotasService {
   }
 
   // Reporte anual de un alumno (3 trimestres)
-  obtenerReporteAnual(nie: number, idGrado: number): Observable<any> {
-    const params = new HttpParams().set('idGrado', idGrado.toString());
-    return this.httpClient.get<any>(`${this.baseURL}/reporte-anual/${nie}`, { params });
-  }
+obtenerReporteAnual(nie: number, idGrado: number, anio: number): Observable<any> {
+  return this.httpClient.get<any>(`${this.baseURL}/reporte-anual/${nie}/${idGrado}/${anio}`);
+}
 }

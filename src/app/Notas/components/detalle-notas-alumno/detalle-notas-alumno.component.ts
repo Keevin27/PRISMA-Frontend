@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { NotasService } from '../../services/notas.service';
-
+import { AnioAcademicoService } from '../../../Services/anio-academico.service';
+import { SelectorAnioComponent } from '../selector-anio/selector-anio.component';
 @Component({
   selector: 'app-detalle-notas-alumno',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, SelectorAnioComponent],
   templateUrl: './detalle-notas-alumno.component.html',
   styleUrl: './detalle-notas-alumno.component.css'
 })
@@ -28,15 +29,25 @@ export class DetalleNotasAlumnoComponent implements OnInit {
   reporteAnual: any = null;
   cargandoReporte: boolean = false;
 
+  // Variables para año académico
+anioSeleccionado: number | null = null;
+
   constructor(
     private notasService: NotasService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+     private anioService: AnioAcademicoService
   ) { }
 
   ngOnInit(): void {
     this.nie = +this.route.snapshot.params['nie'] || 0;
     
+  this.anioService.anioSeleccionado$.subscribe(anio => {
+    if (anio) {
+      this.anioSeleccionado = anio;
+    }
+  });
+
     this.route.queryParams.subscribe(params => {
       this.idGrado = +params['idGrado'] || 0;
       this.trimestre = +params['trimestre'] || 1;
@@ -68,10 +79,15 @@ export class DetalleNotasAlumnoComponent implements OnInit {
   }
 
   generarReporteAnual(): void {
+      if (!this.anioSeleccionado) {
+    this.mensaje = 'Debe seleccionar un año académico';
+    this.mostrarMensaje();
+    return;
+  }
     this.cargandoReporte = true;
     this.mostrarReporteAnual = true;
     
-    this.notasService.obtenerReporteAnual(this.nie, this.idGrado).subscribe({
+    this.notasService.obtenerReporteAnual(this.nie, this.idGrado,this.anioSeleccionado).subscribe({
       next: (data: any) => {
         this.reporteAnual = data;
         this.cargandoReporte = false;
