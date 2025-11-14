@@ -7,11 +7,13 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { NotasService } from '../../services/notas.service';
 import { GradoService } from '../../../Services/grado.service';
+import { AnioAcademicoService } from '../../../Services/anio-academico.service';
+import { SelectorAnioComponent } from '../selector-anio/selector-anio.component';
 
 @Component({
   selector: 'app-consultar-notas-alumno',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, SelectorAnioComponent],
   templateUrl: './consultar-notas-alumno.component.html',
   styleUrl: './consultar-notas-alumno.component.css'
 })
@@ -30,30 +32,42 @@ export class ConsultarNotasAlumnoComponent implements OnInit {
     { value: 3, label: 'Tercer Trimestre' }
   ];
 
-  anioActual: number = new Date().getFullYear();
+  // Variables para año académico
+anioSeleccionado: number | null = null;
 
   constructor(
     private notasService: NotasService,
     private gradoService: GradoService,
-    private router: Router
+    private router: Router,
+      private anioService: AnioAcademicoService
   ) { }
 
-  ngOnInit(): void {
-    this.cargarGrados();
+ngOnInit(): void {
+  this.anioService.anioSeleccionado$.subscribe(anio => {
+    if (anio) {
+      this.anioSeleccionado = anio;
+      this.cargarGrados(); // Recargar grados cuando cambia el año
+    }
+  });
+}
+
+cargarGrados(): void {
+  if (!this.anioSeleccionado) {
+    console.warn('⚠️ No hay año seleccionado');
+    return;
   }
 
-  cargarGrados(): void {
-    this.gradoService.obtenerGradosPorAnyo(this.anioActual).subscribe({
-      next: (data: any[]) => {
-        this.grados = data;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar grados:', error);
-        this.mensaje = 'Error al cargar grados';
-        this.mostrarMensaje();
-      }
-    });
-  }
+  this.gradoService.obtenerGradosPorAnyo(this.anioSeleccionado).subscribe({
+    next: (data: any[]) => {
+      this.grados = data;
+    },
+    error: (error: any) => {
+      console.error('Error al cargar grados:', error);
+      this.mensaje = 'Error al cargar grados';
+      this.mostrarMensaje();
+    }
+  });
+}
 
   consultarAlumnos(): void {
     if (!this.gradoSeleccionado || !this.trimestreSeleccionado) {

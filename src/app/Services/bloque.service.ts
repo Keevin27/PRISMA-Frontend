@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -10,12 +10,22 @@ export class BloqueService {
 
   constructor(private httpClient: HttpClient) { }
 
-  obtenerTodosBloques(): Observable<any[]> {
-    return this.httpClient.get<any[]>(`${this.baseURL}/bloques`);
+  //Ahora acepta parámetro opcional de año
+  obtenerTodosBloques(anioAcademico?: number): Observable<any[]> {
+    let params = new HttpParams();
+    if (anioAcademico) {
+      params = params.set('anioAcademico', anioAcademico.toString());
+    }
+    return this.httpClient.get<any[]>(`${this.baseURL}/bloques`, { params });
   }
-//Nuevo metodo
-  obtenerMisBloquesDocente(): Observable<any[]> {
-    return this.httpClient.get<any[]>(`${this.baseURL}/mis-bloques`);
+
+  //
+  obtenerMisBloquesDocente(anioAcademico?: number): Observable<any[]> {
+    let params = new HttpParams();
+    if (anioAcademico) {
+      params = params.set('anioAcademico', anioAcademico.toString());
+    }
+    return this.httpClient.get<any[]>(`${this.baseURL}/mis-bloques`, { params });
   }
 
 

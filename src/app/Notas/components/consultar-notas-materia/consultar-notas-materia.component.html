@@ -11,7 +11,11 @@
     </div>
 </div>
 
-<div *ngIf="mensaje" class="alert alert-danger" role="alert">
+<div class="px-4">
+    <app-selector-anio></app-selector-anio>
+</div>
+
+<div *ngIf="mensaje" class="alert alert-danger px-4" role="alert">
     {{ mensaje }}
 </div>
 

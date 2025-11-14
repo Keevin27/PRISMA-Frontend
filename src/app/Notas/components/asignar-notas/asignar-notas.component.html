@@ -14,14 +14,18 @@
             </ol>
         </nav>
     </div>
-    
+
+
     <h2 class="text-center">Asignar Notas a Actividad</h2>
 
     <div class="container">
-        <!-- Mensaje de feedback -->
-        <div *ngIf="mensaje" class="alert alert-success" role="alert">
-            {{ mensaje }}
-        </div>
+<!-- Mensaje de feedback -->
+<div *ngIf="mensaje" class="alert" 
+     [class.alert-success]="mensaje.includes('exitosamente')"
+     [class.alert-danger]="!mensaje.includes('exitosamente')"
+     role="alert">
+  {{ mensaje }}
+</div>
 
         <!-- Información de la actividad -->
         <div *ngIf="datosActividad" class="card mb-4">
@@ -42,7 +46,10 @@
                 </div>
             </div>
         </div>
-
+<div *ngIf="!anioEsActivo && anioSeleccionado" class="alert alert-warning">
+  <i class="bi bi-lock me-2"></i>
+  <strong>Modo solo lectura:</strong> Este año académico está inactivo. No puede editar o eliminar notas.
+</div>
         <!-- Estadísticas -->
         <div class="row mb-4">
             <div class="col-md-3">
@@ -169,19 +176,19 @@
                         } @else {
                             <!-- Botones de editar/eliminar -->
                             <button 
-                                class="btn btn-primary btn-sm me-1" 
-                                (click)="iniciarEdicion(alumno)"
-                                [disabled]="alumnoEditando !== null || guardando"
+  class="btn btn-primary btn-sm me-1" 
+  (click)="iniciarEdicion(alumno)"
+  [disabled]="alumnoEditando !== null || guardando || !puedeEditar()"
                                 data-bs-toggle="tooltip" 
                                 title="Editar nota">
                                 <i class="bi bi-pencil"></i>
                             </button>
                             @if (alumno.nota !== null && alumno.nota !== undefined) {
                                 <button 
-                                    class="btn btn-danger btn-sm" 
-                                    (click)="eliminarNota(alumno)"
-                                    [disabled]="alumnoEditando !== null || guardando"
-                                    data-bs-toggle="tooltip" 
+  class="btn btn-danger btn-sm" 
+  (click)="eliminarNota(alumno)"
+  [disabled]="alumnoEditando !== null || guardando || !puedeEditar()"
+                                data-bs-toggle="tooltip" 
                                     title="Eliminar nota">
                                     <i class="bi bi-trash"></i>
                                 </button>

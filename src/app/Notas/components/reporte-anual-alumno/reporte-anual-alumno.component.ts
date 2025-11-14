@@ -7,11 +7,12 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { NotasService } from '../../services/notas.service';
 import { GradoService } from '../../../Services/grado.service';
-
+import { AnioAcademicoService } from '../../../Services/anio-academico.service';
+import { SelectorAnioComponent } from '../selector-anio/selector-anio.component';
 @Component({
   selector: 'app-reporte-anual-alumno',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, SelectorAnioComponent],
   templateUrl: './reporte-anual-alumno.component.html',
   styleUrl: './reporte-anual-alumno.component.css'
 })
@@ -28,29 +29,44 @@ export class ReporteAnualAlumnoComponent implements OnInit {
   reporteAlumno: any = null;
   cargandoReporte: boolean = false;
 
-  anioActual: number = new Date().getFullYear();
+anioSeleccionado: number | null = null;
+anioEsActivo: boolean = false;
 
   constructor(
     private notasService: NotasService,
-    private gradoService: GradoService
+    private gradoService: GradoService,
+    private anioService: AnioAcademicoService
   ) { }
 
   ngOnInit(): void {
-    this.cargarGrados();
-  }
+  this.anioService.anioSeleccionado$.subscribe(anio => {
+    if (anio) {
+      this.anioSeleccionado = anio;
+      this.verificarSiEsActivo();
+      this.cargarGrados(); // Recargar grados cuando cambia el año
+    }
+  });
+}
 
   cargarGrados(): void {
-    this.gradoService.obtenerGradosPorAnyo(this.anioActual).subscribe({
-      next: (data: any[]) => {
-        this.grados = data;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar grados:', error);
-        this.mensaje = 'Error al cargar grados';
-        this.mostrarMensaje();
-      }
-    });
+  if (!this.anioSeleccionado) {
+    console.warn(' No hay año seleccionado');
+    return;
   }
+
+  this.gradoService.obtenerGradosPorAnyo(this.anioSeleccionado).subscribe({
+    next: (data: any[]) => {
+      this.grados = data;
+    },
+    error: (error: any) => {
+      console.error('Error al cargar grados:', error);
+      this.mensaje = 'Error al cargar grados';
+      this.mostrarMensaje();
+    }
+  });
+}
+
+
 
   consultarAlumnos(): void {
     if (!this.gradoSeleccionado) {
@@ -75,25 +91,32 @@ export class ReporteAnualAlumnoComponent implements OnInit {
     });
   }
 
-  verReporteAnual(nie: number): void {
-    this.cargandoReporte = true;
-    this.mostrarReporte = true;
-    
-    this.notasService.obtenerReporteAnual(nie, this.gradoSeleccionado).subscribe({
-      next: (data: any) => {
-        console.log('Reporte recibido:', data); // Debug
-        this.reporteAlumno = data;
-        this.cargandoReporte = false;
-      },
-      error: (error: any) => {
-        console.error('Error al generar reporte:', error);
-        this.mensaje = 'Error al generar el reporte anual';
-        this.mostrarMensaje();
-        this.cargandoReporte = false;
-        this.mostrarReporte = false;
-      }
-    });
+ verReporteAnual(nie: number): void {
+  if (!this.anioSeleccionado) {
+    this.mensaje = 'Debe seleccionar un año académico';
+    this.mostrarMensaje();
+    return;
   }
+
+  this.cargandoReporte = true;
+  this.mostrarReporte = true;
+  
+  //
+  this.notasService.obtenerReporteAnual(nie, this.gradoSeleccionado, this.anioSeleccionado).subscribe({
+    next: (data: any) => {
+      console.log('Reporte recibido:', data);
+      this.reporteAlumno = data;
+      this.cargandoReporte = false;
+    },
+    error: (error: any) => {
+      console.error('Error al generar reporte:', error);
+      this.mensaje = 'Error al generar el reporte anual';
+      this.mostrarMensaje();
+      this.cargandoReporte = false;
+      this.mostrarReporte = false;
+    }
+  });
+}
 
   cerrarReporte(): void {
     this.mostrarReporte = false;
@@ -149,4 +172,15 @@ export class ReporteAnualAlumnoComponent implements OnInit {
     if (estado === 'NO PROMOVIDO') return 'danger';
     return 'warning';
   }
+
+  private verificarSiEsActivo(): void {
+  if (!this.anioSeleccionado) {
+    this.anioEsActivo = false;
+    return;
+  }
+
+  this.anioService.esAnioActivo(this.anioSeleccionado).subscribe(esActivo => {
+    this.anioEsActivo = esActivo;
+  });
+}
 }

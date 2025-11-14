@@ -26,6 +26,9 @@ import { DetalleNotasAlumnoComponent } from './Notas/components/detalle-notas-al
 import { GestionActividadesComponent } from './Notas/components/gestion-actividades/gestion-actividades.component';
 import { AsignarNotasComponent } from './Notas/components/asignar-notas/asignar-notas.component';
 import { ReporteAnualAlumnoComponent } from './Notas/components/reporte-anual-alumno/reporte-anual-alumno.component';
+import { AsigOrientadoresComponent } from './Administracion/asig-orientadores/asig-orientadores.component';
+
+
 
 export const routes: Routes = [
   {
@@ -228,6 +231,11 @@ export const routes: Routes = [
   canActivate: [AuthGuard],
   data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
 },
+{
+    path: 'administracion/asig-orientadores',
+    component: AsigOrientadoresComponent
+  }
+
 
     ],
   },

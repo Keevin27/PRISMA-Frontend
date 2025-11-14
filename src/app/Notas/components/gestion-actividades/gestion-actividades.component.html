@@ -2,13 +2,21 @@
 <div class="container mt-4">
   <h2 class="text-center mb-4">Gestión de Actividades</h2>
 
-  <!-- Mensaje -->
-  <div *ngIf="mensaje" class="alert alert-info text-center">
-    {{ mensaje }}
-  </div>
+<!-- Selector de año -->
+<div class="px-4">
+    <app-selector-anio></app-selector-anio>
+</div>
 
+<!-- Mensaje de alertas -->
+<div *ngIf="mensaje" class="alert px-4" [class.alert-success]="mensaje.includes('exitosamente')" [class.alert-danger]="!mensaje.includes('exitosamente')" role="alert">
+    {{ mensaje }}
+</div>
   <!-- Selección de bloque y trimestre -->
   <div class="card shadow-sm p-3 mb-4">
+   <div *ngIf="!anioEsActivo && anioSeleccionado" class="alert alert-warning">
+        <i class="fas fa-lock me-2"></i>
+        <strong>Modo solo lectura:</strong> Este año académico está inactivo. No puede crear, editar o eliminar actividades.
+    </div>    
     <div class="row align-items-end">
       <div class="col-md-5 mb-3">
 <label class="form-label fw-semibold">Seleccione Materia (Bloque):</label>
@@ -103,10 +111,12 @@
               <button class="btn btn-outline-primary btn-sm me-2" (click)="irAsignarNotas(actividad)">
                 <i class="bi bi-journal-text"></i> Notas
               </button>
-              <button class="btn btn-outline-warning btn-sm me-2" (click)="abrirModalEditar(actividad)">
+              <button 
+              class="btn btn-outline-warning btn-sm me-2" (click)="abrirModalEditar(actividad)" 
+              [disabled]="!anioEsActivo">
                 <i class="bi bi-pencil-square"></i> Editar
               </button>
-              <button class="btn btn-outline-danger btn-sm" (click)="eliminarActividad(actividad)">
+              <button class="btn btn-outline-danger btn-sm" (click)="eliminarActividad(actividad)" [disabled]="!anioEsActivo">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>
