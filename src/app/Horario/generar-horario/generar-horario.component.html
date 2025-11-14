@@ -1,46 +1,303 @@
 <style>
-  .container {
+.container {
   padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header de la página */
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.page-header h2 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 2rem;
+}
+
+/* Card header */
+.card-header {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 10px 10px 0 0;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header h5 {
+  margin: 5px 0;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+/* Sección de acciones */
+.acciones {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.acciones button {
+  padding: 12px 24px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.acciones .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.acciones .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
 }
 
 .alert {
   margin-top: 15px;
   font-size: 1rem;
-  padding: 12px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: none;
   animation: fadein 0.3s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes fadein {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { 
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+/* Sección de filtros */
+.filtros {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.filtros label {
+  font-weight: 500;
+  color: #495057;
+  margin-right: 20px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.filtros input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.filtros .form-select {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  padding: 10px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.filtros .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.filtros .btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  padding: 12px 30px;
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
+}
+
+.filtros .btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
+.filtros .btn-outline-primary {
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+  padding: 10px 24px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.filtros .btn-outline-primary:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Divisor horizontal */
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #e9ecef, transparent);
+  margin: 30px 0;
+}
+
+/* Tabla de horarios */
+.tabla-horario {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
 
 .table {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.table th, .table td {
-  vertical-align: middle;
-  text-align: center;
-  font-size: 0.9rem;
-  padding: 10px;
-}
-
-.table td {
-  background-color: #f8f9fa;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #e9ecef;
 }
 
 .table th {
-  background-color: #343a40;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
   color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 15px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+}
+
+.table td {
+  background-color: #ffffff;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 12px 10px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.table td.fw-bold {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.table tbody tr:hover td {
+  background-color: #f8f9fa;
+}
+
+.table tbody tr td:first-child {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.table tbody tr:hover td:first-child {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
 }
 
 pre {
   white-space: pre-wrap;
   margin: 0;
-  font-family: inherit;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.4;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+/* Modal de confirmación */
+.modal-content {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  border-radius: 10px 10px 0 0;
+  border-bottom: none;
+  padding: 20px 25px;
+}
+
+.modal-body {
+  padding: 25px;
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 20px 25px;
+}
+
+.modal-footer .btn {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.breadcrumb-item a {
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: #3b82f6 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .card-header h5 {
+    font-size: 0.95rem;
+  }
+  
+  .filtros label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .filtros .btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .table th, .table td {
+    font-size: 0.8rem;
+    padding: 8px 5px;
+  }
 }
 
 </style>
@@ -50,14 +307,14 @@ pre {
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
                 </li>
-                <li class=" breadcrumb-item active" aria-current="page">Docentes</li>
+                <li class="breadcrumb-item active" aria-current="page">Gestión de Horarios</li>
             </ol>
         </nav>
     </div>
     <h2 class="text-center">Gestión de Horarios</h2>
 </div>
 <div class="container">
-  <div class="card-header text-center">
+  <div class="card-header text-center bg-ligth">
         <h5>CENTRO ESCOLAR GUSTAVO VIDES VALDES</h5>
         <h5>LOURDES COLON</h5>
         <h5>Generacion de Horarios</h5>
@@ -81,15 +338,17 @@ pre {
   <hr>
 
     <div class="filtros">
-      <label>
+      <div class="mb-3">
+      <label class="mb-3">
         <input type="radio" [(ngModel)]="modo" value="grado"> Ver por grado
       </label>
       <label>
         <input type="radio" [(ngModel)]="modo" value="docente"> Ver por docente
       </label>
+      </div>
 
-      <div *ngIf="modo === 'grado'" class="mt-2">
-        <label>Seleccione un grado:</label>
+      <div *ngIf="modo === 'grado'" class="mt-3">
+        <label class="form-label">Seleccione un grado:</label>
         <select [(ngModel)]="idGradoSeleccionado" class="form-select">
           <option [ngValue]="null">-- Seleccionar --</option>
           <option *ngFor="let g of grados" [ngValue]="g.id_grado">{{ g.nombre_grado }} {{ g.seccion }}</option>
@@ -97,20 +356,20 @@ pre {
       </div>
 
       <div *ngIf="modo === 'docente'" class="mt-2">
-        <label>Seleccione un docente:</label>
+        <label class="form-label" >Seleccione un docente:</label>
         <select [(ngModel)]="duiDocenteSeleccionado" class="form-select">
           <option [ngValue]="null">-- Seleccionar --</option>
           <option *ngFor="let d of docentes" [ngValue]="d.duiDocente">{{ d.nombre_Docente }}</option>
         </select>
       </div>
-
+      <div class="mt-3">
       <button (click)="verHorarios()" class="btn btn-success mt-3">Ver horario</button>
       <button *ngIf="matriz.length > 0" 
-        (click)="imprimirHorario()" 
-        class="btn btn-outline-primary mt-3 ms-2">
-  Imprimir horario
-</button>
-
+              (click)="imprimirHorario()" 
+              class="btn btn-outline-primary mt-3 ms-2">
+        Imprimir horario
+      </button>
+      </div>
     </div>
 
   <hr>
@@ -144,8 +403,9 @@ pre {
       </div>
 
       <div class="modal-body">
-        Esto eliminará los horarios existentes y generará uno nuevo.
-        ¿Desea continuar?
+        <p class="mb-2">⚠️ <strong>Advertencia:</strong></p>
+        <p>Esta acción eliminará todos los horarios existentes y generará nuevos horarios automáticamente.</p>
+        <p class="mb-0">¿Desea continuar?</p>
       </div>
 
       <div class="modal-footer">
