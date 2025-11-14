@@ -16,6 +16,9 @@ import { NoAuthGuard } from './Auth/no-auth.guard';
 import { UsuarioListComponent } from './usuarios/pages/usuario-list/usuario-list.component';
 import { UsuarioFormComponent } from './usuarios/pages/usuario-form/usuario-form.component';
 import { ForbiddenComponent } from './forbidden/forbidden.component';
+import { AgregarMateriasComponent } from './Materia/agregar-materias/agregar-materias.component';
+import { ActualizarMateriasComponent } from './Materia/actualizar-materias/actualizar-materias.component';
+import { AsignarMateriaDocenteComponent } from './Materia/asignar-materia-docente/asignar-materia-docente.component';
 
 export const routes: Routes = [
   {
@@ -151,6 +154,33 @@ export const routes: Routes = [
         path: '',
         pathMatch: 'full',
         redirectTo: 'home',
+      },
+      {
+        path: 'materias',
+        loadComponent: () =>
+          import('./Materia/lista-materias/lista-materias.component').then(
+            (m) => m.ListaMateriasComponent
+          ),
+          canActivate: [AuthGuard],
+          data: {roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA']}
+      },
+      {
+        path: 'materias/agregarMaterias',
+        component: AgregarMateriasComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'materias/asignarMateriaADocente',
+        loadComponent: () =>
+          import('./Materia/asignar-materia-docente/asignar-materia-docente.component').then(
+            (m) => m.AsignarMateriaDocenteComponent),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'materias/:codigo',
+        component: ActualizarMateriasComponent,
       },
     ],
   },
