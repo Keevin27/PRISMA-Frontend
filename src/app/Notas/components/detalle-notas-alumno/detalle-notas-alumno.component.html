@@ -1,0 +1,149 @@
+<br><br>
+<div class="px-4">
+  <app-selector-anio></app-selector-anio>
+</div>
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Detalle de Notas del Alumno</h2>
+
+  <!-- Mensaje de información -->
+  <div *ngIf="mensaje" class="alert alert-info text-center">
+    {{ mensaje }}
+  </div>
+
+  <!-- Indicador de carga -->
+  <div *ngIf="cargando" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Cargando información...</p>
+  </div>
+
+  <!-- Detalle del alumno -->
+  <div *ngIf="!cargando && datosAlumno">
+    <div class="card shadow-sm p-3 mb-4">
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Nombre del Alumno:</strong> {{ datosAlumno.nombreCompleto }}</p>
+          <p><strong>NIE:</strong> {{ datosAlumno.nie }}</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p><strong>Grado:</strong> {{ datosAlumno.grado }}</p>
+          <p><strong>Trimestre:</strong> {{ trimestre }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de notas por materia -->
+    <div class="card shadow-sm p-3">
+      <h5 class="text-center mb-3">Notas por Materia</h5>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle text-center">
+          <thead class="table-primary">
+            <tr>
+              <th>Materia</th>
+              <th>Nota Final</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let materia of datosAlumno.materias">
+              <td>{{ materia.nombreMateria }}</td>
+              <td>{{ materia.notaFinalTrimestre }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-success': materia.notaFinalTrimestre >= 6,
+                    'bg-danger': materia.notaFinalTrimestre < 6
+                  }"
+                >
+                  {{ materia.notaFinalTrimestre >= 6 ? 'Aprobado' : 'Reprobado' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Resumen de resultados -->
+    <div class="card shadow-sm p-3 mt-4">
+      <h5 class="text-center mb-3">Resumen de Rendimiento</h5>
+      <div class="row text-center">
+        <div class="col-md-4 mb-3">
+          <div class="border rounded p-3 bg-light">
+            <h6 class="text-muted">Promedio General</h6>
+            <h3 class="fw-bold text-primary">{{ calcularPromedioGeneral() }}</h3>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="border rounded p-3 bg-light">
+            <h6 class="text-muted">Materias Aprobadas</h6>
+            <h3 class="fw-bold text-success">{{ contarAprobadas() }}</h3>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="border rounded p-3 bg-light">
+            <h6 class="text-muted">Materias Reprobadas</h6>
+            <h3 class="fw-bold text-danger">{{ contarReprobadas() }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-secondary" (click)="volver()">
+        <i class="bi bi-arrow-left"></i> Volver
+      </button>
+
+      
+    </div>
+  </div>
+
+  <!-- Reporte anual -->
+  <div *ngIf="mostrarReporteAnual && reporteAnual" class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Reporte Anual de {{ datosAlumno?.nombreCompleto }}</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarReporteAnual()"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="cargandoReporte" class="text-center">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Generando reporte...</p>
+          </div>
+
+          <div *ngIf="!cargandoReporte && reporteAnual">
+            <div class="table-responsive">
+              <table class="table table-striped align-middle text-center">
+                <thead class="table-info">
+                  <tr>
+                    <th>Materia</th>
+                    <th>Trimestre 1</th>
+                    <th>Trimestre 2</th>
+                    <th>Trimestre 3</th>
+                    <th>Promedio Final</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let materia of reporteAnual.materias">
+                    <td>{{ materia.nombreMateria }}</td>
+                    <td>{{ materia.trimestre1 }}</td>
+                    <td>{{ materia.trimestre2 }}</td>
+                    <td>{{ materia.trimestre3 }}</td>
+                    <td>
+                      <strong>{{ materia.promedioFinal }}</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cerrarReporteAnual()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

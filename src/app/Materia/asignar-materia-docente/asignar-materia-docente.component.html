@@ -1,0 +1,194 @@
+<style>
+  .form-check-input {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+  }
+  label[for^="grado-"] {
+    cursor: pointer;
+    user-select: none;
+  }
+  .asignado {
+    color: green;
+    font-weight: bold;
+  }
+  .ocupado {
+    color: red;
+  }
+</style>
+
+<div class="p-4 mt-5">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a routerLink="/materias" class="text-decoration-none text-secondary">Materias</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Asignar Materias
+      </li>
+    </ol>
+  </nav>
+
+  <h2 class="text-center">Asignación de Materias</h2>
+</div>
+
+<div class="container mt-4">
+  <form [formGroup]="formAsignacion" (ngSubmit)="guardarAsignacion()" class="p-3">
+    <!-- Docente -->
+    <div class="form-group mb-3">
+      <label for="duiDocente">Docente</label>
+      <select
+        id="duiDocente"
+        formControlName="duiDocente"
+        class="form-control"
+      >
+        <option value="">-- Seleccione docente --</option>
+        <option
+          *ngFor="let d of docentes"
+          [value]="d.duiDocente"
+        >
+          {{ d.nombre_Docente }} {{ d.apellido_Docente }}
+        </option>
+      </select>
+      <div
+        *ngIf="
+          formAsignacion.get('duiDocente')?.touched &&
+          formAsignacion.get('duiDocente')?.invalid
+        "
+        class="text-danger"
+      >
+        Seleccione un docente.
+      </div>
+    </div>
+
+    <!-- Materia -->
+    <div class="form-group mb-3">
+      <label for="codigoMateria">Materia</label>
+      <select
+        id="codigoMateria"
+        formControlName="codigoMateria"
+        class="form-control"
+      >
+        <option value="">-- Seleccione materia --</option>
+        <option
+          *ngFor="let m of materias"
+          [value]="m.codigo_materia"
+        >
+          {{ m.nombre_materia }}
+        </option>
+      </select>
+      <div
+        *ngIf="
+          formAsignacion.get('codigoMateria')?.touched &&
+          formAsignacion.get('codigoMateria')?.invalid
+        "
+        class="text-danger"
+      >
+        Seleccione una materia.
+      </div>
+    </div>
+
+    <!-- Grados -->
+    <div
+      *ngIf="
+        formAsignacion.get('duiDocente')?.value &&
+        formAsignacion.get('codigoMateria')?.value
+      "
+      class="mt-4"
+    >
+      <h5>Grados disponibles</h5>
+      <div
+        *ngIf="grados.length === 0"
+        class="text-muted small"
+      >
+        Cargando grados o no hay grados disponibles...
+      </div>
+
+      <div
+        *ngFor="let grado of grados; let i = index; trackBy: trackByGrado"
+        class="d-flex align-items-center justify-content-between border rounded p-2 my-2"
+      >
+        <div>
+          <strong>{{
+            grado.nombre ?? grado.nombre_grado ?? ('Grado ' + (grado.id || ''))
+          }}</strong>
+          <div class="text-muted small">Sección: {{ grado.seccion ?? '-' }}</div>
+          <div class="text-muted small">
+            Año: {{ grado.anioAcademico?.anio ?? 'N/D' }}
+          </div>
+        </div>
+
+        <div class="form-switch form-check text-end">
+          <input
+            type="checkbox"
+            role="switch"
+            [id]="'grado-' + (getGradoIdValue(grado) || i)"
+            (change)="toggleGrado(grado, $event)"
+            [checked]="isGradoChecked(grado)"
+            [disabled]="isGradoDisabled(grado)"
+            [ngClass]="{btn: true, 'btn-success': gradosSeleccionados.includes(grado.id), 'btn-outline-secondary': !gradosSeleccionados.includes(grado.id)}"
+            class="form-check-input"
+            style="width: 3rem; height: 1.5rem; margin-right: 1rem;"
+          />
+
+          <label
+            [for]="'grado-' + (getGradoIdValue(grado) || i)"
+            class="ms-2"
+          >
+            <span
+              *ngIf="asignacionesPorGrado[getGradoIdValue(grado)] as asign"
+              [ngClass]="{
+                asignado: asign.duiDocente === formAsignacion.get('duiDocente')?.value,
+                ocupado: asign.duiDocente !== formAsignacion.get('duiDocente')?.value
+              }"
+            >
+              {{
+                asign.duiDocente === formAsignacion.get('duiDocente')?.value
+                  ? 'Asignado a este docente'
+                  : 'Asignado a ' + (asign.nombreDocente || asign.duiDocente)
+              }}
+            </span>
+            <span
+              *ngIf="!asignacionesPorGrado[getGradoIdValue(grado)]"
+              class="text-muted small"
+              >Disponible</span
+            >
+          </label>
+        </div>
+      </div>
+
+      <div
+        *ngIf="gradosSeleccionados.length === 0"
+        class="text-warning mt-2"
+      >
+        No ha activado ningún grado.
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex justify-content-center mt-4">
+      <button
+        type="submit"
+        class="btn btn-primary me-3"
+        [disabled]="!validoParaGuardar()"
+      >
+        Guardar asignación
+      </button>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        routerLink="/materias"
+      >
+        Cancelar
+      </button>
+    </div>
+
+    <!-- Mensaje -->
+    <div *ngIf="mensaje" class="mt-3 text-center">
+      <small class="text-info">{{ mensaje }}</small>
+    </div>
+  </form>
+</div>

@@ -21,6 +21,19 @@ import { CrearAlimentoComponent } from './Alimentos/crear-alimento/crear-aliment
 import { CrearMenuComponent } from './Alimentos/crear-menu/crear-menu.component';
 import { ListarMenuComponent } from './Alimentos/listar-menu/listar-menu.component';
 import { EditarMenuComponent } from './Alimentos/editar-menu/editar-menu.component';
+import { AgregarMateriasComponent } from './Materia/agregar-materias/agregar-materias.component';
+import { ActualizarMateriasComponent } from './Materia/actualizar-materias/actualizar-materias.component';
+import { AsignarMateriaDocenteComponent } from './Materia/asignar-materia-docente/asignar-materia-docente.component';
+
+import { ConsultarNotasMateriaComponent } from './Notas/components/consultar-notas-materia/consultar-notas-materia.component';
+import { ConsultarNotasAlumnoComponent } from './Notas/components/consultar-notas-alumno/consultar-notas-alumno.component';
+import { DetalleNotasAlumnoComponent } from './Notas/components/detalle-notas-alumno/detalle-notas-alumno.component';
+import { GestionActividadesComponent } from './Notas/components/gestion-actividades/gestion-actividades.component';
+import { AsignarNotasComponent } from './Notas/components/asignar-notas/asignar-notas.component';
+import { ReporteAnualAlumnoComponent } from './Notas/components/reporte-anual-alumno/reporte-anual-alumno.component';
+import { AsigOrientadoresComponent } from './Administracion/asig-orientadores/asig-orientadores.component';
+
+
 
 export const routes: Routes = [
   {
@@ -33,6 +46,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./home/home.component').then((m) => m.HomeComponent),
       },
+      
       {
         path: 'paquetesescolares',
         component: PaqueteEscolarComponent,
@@ -54,6 +68,26 @@ export const routes: Routes = [
         path: 'asistenciaalumno/asistencia-lista', component: AsistenciaListaComponent,
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+
+      {
+        path: 'gestion-ano-academico',
+        loadComponent: () =>
+        import('./Administracion/gestion-anio-academico/gestion-anio-academico.component').then(
+        (m) => m.GestionAnioAcademicoComponent
+          ),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
+      },
+
+        {
+        path: 'matriculas',
+        loadComponent: () =>
+          import('./Administracion/matricula/matricula.component').then(
+            (m) => m.MatriculaComponent
+          ),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_DOCENTE'] }
       },
 
       {
@@ -166,6 +200,77 @@ export const routes: Routes = [
         pathMatch: 'full',
         redirectTo: 'home',
       },
+      {
+        path: 'materias',
+        loadComponent: () =>
+          import('./Materia/lista-materias/lista-materias.component').then(
+            (m) => m.ListaMateriasComponent
+          ),
+          canActivate: [AuthGuard],
+          data: {roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA']}
+      },
+      {
+        path: 'materias/agregarMaterias',
+        component: AgregarMateriasComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'materias/asignarMateriaADocente',
+        loadComponent: () =>
+          import('./Materia/asignar-materia-docente/asignar-materia-docente.component').then(
+            (m) => m.AsignarMateriaDocenteComponent),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'materias/:codigo',
+        component: ActualizarMateriasComponent,
+      },
+
+      // MÓDULO DE NOTAS
+      {
+        path: 'consultar-notas-materia',
+        component: ConsultarNotasMateriaComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'consultar-notas-alumno',
+        component: ConsultarNotasAlumnoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'detalle-notas-alumno/:nie',
+        component: DetalleNotasAlumnoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'gestion-actividades',
+        component: GestionActividadesComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'asignar-notas/:idActividad',
+        component: AsignarNotasComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+  path: 'reporte-anual-alumno',
+  component: ReporteAnualAlumnoComponent,
+  canActivate: [AuthGuard],
+  data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+},
+{
+    path: 'administracion/asig-orientadores',
+    component: AsigOrientadoresComponent
+  }
+
+
     ],
   },
 
