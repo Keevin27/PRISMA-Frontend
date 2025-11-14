@@ -1,1 +1,340 @@
-<p>asig-orientadores works!</p>
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a></li>
+                <li class="breadcrumb-item"><a routerLink="/administracion" class="text-decoration-none text-secondary">Administración</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Asignaciones de Orientadores</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <h2>Asignaciones de Orientadores</h2>
+
+    <!-- ===================================================== -->
+    <!-- === SECCIÓN DE ALERTAS EN BANNER === -->
+    <!-- ===================================================== -->
+    <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
+        <button type="button" class="btn-close" (click)="mensajeExito = ''" aria-label="Close"></button>
+    </div>
+    <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
+        <button type="button" class="btn-close" (click)="mensajeError = ''" aria-label="Close"></button>
+    </div>
+    <!-- ===================================================== -->
+
+    <div class="row">
+        <!-- Filtro de Asignaciones - Columna Izquierda 
+        <div class="col-lg-2 col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    <h6 class="card-title">Filtrar Asignaciones</h6>
+                    <form>
+                        <div class="mb-2">
+                            <label for="filtro_anio" class="form-label small">Año Académico:</label>
+                            <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio"
+                                [(ngModel)]="anioSeleccionado" (change)="filtrarPorAnio()">
+                                <option [value]="null">Todos los años</option>
+                                <option *ngFor="let anio of aniosAcademicos" [value]="anio.anio">
+                                    {{anio.anio}}
+                                    <span *ngIf="anio.estado"> (Activo)</span>
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="button" class="btn btn-primary btn-sm" (click)="filtrarPorAnio()">
+                                <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="anioSeleccionado = null; cargarAsignaciones()">
+                                <i class="bi bi-arrow-clockwise"></i> Limpiar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+-->
+        <!-- Contenido Principal - Columna Derecha -->
+        <div class="col-lg-10 col-md-9">
+            <!-- Filtros activos -->
+            <div class="mb-2" *ngIf="anioSeleccionado">
+                <small class="text-muted">
+                    <i class="bi bi-funnel-fill"></i> Filtros activos:
+                    <span class="badge bg-primary me-1">Año: {{anioSeleccionado}}</span>
+                    <button type="button" class="btn btn-link btn-sm p-0 ms-2" (click)="anioSeleccionado = null; cargarAsignaciones()">
+                        <small>Limpiar todos</small>
+                    </button>
+                </small>
+            </div>
+
+            <!-- Botón Agregar -->
+            <div class="d-flex justify-content-end align-items-center mb-2 flex-wrap">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Agregar nueva asignación de orientador" (click)="abrirModalAgregar()">
+                        <i class="bi bi-person-plus"></i> Agregar Asignación
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de asignaciones -->
+            <div class="table-responsive">
+                <div class="mb-2">
+                    <small class="text-muted">
+                        Mostrando {{asignaciones.length}} asignación(es)
+                    </small>
+                </div>
+
+                <!-- Loading spinner -->
+                <div class="text-center my-5" *ngIf="cargando">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando asignaciones...</p>
+                </div>
+
+                <!-- Tabla -->
+                <table class="table table-hover" *ngIf="!cargando">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 30%">Docente Orientador</th>
+                            <th style="width: 25%">Grado</th>
+                            <th style="width: 15%; text-align: center;">Turno</th>
+                            <th style="width: 10%; text-align: center;">Año</th>
+                            <th style="width: 15%; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let asignacion of asignaciones; let i = index">
+                            <td class="fw-bold">{{ i + 1 }}</td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ asignacion.nombreDocente }}</div>
+                                    <small class="text-muted">DUI: {{ asignacion.duiDocente }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ asignacion.gradoCompleto }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge" 
+                                      [class.bg-warning]="asignacion.turno === 'Matutino'"
+                                      [class.bg-secondary]="asignacion.turno === 'Vespertino'">
+                                    <i class="bi" 
+                                       [class.bi-sun-fill]="asignacion.turno === 'Matutino'"
+                                       [class.bi-moon-fill]="asignacion.turno === 'Vespertino'">
+                                    </i>
+                                    {{ asignacion.turno }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary">{{ asignacion.anioAcademico }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center">
+                                    <button class="btn btn-primary btn-sm mx-1" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Editar orientador"
+                                        (click)="abrirModalEditar(asignacion)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm mx-1 delete-btn" title="Eliminar asignación"
+                                        (click)="abrirModalEliminar(asignacion.idCoordinacion)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Mensaje cuando no hay asignaciones -->
+                <div class="alert alert-info alert-dismissible fade show mt-1" *ngIf="asignaciones.length === 0 && !cargando">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <label>No hay asignaciones de orientadores registradas</label>
+                    <button type="button" class="btn btn-link p-0 ms-2" (click)="abrirModalAgregar()">
+                        <small>Agregar primera asignación</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     MODAL AGREGAR ASIGNACIÓN
+     ======================================================== -->
+<div class="modal fade" id="modalAgregar" tabindex="-1" aria-labelledby="modalLabelAgregar" aria-hidden="true"
+     [class.show]="mostrarModalAgregar" [style.display]="mostrarModalAgregar ? 'block' : 'none'"
+     [style.background-color]="mostrarModalAgregar ? 'rgba(0,0,0,0.5)' : 'transparent'">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalLabelAgregar">
+                    <i class="bi bi-plus-circle"></i> Agregar Asignación de Orientador
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="cerrarModalAgregar()" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <!-- SELECCIONAR DOCENTE -->
+                    <div class="mb-3">
+                        <label for="select_docente" class="form-label">Docente Orientador <span class="text-danger">*</span></label>
+                        <select id="select_docente" class="form-select" 
+                                [(ngModel)]="nuevaAsignacion.duiDocente" 
+                                name="docente" 
+                                required>
+                            <option value="">-- Seleccione un docente --</option>
+                            <option *ngFor="let docente of docentesDisponibles" [value]="docente.duiDocente">
+                                {{ docente.nombreCompleto }} ({{ docente.duiDocente }})
+                            </option>
+                        </select>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> Solo se muestran docentes activos
+                        </small>
+                    </div>
+
+                    <!-- SELECCIONAR GRADO -->
+                    <div class="mb-3">
+                        <label for="select_grado" class="form-label">Grado y Sección <span class="text-danger">*</span></label>
+                        <select id="select_grado" class="form-select" 
+                                [(ngModel)]="nuevaAsignacion.idGrado" 
+                                name="grado" 
+                                required>
+                            <option [value]="null">-- Seleccione un grado --</option>
+                            <option *ngFor="let grado of gradosDisponibles" [value]="grado.idGrado">
+                                {{ grado.gradoCompleto }} - {{ grado.turno }} ({{ grado.anioAcademico }})
+                            </option>
+                        </select>
+                        <small class="text-muted" *ngIf="gradosDisponibles.length === 0">
+                            <i class="bi bi-exclamation-triangle"></i> No hay grados disponibles sin coordinador
+                        </small>
+                        <small class="text-muted" *ngIf="gradosDisponibles.length > 0">
+                            <i class="bi bi-info-circle"></i> Solo se muestran grados sin orientador asignado
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="cerrarModalAgregar()">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" 
+                        (click)="guardarAsignacion()"
+                        [disabled]="!nuevaAsignacion.duiDocente || !nuevaAsignacion.idGrado || cargando">
+                    <span *ngIf="!cargando">
+                        <i class="bi bi-check-circle"></i> Guardar Asignación
+                    </span>
+                    <span *ngIf="cargando">
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        Guardando...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     MODAL EDITAR ASIGNACIÓN
+     ======================================================== -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalLabelEditar" aria-hidden="true"
+     [class.show]="mostrarModalEditar" [style.display]="mostrarModalEditar ? 'block' : 'none'"
+     [style.background-color]="mostrarModalEditar ? 'rgba(0,0,0,0.5)' : 'transparent'">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalLabelEditar">
+                    <i class="bi bi-pencil-square"></i> Editar Asignación de Orientador
+                </h5>
+                <button type="button" class="btn-close" (click)="cerrarModalEditar()" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <!-- GRADO (SOLO LECTURA) -->
+                    <div class="mb-3">
+                        <label class="form-label">Grado Asignado</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-secondary text-white border-secondary">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control fw-bold text-dark bg-white" 
+                                   [value]="asignacionEditar.nombreGrado" 
+                                   readonly 
+                                   style="cursor: not-allowed;">
+                        </div>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> El grado no se puede modificar, solo el docente orientador
+                        </small>
+                    </div>
+
+                    <!-- SELECCIONAR NUEVO DOCENTE -->
+                    <div class="mb-3">
+                        <label for="select_docente_edit" class="form-label">Cambiar Docente Orientador <span class="text-danger">*</span></label>
+                        <select id="select_docente_edit" class="form-select" 
+                                [(ngModel)]="asignacionEditar.duiDocente" 
+                                name="docenteEditar" 
+                                required>
+                            <option value="">-- Seleccione un docente --</option>
+                            <option *ngFor="let docente of docentesDisponibles" [value]="docente.duiDocente">
+                                {{ docente.nombreCompleto }} ({{ docente.duiDocente }})
+                            </option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-warning" 
+                        (click)="actualizarAsignacion()"
+                        [disabled]="!asignacionEditar.duiDocente || cargando">
+                    <span *ngIf="!cargando">
+                        <i class="bi bi-check-circle"></i> Actualizar
+                    </span>
+                    <span *ngIf="cargando">
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        Actualizando...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     MODAL ELIMINAR ASIGNACIÓN
+     ======================================================== -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalLabelEliminar" aria-hidden="true"
+     [class.show]="idAsignacionEliminar !== null" 
+     [style.display]="idAsignacionEliminar !== null ? 'block' : 'none'"
+     [style.background-color]="idAsignacionEliminar !== null ? 'rgba(0,0,0,0.5)' : 'transparent'">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalLabelEliminar">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="cerrarModalEliminar()" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>¿Estás seguro que deseas eliminar esta asignación de orientador?</strong></p>
+                <p>Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" (click)="confirmarEliminacion()">
+                    <i class="bi bi-trash"></i> Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

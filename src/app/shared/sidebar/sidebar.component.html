@@ -14,6 +14,11 @@
   <li class="nav-item">
     <a class="nav-link" routerLink="/docentes" routerLinkActive="active" *ngIf="BloquearDocente()">Docentes</a>
   </li>
+
+  <li class="nav-item">
+    <a class="nav-link" routerLink="/administracion/asig-orientadores" routerLinkActive="active" *ngIf="BloquearDocente()">Asignar Coordinador</a>
+  </li>
+
   <li class="nav-item">
     <a class="nav-link" routerLink="/paquetesescolares" routerLinkActive="active" *ngIf="BloquearDocente()">Paquetes Escolares</a>
   </li>
