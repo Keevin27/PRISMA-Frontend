@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Docente } from '../docente';
 import { DocenteService } from '../docente.service';
-import { CommonModule, DatePipe, formatDate, getLocaleDateFormat } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../Auth/auth.service';
 
@@ -96,11 +96,8 @@ export class ListaDocentesComponent implements OnInit{
       }
     );
   }
-  fechaCambiada(fecha_Nacimiento_D:Date):string{
-    let fecha = new String();
-    const dia= new Date(fecha_Nacimiento_D);
-    const mes= new Date(fecha_Nacimiento_D);
-    const anio= new Date(fecha_Nacimiento_D);
-    return fecha=mes.getUTCMonth()+'/'+dia.getUTCDate()+'/'+anio.getUTCFullYear();
-  }
+
+
+
+  
 }

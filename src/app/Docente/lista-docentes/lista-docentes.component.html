@@ -42,7 +42,6 @@
                         <th style="text-align: center;">Correo</th>
                         <th style="width: 10%; text-align: center;">Acciones</th>
                         <th *ngIf="BloquearSecretaria()" style="width: 10%; text-align: center;">Actividad</th>
-                        <th>edad</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -80,7 +79,6 @@
                                     (change)="cambiarEstadoActividad(docente)">
                             </div>
                         </td>
-                        <td >{{fechaCambiada(docente.fecha_Nacimiento_D)}}</td>
                     </tr>
                 </tbody>
             </table>

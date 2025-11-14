@@ -14,19 +14,8 @@
   <li class="nav-item">
     <a class="nav-link" routerLink="/docentes" routerLinkActive="active" *ngIf="BloquearDocente()">Docentes</a>
   </li>
-
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/administracion/asig-orientadores" routerLinkActive="active" *ngIf="BloquearDocente()">Asignar Coordinador</a>
-  </li>
-
   <li class="nav-item">
     <a class="nav-link" routerLink="/paquetesescolares" routerLinkActive="active" *ngIf="BloquearDocente()">Paquetes Escolares</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/gestion-ano-academico" routerLinkActive="active" *ngIf="BloquearDocente()">Gestión de Año Académico</a>
-  </li>
-   <li class="nav-item" >
-    <a class="nav-link" routerLink="/matriculas" routerLinkActive="active">Matriculas</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" routerLink="/asistenciaalumno" routerLinkActive="active" *ngIf="BloquearSecretaria()">Asistencia</a>
@@ -37,19 +26,6 @@
   </li>
   <li class="nav-item">
     <a class="nav-link" routerLink="/menus" routerLinkActive="active" *ngIf="BloquearDocente()">Gestion de menús</a>
-  </li>
-
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/reporte-anual-alumno" routerLinkActive="active" *ngIf="BloquearDocente()">Reporte anual de alumno</a>
-    <a class="nav-link" routerLink="/gestion-actividades" routerLinkActive="active" *ngIf="BloquearDirectora()">Gestion de actividades</a>
-    <a class="nav-link" routerLink="/consultar-notas-materia" routerLinkActive="active" *ngIf="BloquearDirectora()">Notas por materia</a>
-    
-    
-    
-  </li>
-  <li>
-    <a class="nav-link" routerLink="/materias" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Materias</a>
-    <a class="nav-link" routerLink="/materias/asignarMateriaADocente" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Asignar Materias</a>
   </li>
 
 </ul>
