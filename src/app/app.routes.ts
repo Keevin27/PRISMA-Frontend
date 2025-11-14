@@ -75,11 +75,21 @@ export const routes: Routes = [
         data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
 
-        {
+      {
         path: 'matriculas',
         loadComponent: () =>
           import('./Administracion/matricula/matricula.component').then(
             (m) => m.MatriculaComponent
+          ),
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_DOCENTE'] }
+      },
+
+      {
+        path: 'sancion',
+        loadComponent: () =>
+          import('./Administracion/sancion/sancion.component').then(
+            (m) => m.SancionComponent
           ),
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA', 'ROLE_DOCENTE'] }

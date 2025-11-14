@@ -1,0 +1,367 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Registro de Sanciones</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container-fluid p-4 mt-2">
+  <!-- Encabezado Principal - CENTRADO -->
+  <div class="text-center" style="margin-top: -40px; margin-bottom: 10px;">
+    <h2 class="fw-bold text-dark mb-0">Registro de Sanciones</h2>
+    <small class="text-muted d-block">Centro Escolar Gustavo Vides Valdes</small>
+  </div>
+
+  <!-- Alertas -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show shadow-sm mt-2" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i> {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="limpiarMensajes()"></button>
+  </div>
+
+  <!-- ============= PASO 1: AÑO ACADÉMICO ============= -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-body">
+      <div class="d-flex align-items-center">
+        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+          <i class="bi bi-calendar-event fs-4"></i>
+        </div>
+        <div class="flex-grow-1">
+          <h5 class="mb-0 fw-bold">Año Académico</h5>
+          <p class="mb-0 text-muted" *ngIf="!cargandoAnio && anioAcademicoActivo">
+            <span class="badge bg-success fs-6">{{ anioAcademicoActivo.anio }} (Activo)</span>
+          </p>
+          <p class="mb-0 text-muted" *ngIf="cargandoAnio">
+            <span class="spinner-border spinner-border-sm"></span> Cargando...
+          </p>
+          <p class="mb-0 text-danger" *ngIf="!cargandoAnio && !anioAcademicoActivo">
+            No hay año académico activo
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= PASO 2: SELECCIÓN DE GRADO ============= -->
+  <div class="card shadow-sm mb-4 border-0" *ngIf="anioAcademicoActivo && !gradoSeleccionado">
+    <div class="card-header bg-white py-3 border-bottom">
+      <div class="d-flex align-items-center">
+        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+          <i class="bi bi-book fs-5"></i>
+        </div>
+        <h5 class="mb-0 fw-bold">Seleccione un Grado</h5>
+      </div>
+    </div>
+    <div class="card-body">
+      <div *ngIf="cargandoGrados" class="text-center py-4">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Cargando grados...</p>
+      </div>
+
+      <div *ngIf="!cargandoGrados && grados.length > 0" class="row g-3">
+        <div class="col-md-3 col-sm-6" *ngFor="let grado of grados">
+          <div class="card h-100 border grado-card" 
+               (click)="seleccionarGrado(grado)"
+               style="cursor: pointer; transition: all 0.2s;">
+            <div class="card-body text-center">
+              <i class="bi bi-mortarboard text-primary fs-1 mb-2"></i>
+              <h6 class="fw-bold mb-1">{{ grado.nombre_grado }}</h6>
+              <p class="mb-0 text-muted small">Sección: {{ grado.seccion }}</p>
+              <p class="mb-0 text-muted small">{{ grado.turno_grado }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!cargandoGrados && grados.length === 0" class="text-center py-4">
+        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+        <p class="mt-2 text-muted">No hay grados disponibles para este año.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= PASO 3: SELECCIÓN DE ALUMNO ============= -->
+  <div *ngIf="gradoSeleccionado && !alumnoSeleccionado">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="javascript:void(0)" (click)="volverASeleccionGrado()">Grados</a></li>
+        <li class="breadcrumb-item active">{{ gradoSeleccionado.nombre_grado }} - {{ gradoSeleccionado.seccion }}</li>
+      </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3 border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+              <i class="bi bi-people fs-5"></i>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-bold">Alumnos de {{ gradoSeleccionado.nombre_grado }} - {{ gradoSeleccionado.seccion }}</h5>
+              <small class="text-muted">{{ alumnosFiltrados.length }} alumno(s)</small>
+            </div>
+          </div>
+          <button class="btn btn-warning btn-sm" (click)="volverASeleccionGrado()">
+            <i class="bi bi-arrow-left"></i> Cambiar Grado
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control border-start-0 ps-0" 
+              placeholder="Buscar por nombre, apellido o NIE..."
+              [(ngModel)]="busquedaAlumno"
+              (input)="filtrarAlumnos()">
+          </div>
+        </div>
+
+        <div *ngIf="cargandoAlumnos" class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2 text-muted">Cargando alumnos...</p>
+        </div>
+
+        <div *ngIf="!cargandoAlumnos && alumnosFiltrados.length > 0" class="list-group">
+          <a 
+            href="javascript:void(0)"
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            *ngFor="let alumno of alumnosFiltrados"
+            (click)="seleccionarAlumno(alumno)">
+            <div class="d-flex align-items-center">
+              <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-person-fill text-primary"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">{{ alumno.nombre_alumno }} {{ alumno.apellido_alumno }}</h6>
+                <small class="text-muted">NIE: {{ alumno.nie }}</small>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right text-muted"></i>
+          </a>
+        </div>
+
+        <div *ngIf="!cargandoAlumnos && alumnosFiltrados.length === 0 && alumnos.length > 0" class="text-center py-4">
+          <i class="bi bi-search text-muted" style="font-size: 2rem;"></i>
+          <p class="mt-2 text-muted">No se encontraron alumnos con ese criterio.</p>
+        </div>
+
+        <div *ngIf="!cargandoAlumnos && alumnos.length === 0" class="text-center py-4">
+          <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+          <p class="mt-2 text-muted">No hay alumnos matriculados en este grado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= PASO 4: GESTIÓN DE SANCIONES ============= -->
+  <div *ngIf="alumnoSeleccionado">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="javascript:void(0)" (click)="volverASeleccionGrado()">Grados</a></li>
+        <li class="breadcrumb-item"><a href="javascript:void(0)" (click)="volverASeleccionAlumno()">{{ gradoSeleccionado?.nombre_grado }}</a></li>
+        <li class="breadcrumb-item active">{{ alumnoSeleccionado.nombre_alumno }} {{ alumnoSeleccionado.apellido_alumno }}</li>
+      </ol>
+    </nav>
+
+    <!-- Info del Alumno -->
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div class="d-flex align-items-center">
+            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+              <i class="bi bi-person fs-3"></i>
+            </div>
+            <div>
+              <h5 class="mb-1 fw-bold">{{ alumnoSeleccionado.nombre_alumno }} {{ alumnoSeleccionado.apellido_alumno }}</h5>
+              <p class="mb-0">
+                <span class="badge bg-secondary me-2">NIE: {{ alumnoSeleccionado.nie }}</span>
+                <span class="badge bg-secondary">{{ gradoSeleccionado?.nombre_grado }} - {{ gradoSeleccionado?.seccion }}</span>
+              </p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" (click)="volverASeleccionAlumno()">
+            <i class="bi bi-arrow-left"></i> Cambiar Alumno
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Nueva Sanción -->
+    <div class="mb-3">
+      <button 
+        class="btn btn-success"
+        (click)="toggleFormularioSancion()">
+        <i class="bi" [ngClass]="mostrarFormularioSancion ? 'bi-x-circle' : 'bi-plus-circle'"></i>
+        {{ mostrarFormularioSancion ? 'Cancelar' : 'Registrar Nueva Sanción' }}
+      </button>
+    </div>
+
+    <!-- Formulario de Nueva Sanción (CENTRADO - MAX 600px) -->
+    <div class="d-flex justify-content-center mb-4" *ngIf="mostrarFormularioSancion">
+      <div class="card shadow-sm border-0" style="width: 100%; max-width: 600px;">
+        <div class="card-header py-3" [ngClass]="modoEdicion ? 'bg-warning' : 'bg-success text-white'">
+          <h5 class="mb-0 fw-bold" [ngClass]="modoEdicion ? 'text-dark' : ''">
+            <i class="bi" [ngClass]="modoEdicion ? 'bi-pencil-square' : 'bi-plus-circle'"></i> 
+            {{ modoEdicion ? 'Editar Sanción' : 'Nueva Sanción' }}
+          </h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="registrarSancion()">
+            <div class="row g-3">
+              
+              <!-- Tipo de Sanción -->
+              <div class="col-12">
+                <label class="form-label fw-bold">Tipo de Sanción</label>
+                <div class="d-flex gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tipoSancion" id="tipoLeve" value="Leve" [(ngModel)]="nuevaSancion.tipoSancion">
+                    <label class="form-check-label" for="tipoLeve">
+                      <span class="badge bg-warning text-dark">Leve</span>
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="tipoSancion" id="tipoGrave" value="Grave" [(ngModel)]="nuevaSancion.tipoSancion">
+                    <label class="form-check-label" for="tipoGrave">
+                      <span class="badge bg-danger">Grave</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fecha -->
+              <div class="col-12">
+                <label for="fechaSancion" class="form-label fw-bold">Fecha</label>
+                <input type="date" class="form-control" id="fechaSancion" name="fechaSancion" [(ngModel)]="nuevaSancion.fechaSancion" required>
+              </div>
+
+              <!-- Descripción -->
+              <div class="col-12">
+                <label for="descripcionSancion" class="form-label fw-bold">Descripción de la Sanción</label>
+                <textarea 
+                  class="form-control" 
+                  id="descripcionSancion" 
+                  name="descripcionSancion"
+                  rows="4"
+                  [(ngModel)]="nuevaSancion.descripcionSancion"
+                  placeholder="Describa detalladamente el incidente..."
+                  required>
+                </textarea>
+              </div>
+
+              <!-- Botones -->
+              <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-success flex-grow-1">
+                  <i class="bi bi-save"></i> Guardar
+                </button>
+                <button type="button" class="btn btn-secondary flex-grow-1" (click)="toggleFormularioSancion()">
+                  <i class="bi bi-x"></i> Cancelar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de Sanciones -->
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3 border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi bi-list-task"></i> Historial de Sanciones ({{ anioAcademicoActivo?.anio }})
+          </h5>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        
+        <div *ngIf="cargandoSanciones" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-3 text-muted">Cargando historial...</p>
+        </div>
+
+        <div *ngIf="!cargandoSanciones && sanciones.length === 0" class="text-center py-5">
+          <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+          <h5 class="mt-3 text-success">¡Excelente!</h5>
+          <p class="text-muted">Este alumno no tiene sanciones registradas en {{ anioAcademicoActivo?.anio }}.</p>
+        </div>
+
+        <div *ngIf="!cargandoSanciones && sanciones.length > 0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sancion of sanciones">
+                  <td>
+                    <span class="badge" [ngClass]="sancion.tipoSancion === 'Grave' ? 'bg-danger' : 'bg-warning text-dark'">
+                      {{ sancion.tipoSancion }}
+                    </span>
+                  </td>
+                  <td>{{ sancion.fechaSancion | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="text-truncate d-block" [title]="sancion.descripcionSancion">
+                      {{ sancion.descripcionSancion }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <!-- Editar -->
+                    <button 
+                      class="btn btn-primary btn-sm me-1"
+                      title="Editar"
+                      (click)="editarSancion(sancion)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    
+                    <!-- Imprimir PDF (solo Grave) -->
+                    <button 
+                      *ngIf="sancion.tipoSancion === 'Grave'"
+                      class="btn btn-secondary btn-sm me-1"
+                      title="Imprimir PDF"
+                      (click)="descargarReporte(sancion)">
+                      <i class="bi bi-printer"></i>
+                    </button>
+                    
+                    <!-- Eliminar -->
+                    <button 
+                      class="btn btn-danger btn-sm"
+                      title="Eliminar"
+                      (click)="confirmarEliminacion(sancion)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.grado-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-color: #0d6efd !important;
+}
+</style>
