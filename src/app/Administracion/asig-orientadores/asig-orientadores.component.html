@@ -13,9 +13,6 @@
 <div class="container-fluid">
     <h2>Asignaciones de Orientadores</h2>
 
-    <!-- ===================================================== -->
-    <!-- === SECCIÓN DE ALERTAS EN BANNER === -->
-    <!-- ===================================================== -->
     <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
         <button type="button" class="btn-close" (click)="mensajeExito = ''" aria-label="Close"></button>
@@ -24,8 +21,7 @@
         <i class="bi bi-exclamation-triangle-fill"></i> {{ mensajeError }}
         <button type="button" class="btn-close" (click)="mensajeError = ''" aria-label="Close"></button>
     </div>
-    <!-- ===================================================== -->
-
+ 
     <div class="row">
         <!-- Filtro de Asignaciones - Columna Izquierda 
         <div class="col-lg-2 col-md-3 mb-4">
