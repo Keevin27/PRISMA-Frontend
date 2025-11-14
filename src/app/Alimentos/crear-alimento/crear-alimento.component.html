@@ -1,0 +1,43 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/paquetesescolares"
+                        class="text-decoration-none text-secondary">Alimentos</a></li>
+                <li class=" breadcrumb-item active" aria-current="page">Agregar Alimento</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Agregar Alimento</h2>
+</div>
+
+<div class="col-md-6 offset-md-3">
+    <div *ngIf="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
+
+    <form #formulario="ngForm" (ngSubmit)="onSubmit(formulario)" method="post" novalidate class="needs-validation">
+
+        <div class="form-group">
+            <label for="nombre_paquete" class="form-label">Nombre del alimento:</label>
+            <input type="text" class="form-control bg-light restricted-input" id="nombre_alimento" name="nombre_alimento"
+                minlength="3" [(ngModel)]="alimento.nombre_alimento" required #nombre="ngModel"
+                [class.is-invalid]="formulario.submitted && nombre.invalid"
+                [class.is-valid]="formulario.submitted && nombre.valid">
+            <div class="invalid-feedback">
+                El nombre del alimento requiere como minimo 3 caracteres
+            </div>
+        </div>
+        <div class="row justify-content-center text-center mt-4">
+            <div class="col-auto">
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+
+            <div class="col-auto">
+                <a class="btn btn-danger" routerLink="/alimentos">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>

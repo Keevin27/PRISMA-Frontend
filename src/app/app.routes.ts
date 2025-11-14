@@ -29,6 +29,11 @@ import { ReporteAnualAlumnoComponent } from './Notas/components/reporte-anual-al
 import { AsigOrientadoresComponent } from './Administracion/asig-orientadores/asig-orientadores.component';
 
 
+import { ListarAlimentoComponent } from './Alimentos/listar-alimento/listar-alimento.component';
+import { CrearAlimentoComponent } from './Alimentos/crear-alimento/crear-alimento.component';
+import { CrearMenuComponent } from './Alimentos/crear-menu/crear-menu.component';
+import { ListarMenuComponent } from './Alimentos/listar-menu/listar-menu.component';
+import { EditarMenuComponent } from './Alimentos/editar-menu/editar-menu.component';
 
 export const routes: Routes = [
   {
@@ -150,7 +155,36 @@ export const routes: Routes = [
         path: 'docentes/:dui',
         component: ActualizarDocenteComponent,
       },
-
+      {
+        path: 'alimentos',
+        component: ListarAlimentoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
+      },
+      {
+        path: 'alimentos/agregar-alimentos',
+        component: CrearAlimentoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'menus',
+        component: ListarMenuComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
+      },
+      {
+        path: 'menus/agregar-menu',
+        component: CrearMenuComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'menus/editar-menu/:id',
+        component: EditarMenuComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR'] }
+      },
       {
         path: 'usuarios',
         component: UsuarioListComponent,

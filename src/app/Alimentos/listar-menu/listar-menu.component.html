@@ -1,0 +1,217 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Gestión de Menús</li>
+            </ol>
+        </nav>
+    </div>
+
+    <h2 class="text-center mb-4">Gestión de Menús Escolares</h2>
+
+    <div class="container">
+        <!-- Mensaje de alerta -->
+        <div *ngIf="mensaje" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ mensaje }}
+            <button type="button" class="btn-close" (click)="mensaje = ''"></button>
+        </div>
+
+        <!-- Barra de herramientas -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn" [class.btn-primary]="vistaActual === 'semanal'"
+                        [class.btn-outline-primary]="vistaActual !== 'semanal'" (click)="cambiarVista('semanal')">
+                        <i class="bi bi-calendar-week"></i> Vista Semanal
+                    </button>
+                    <button type="button" class="btn" [class.btn-primary]="vistaActual === 'lista'"
+                        [class.btn-outline-primary]="vistaActual !== 'lista'" (click)="cambiarVista('lista')">
+                        <i class="bi bi-list-ul"></i> Vista Lista
+                    </button>
+                </div>
+            </div>
+            <!--boton de agg menús-->
+            <div class="col-md-4 text-end">
+                <button class="btn btn-primary" [routerLink]="'/menus/agregar-menu'" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Agregar menu">
+                    <i class="bi bi-plus-lg"></i> Agregar Menú
+                </button>
+            </div>
+        </div>
+
+        <!-- VISTA SEMANAL-->
+        <div *ngIf="vistaActual === 'semanal'">
+            <div *ngFor="let semana of semanas" class="card mb-4 shadow-sm">
+                <div class="card-header bg-gray text-dark d-flex justify-content-between align-items-center"
+                    (click)="toggleSemana(semana.id_semana)">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar3"></i> SEMANA {{ semana.numero_semana }}
+                    </h5>
+                    <div>
+                        <i class="bi" [class.bi-chevron-up]="semanaExpandida === semana.id_semana"
+                            [class.bi-chevron-down]="semanaExpandida !== semana.id_semana">
+                        </i>
+                    </div>
+                </div>
+
+                <div class="card-body p-0" *ngIf="semanaExpandida === semana.id_semana">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0 tab table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="text-center align-middle" style="width: 15%;">DÍA</th>
+                                    <th class="text-center align-middle">MENÚ</th>
+                                    <th class="text-center align-middle" style="width: 10%;">ESTADO</th>
+                                    <th class="text-center align-middle" style="width: 15%;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let dia of dias">
+                                    <!-- DIA -->
+                                    <td class="text-center align-middle">
+                                        <strong>{{ dia.nombre_dia | uppercase }}</strong>
+                                    </td>
+                                    <!-- MENÚ -->
+                                    <td>
+                                        <ng-container
+                                            *ngIf="obtenerMenuPorDia(semana.id_semana, dia.id_dia) as menu; else sinMenu">
+                                            <div class="p-2">
+                                                <h6 class="mb-2">
+                                                    <i class="bi bi-egg-fried text-warning"></i>
+                                                    {{ menu.nombre_menu }}
+                                                </h6>
+
+                                                <!-- Toggle para ver ingredientes -->
+                                                <button class="btn btn-sm p-0 text-success text-decoration-none"
+                                                    (click)="toggleDetalles(menu.id_menu!)">
+                                                    <i class="bi"
+                                                        [class.bi-caret-down-fill]="!mostrandoDetalles(menu.id_menu!)"
+                                                        [class.bi-caret-up-fill]="mostrandoDetalles(menu.id_menu!)"></i>
+                                                    {{ mostrandoDetalles(menu.id_menu!) ? 'Ocultar' : 'Ver' }}
+                                                    ingredientes
+                                                </button>
+
+                                                <!-- Lista de ingredientes -->
+                                                <div *ngIf="mostrandoDetalles(menu.id_menu!)" class="mt-2 p-2 rounded">
+                                                    <small class="d-block mb-1"><strong>Ingredientes y
+                                                            Raciones:</strong></small>
+                                                    <ul class="list-unstyled mb-0 small">
+                                                        <li *ngFor="let detalle of menu.detallesMenu" class="mb-1">
+                                                            {{ detalle.alimento.nombre_alimento }}:
+                                                            {{ detalle.racion_gramos }}g
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                        <ng-template #sinMenu>
+                                            <div class="text-center text-muted p-3">
+                                                <i class="bi bi-dash-circle"></i> Sin menú asignado
+                                            </div>
+                                        </ng-template>
+                                    </td>
+                                    <!-- ESTADO -->
+                                    <td class="text-center align-middle">
+                                        <ng-container *ngIf="obtenerMenuPorDia(semana.id_semana, dia.id_dia) as menu">
+                                            <div class="form-check form-switch d-inline-block">
+                                                <input class="form-check-input" type="checkbox" role="switch"
+                                                    [checked]="menu.estado_menu" [id]="'switch-' + menu.id_menu"
+                                                    (change)="toggleEstadoMenu(menu)" title="Activar/Desactivar">
+                                            </div>
+                                        </ng-container>
+                                    </td>
+                                    <!-- ACCIONES -->
+                                    <td class="text-center align-middle">
+                                        <ng-container
+                                            *ngIf="obtenerMenuPorDia(semana.id_semana, dia.id_dia) as menu; else sinMenu2">
+                                            <div class="btn-group-vertical">
+                                                <button class="btn btn-sm btn-primary mb-1"
+                                                    [routerLink]="['/menus/editar-menu', menu.id_menu]" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </div>
+                                        </ng-container>
+                                        <ng-template #sinMenu2>
+                                            <button class="btn btn-primary" [routerLink]="'/menus/agregar-menu'"
+                                                data-bs-toggle="tooltip" title="Agregar menu">
+                                                <i class="bi bi-plus-sm"></i> Agregar
+                                            </button>
+                                        </ng-template>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensaje si no hay menús -->
+            <div *ngIf="semanas.length === 0" class="alert alert-info text-center">
+                No hay menús registrados.
+                <a [routerLink]="'/menus/agregar-menu'" class="alert-link">Crear primer menú</a>
+            </div>
+        </div>
+
+        <!-- VISTA LISTA (Tradicional) -->
+        <div *ngIf="vistaActual === 'lista'">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 10%;">Semana</th>
+                            <th style="width: 10%;">Día</th>
+                            <th>Nombre del Menú</th>
+                            <th style="width: 10%;">Estado</th>
+                            <th style="width: 15%;" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let menu of menus; let i = index">
+                            <td class="text-center">{{ i + 1 }}</td>
+                            <td class="text-center">Semana {{ menu.semana.numero_semana }}</td>
+                            <td>{{ menu.dia.nombre_dia }}</td>
+                            <!--Infor del menú -->
+                            <td>
+                                <strong>{{ menu.nombre_menu }}</strong>
+                                <button class="btn btn-sm btn-link p-0 ms-2" (click)="toggleDetalles(menu.id_menu!)">
+                                    <i class="bi bi-info-circle"></i>
+                                </button>
+                                <div *ngIf="mostrandoDetalles(menu.id_menu!)" class="mt-2 small">
+                                    <ul class="list-unstyled mb-0">
+                                        <li *ngFor="let detalle of menu.detallesMenu">
+                                            • {{ detalle.alimento.nombre_alimento }}: {{ detalle.racion_gramos }}g
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <!--Estado del menú -->
+                            <td class="text-center">
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        [checked]="menu.estado_menu" [id]="'switch-list-' + menu.id_menu"
+                                        (change)="toggleEstadoMenu(menu)">
+                                </div>
+                            </td>
+                            <!--Opciones de edición -->
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-primary me-1"
+                                    [routerLink]="['/menus/editar-menu', menu.id_menu]" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div *ngIf="menus.length === 0" class="alert alert-info text-center">
+                No hay menús registrados.
+                <a [routerLink]="'/menus/agregar-menu'" class="alert-link">Crear primer menú</a>
+            </div>
+        </div>
+    </div>
+</div>

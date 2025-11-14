@@ -1,0 +1,119 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class="breadcrumb-item"><a routerLink="/menus"
+                        class="text-decoration-none text-secondary">Gestión
+                        de Menús</a></li>
+                <li class="breadcrumb-item active" aria-current="page"> Crear Menú
+                </li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Crear Menú</h2>
+</div>
+<div class="col-md-6 offset-md-3">
+    <div *ngIf="mensaje" class="alert alert-danger" role="alert">
+        {{ mensaje }}
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+
+            <!-- Selección de Semana -->
+            <div class="needs-validation">
+                <div class="mb-3">
+                    <label for="semana" class="form-label">Seleccione semana del menú*:</label>
+                    <select id="semana" class="form-select" [(ngModel)]="semanaSeleccionada">
+                        <option value="" disabled>Seleccione una semana.....</option>
+                        <option *ngFor="let semana of semanas" [ngValue]="semana">Semana {{ semana.numero_semana }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Selección de Día -->
+                <div class="mb-3">
+                    <label for="dia" class="form-label">Seleccione día del menú*:</label>
+                    <select id="dia" class="form-select" [(ngModel)]="diaSeleccionado">
+                        <option value="" disabled>Seleccione un día....</option>
+                        <option *ngFor="let dia of dias" [ngValue]="dia">{{ dia.nombre_dia }}</option>
+                    </select>
+                </div>
+
+                <!-- Nombre del Menú -->
+                <div class="mb-3">
+                    <label for="nombreMenu" class="form-label">Nombre del menú*:</label>
+                    <input type="text" id="nombreMenu" class="form-control" placeholder="Ingrese nombre del menú"
+                        [(ngModel)]="nombreMenu">
+                </div>
+
+                <!-- Sección para Agregar Alimentos -->
+                <div class="border rounded p-3 mb-3 bg-light">
+                    <h6 class="mb-3">Gestionar Alimentos del Menú</h6>
+                    <div class="row align-items-end">
+                        <div class="col-md-5 mb-3 mb-md-0">
+                            <label for="alimento" class="form-label">Seleccione un alimento:</label>
+                            <select id="alimento" class="form-select" [(ngModel)]="alimentoSeleccionado">
+                                <option value="" disabled>Seleccione...</option>
+                                <option *ngFor="let alimento of alimentos" [ngValue]="alimento">
+                                    {{ alimento.nombre_alimento }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <label for="racion" class="form-label">Ración por alumno (g):</label>
+                            <input type="number" id="racion" class="form-control" [(ngModel)]="racionPorAlumno" min="0">
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary" (click)="agregarAlimento()">
+                                <i class="bi bi-plus-lg"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Alimentos -->
+                    <div class="table-responsive mt-3" *ngIf="detallesMenu.length > 0">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="text-center">Alimento</th>
+                                    <th class="text-center">Ración (g)</th>
+                                    <th class="text-center">Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let detalle of detallesMenu; let i = index">
+                                    <td class="text-center">{{ detalle.alimento.nombre_alimento }}</td>
+                                    <td class="text-center">{{ detalle.racion_gramos }}</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-primary me-2"
+                                            (click)="editarItem(i)" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                            (click)="eliminarItem(i)" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-danger" (click)="cancelar()">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" (click)="guardarMenu()">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>

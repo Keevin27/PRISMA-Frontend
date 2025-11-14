@@ -143,7 +143,6 @@ export class EntregarPaqueteEscolarComponent implements OnInit {
       });
   }
   buscarAsignacion(alumno: Alumno, paquete: PaqueteEscolar): Alumnopaquete | undefined {
-    console.log("llegamso");
     return this.asignaciones.find(a =>
       a.alumno.idAlumno === alumno.idAlumno &&
       a.paqueteEscolar.id_paquete_e === paquete.id_paquete_e

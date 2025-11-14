@@ -1,0 +1,87 @@
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class=" breadcrumb-item active" aria-current="page">Alimentos</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Gestion de Alimentos</h2>
+
+    <div class="container">
+        <div *ngIf="mensaje" class="alert alert-success" role="alert">
+            {{ mensaje }}
+        </div>
+
+        <!-- Boton para agregar alimento -->
+        <div class="d-flex justify-content-end align-items-center mb-2">
+            <button class="btn btn-primary me-2" [routerLink]="'/alimentos/agregar-alimentos'" data-bs-toggle="tooltip"
+                data-bs-placement="top" title="Agregar alimentos">
+                <i class="bi bi-plus-lg"></i> Agregar alimento
+            </button>
+        </div>
+        <!-- Tabla de alimentos -->
+        <h2>Listado de Alimentos</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr class="align-middle">
+                    <th style="width: 10%; text-align: center;">No</th>
+                    <th style="text-align: center;">Nombre</th>
+                    <th style="width: 20%; text-align: center;">Activo</th>
+                    <th style="width: 10%; text-align: center;">Acciones</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+
+                @for (alimento of alimentos; let i =$index; track alimento.id_alimento){
+                <tr>
+                    <td class="text-center">{{ i + 1 }}</td>
+
+                    <!-- Columna del nombre con edición -->
+                    <td>
+                        @if (estaEditando(alimento)) {
+                        <!-- Modo edición -->
+                        <input type="text" class="form-control form-control-sm" [ngModel]="getNombreTemp(alimento)"
+                            (ngModelChange)="setNombreTemp(alimento, $event)" (keyup.enter)="guardarEdicion(alimento)"
+                            (keyup.escape)="cancelarEdicion(alimento)" #inputNombre>
+                        } @else {
+                        <!-- Modo vista -->
+                        <span>{{ alimento.nombre_alimento }}</span>
+                        }
+                    </td>
+
+                    <!-- Checkbox editable -->
+                    <td class="text-center">
+                        <div class="form-check form-switch d-inline-block m-0">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                [checked]="alimento.estado_alimento" [id]="'switchCheckChecked' + alimento.id_alimento"
+                                (change)="toggleActivo(alimento)">
+                        </div>
+                    </td>
+
+                    <!-- Columna de acciones -->
+                    <td class="text-center">
+                        @if (estaEditando(alimento)) {
+                        <!-- Botones guardar/cancelar -->
+                        <button class="btn btn-sm btn-success me-1" (click)="guardarEdicion(alimento)" title="Guardar">
+                            <i class="bi bi-check-lg"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" (click)="cancelarEdicion(alimento)" title="Cancelar">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        } @else {
+                        <!-- Botón editar -->
+                        <button class="btn btn-sm btn-primary" (click)="activarEdicion(alimento)"
+                            title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
