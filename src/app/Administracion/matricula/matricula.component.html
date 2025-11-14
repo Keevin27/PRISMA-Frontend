@@ -1,4 +1,17 @@
-<div class="container-fluid py-4">
+<div class="p-4 mt-5 py-4">
+
+  <!-- Breadcrumb -->
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Gestión de Matrículas</li>
+      </ol>
+    </nav>
+  </div>
+
 
   <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
     <i class="bi bi-check-circle-fill"></i> {{ mensajeExito }}
