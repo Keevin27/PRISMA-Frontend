@@ -5,4 +5,6 @@ export class Grado {
     nombre_grado: string;
     seccion: string;
     anioAcademico: AnioAcademico;
+    estadoGrado: boolean;
+    turno_grado: string;
 }

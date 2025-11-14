@@ -3,6 +3,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Alumno } from '../alumno';
 import { AlumnoService } from '../alumno.service';
 import { CommonModule } from '@angular/common';
+import { MatriculaService } from '../../Services/matricula.service';
+import { Matricula } from '../../Models/matricula';
 
 @Component({
   selector: 'app-ver-alumno',
@@ -12,20 +14,25 @@ import { CommonModule } from '@angular/common';
   styleUrl: './ver-alumno.component.css'
 })
 export class VerAlumnoComponent implements OnInit {
-  alumno: Alumno = new Alumno();
+  matricula: Matricula = new Matricula();
   id: number;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private alumnoService: AlumnoService
+    private alumnoService: AlumnoService,
+    private matriculaService: MatriculaService,
   ) { }
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['id'];
-    this.alumnoService.obtenerAlumnoPorId(this.id).subscribe(dato => {
-      this.alumno = dato;
+    this.matriculaService.findMatriculaByIdAlumno(this.id).subscribe(dato => {
+
+      this.matricula = dato;
     });
+    // this.alumnoService.obtenerAlumnoPorId(this.id).subscribe(dato => {
+    //   this.alumno = dato;
+    // });
   }
 
   volver(): void {

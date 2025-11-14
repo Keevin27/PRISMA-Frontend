@@ -11,6 +11,7 @@ import { GradoService } from '../../Services/grado.service';
 import { AsistenciaAlumno } from '../asistencia-alumno';
 import { AsistenciaAlumnoService } from '../asistencia-alumno.service';
 import { forkJoin } from 'rxjs';
+import { MatriculaService } from '../../Services/matricula.service';
 
 @Component({
   selector: 'app-agregar-asistencia',
@@ -31,7 +32,8 @@ export class AgregarAsistenciaComponent {
   constructor(
     private AsistenciaServicio: AsistenciaAlumnoService,
     private alumnoServicio: AlumnoService,
-    private gradoServicio: GradoService
+    private gradoServicio: GradoService,
+    private matriculaServicio: MatriculaService,
   ) { }
 
   //Se carga al iniciar, trae todos los grados del anyo actual
