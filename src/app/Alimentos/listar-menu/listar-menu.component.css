@@ -1,0 +1,27 @@
+.btn-editar {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+td:hover .btn-editar {
+  opacity: 1;
+}
+
+textarea.form-control,
+input.form-control {
+  font-size: 0.9rem;
+}
+
+.badge {
+  font-size: 0.7rem;
+}
+
+@media (max-width: 768px) {
+  .btn-editar {
+    opacity: 1;
+  }
+  
+  .table {
+    font-size: 0.85rem;
+  }
+}

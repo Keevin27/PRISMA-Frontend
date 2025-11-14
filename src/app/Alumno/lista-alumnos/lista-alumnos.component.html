@@ -29,7 +29,7 @@
                             <select id="filtro_anio" class="form-select form-select-sm" name="filtro_anio"
                                 [(ngModel)]="filtroAnio" (change)="onAnioChange()">
                                 <option value="">Seleccionar año...</option>
-                                <option *ngFor="let anio of aniosDisponibles" [value]="anio">{{anio}}</option>
+                                <option *ngFor="let anio of aniosDisponibles" [value]="anio.anio">{{anio.anio}}</option>
                             </select>
                         </div>
                         <div class="mb-2">
