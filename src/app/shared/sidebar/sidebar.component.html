@@ -28,8 +28,13 @@
     <a class="nav-link" routerLink="/entrega-paquetes-escolares" routerLinkActive="active" *ngIf="BloquearSecretaria()">Entrega de Paquetes Escolares</a>
   </li>
   <li class="nav-item">
+    <a class="nav-link" routerLink="/reporte-anual-alumno" routerLinkActive="active" *ngIf="BloquearDocente()">Reporte anual de alumno</a>
+    <a class="nav-link" routerLink="/gestion-actividades" routerLinkActive="active" *ngIf="BloquearDirectora()">Gestion de actividades</a>
+    <a class="nav-link" routerLink="/consultar-notas-materia" routerLinkActive="active" *ngIf="BloquearDirectora()">Notas por materia</a>
+  </li>
+  <li>
     <a class="nav-link" routerLink="/materias" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Materias</a>
-    <a class="nav-link" routerLink="/materias/asignarMateriaADocente" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Asiganar Materias</a>
+    <a class="nav-link" routerLink="/materias/asignarMateriaADocente" routerLinkActive="active" *ngIf="BloquearSecretaria() && BloquearDocente()">Asignar Materias</a>
   </li>
 
 </ul>

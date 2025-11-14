@@ -1,0 +1,92 @@
+<br><br>
+
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Consulta de Notas por Alumno</h2>
+
+  <!-- Mensaje -->
+  <div *ngIf="mensaje" class="alert alert-info text-center">
+    {{ mensaje }}
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <div class="card shadow-sm p-3 mb-4">
+    <div class="row">
+      <div class="col-md-5 mb-3">
+        <label for="grado" class="form-label fw-bold">Seleccione un Grado:</label>
+        <select id="grado" class="form-select" [(ngModel)]="gradoSeleccionado">
+          <option value="" disabled selected>-- Seleccione un grado --</option>
+          <option *ngFor="let grado of grados" [value]="grado.id_grado">
+            {{ grado.nombre_grado }} - {{ grado.seccion }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-5 mb-3">
+        <label for="trimestre" class="form-label fw-bold">Seleccione un Trimestre:</label>
+        <select id="trimestre" class="form-select" [(ngModel)]="trimestreSeleccionado">
+          <option *ngFor="let tri of trimestres" [value]="tri.value">
+            {{ tri.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2 d-flex align-items-end justify-content-end gap-2">
+        <button class="btn btn-primary w-100" (click)="consultarAlumnos()" [disabled]="cargando">
+          <span *ngIf="!cargando">Buscar</span>
+          <span *ngIf="cargando">
+            <span class="spinner-border spinner-border-sm"></span> Cargando...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div *ngIf="alumnos.length > 0; else noData">
+    <div class="card shadow-sm p-3">
+      <h5 class="mb-3 text-center">
+        Alumnos del grado seleccionado
+      </h5>
+
+      <div class="table-responsive">
+        <table class="table table-striped align-middle text-center">
+          <thead class="table-primary">
+            <tr>
+              <th scope="col">NIE</th>
+              <th scope="col">Nombre del Alumno</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let alumno of alumnos">
+              <td>{{ alumno.nie }}</td>
+              <td>{{ alumno.nombreCompleto }}</td>
+              <td>
+                <button
+                  class="btn btn-outline-success btn-sm"
+                  (click)="verDetalleAlumno(alumno.nie)"
+                >
+                  <i class="bi bi-eye"></i> Ver Detalle
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-secondary mt-2" (click)="limpiarConsulta()">
+          Limpiar Búsqueda
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin datos -->
+  <ng-template #noData>
+    <div class="text-center mt-4 text-muted">
+      <p *ngIf="!cargando">No se han consultado alumnos todavía.</p>
+      <div *ngIf="cargando" class="spinner-border text-primary"></div>
+    </div>
+  </ng-template>
+</div>

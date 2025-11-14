@@ -1,0 +1,166 @@
+<br><br>
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Gestión de Actividades</h2>
+
+  <!-- Mensaje -->
+  <div *ngIf="mensaje" class="alert alert-info text-center">
+    {{ mensaje }}
+  </div>
+
+  <!-- Selección de bloque y trimestre -->
+  <div class="card shadow-sm p-3 mb-4">
+    <div class="row align-items-end">
+      <div class="col-md-5 mb-3">
+<label class="form-label fw-semibold">Seleccione Materia (Bloque):</label>
+             <select class="form-select" id="bloque" [(ngModel)]="bloqueSeleccionado" name="bloque">
+    <option [value]="null">Seleccione una materia</option>
+    <option *ngFor="let bloque of bloquesDisponibles" [value]="bloque.id_bloque">
+        {{ bloque.materia?.nombre_materia || 'Sin materia' }} - 
+        {{ bloque.grado?.nombre_grado || 'Sin grado' }} 
+        {{ bloque.grado?.seccion || '' }}
+    </option>
+</select>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label fw-semibold">Seleccione Trimestre:</label>
+        <select [(ngModel)]="trimestreSeleccionado" class="form-select">
+          <option *ngFor="let tri of trimestres" [value]="tri.value">{{ tri.label }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-3 d-flex gap-2">
+        <button class="btn btn-primary w-100" (click)="consultarActividades()">
+          Consultar
+        </button>
+        <button class="btn btn-outline-secondary w-100" (click)="limpiarConsulta()">
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicador de carga -->
+  <div *ngIf="cargando" class="text-center my-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Cargando actividades...</p>
+  </div>
+
+  <!-- Detalle del bloque -->
+  <div *ngIf="!cargando && datosBloque" class="card shadow-sm p-3 mb-4">
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>Materia:</strong> {{ datosBloque.materia }}</p>
+        <p><strong>Grado:</strong> {{ datosBloque.grado }}</p>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <p><strong>Sección:</strong> {{ datosBloque.seccion }}</p>
+        <p><strong>Trimestre:</strong> {{ datosBloque.trimestre }}</p>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+ <button type="button" 
+        class="btn btn-success" 
+        (click)="abrirModalAgregar()"
+        [disabled]="!puedeAgregarActividad()">
+    <i class="bi bi-plus-circle"></i>Agregar Actividad
+</button>
+<div *ngIf="datosBloque && calcularTotalPonderacion() >= 100" 
+     class="alert alert-success mt-3">
+    <i class="fas fa-check-circle me-2"></i>
+    <strong>Ponderación completa:</strong> Se ha alcanzado el 100% de evaluación en este trimestre.
+</div>
+      <div>
+        <strong>Total Ponderación:</strong>
+        <span [class.text-success]="calcularTotalPonderacion() <= 100" [class.text-danger]="calcularTotalPonderacion() > 100">
+          {{ calcularTotalPonderacion() }}%
+        </span>
+        <span class="ms-2 text-muted">Restante: {{ getPonderacionRestante() }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de actividades -->
+  <div *ngIf="!cargando && actividades.length > 0" class="card shadow-sm p-3">
+    <h5 class="text-center mb-3">Lista de Actividades</h5>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle text-center">
+        <thead class="table-primary">
+          <tr>
+            <th>Nombre</th>
+            <th>Ponderación (%)</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let actividad of actividades">
+            <td>{{ actividad.nombreActividad }}</td>
+            <td>{{ actividad.ponderacion }}</td>
+            <td>{{ actividad.fechaActividad | date: 'shortDate' }}</td>
+            <td>
+              <button class="btn btn-outline-primary btn-sm me-2" (click)="irAsignarNotas(actividad)">
+                <i class="bi bi-journal-text"></i> Notas
+              </button>
+              <button class="btn btn-outline-warning btn-sm me-2" (click)="abrirModalEditar(actividad)">
+                <i class="bi bi-pencil-square"></i> Editar
+              </button>
+              <button class="btn btn-outline-danger btn-sm" (click)="eliminarActividad(actividad)">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!cargando && datosBloque && actividades.length === 0" class="alert alert-warning text-center mt-3">
+    No hay actividades registradas para esta materia y trimestre.
+  </div>
+
+  <!-- Modal Crear/Editar -->
+  <div *ngIf="mostrarModal" class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            {{ isEditing ? 'Editar Actividad' : 'Nueva Actividad' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cerrarModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre de la Actividad:</label>
+              <input type="text" [(ngModel)]="nombreActividad" name="nombreActividad" class="form-control" placeholder="Ej: Examen Parcial">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Ponderación (%):</label>
+              <input type="number" [(ngModel)]="ponderacion" name="ponderacion" class="form-control" placeholder="Ej: 20">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Fecha de la Actividad:</label>
+              <input type="date" [(ngModel)]="fechaActividad" name="fechaActividad" class="form-control">
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn btn-primary" (click)="guardarActividad()">
+            {{ isEditing ? 'Actualizar' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fondo oscuro modal -->
+  <div *ngIf="mostrarModal" class="modal-backdrop fade show"></div>
+</div>
