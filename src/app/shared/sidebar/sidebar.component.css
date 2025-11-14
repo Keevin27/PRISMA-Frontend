@@ -6,22 +6,42 @@
 /* ----- estado ABIERTO (por la clase .open) ----- */
 :host {
   position: fixed;
-  top: 40px;        /* debajo de la topbar */
+  top: 40px;
   bottom: 0;
   left: 0;
   width: var(--sidebar-wide);
   background-color: #212529;
   color: #fff;
-  overflow-y: auto;
   transition: transform 0.3s ease;
   z-index: 1050;
-  display: block;
-  transform: translateX(-100%); 
+  display: flex;            
+  flex-direction: column;  
+  transform: translateX(-100%);
 }
+
 :host(.open) {
-  transform: translateX(0); 
+  transform: translateX(0);
 }
+
+.sidebar-content {
+  width: 260px;
+  background-color: #212529; 
+  font-family: "Segoe UI", sans-serif;
+}
+
+.nav-link {
+  color: #fff !important; 
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  background-color: #343a40; 
+  color: #fff;
+}
+
 .nav-link.active {
-  background-color: #0d6efd;
-  font-weight: bold;
+  background-color: #fff; 
+  color: #212529 !important; 
 }
+

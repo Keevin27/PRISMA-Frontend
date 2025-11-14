@@ -1,25 +1,53 @@
-<div class="p-2 text-end border-bottom">
-  <button class="btn btn-outline-dark btn-sm" (click)="toggle()">
-    <i class="bi bi-x-lg"></i> Cerrar
-  </button>
+<div class="sidebar-content h-100 d-flex flex-column bg-dark">
+
+  <!-- Encabezado -->
+  <div class="p-3 text-end border-bottom border-secondary">
+    <button class="btn btn-sm btn-outline-light" (click)="toggle()">
+      <i class="bi bi-x-lg"></i> Cerrar
+    </button>
+  </div>
+
+  <!-- Navegación -->
+  <ul class="nav nav-pills flex-column p-3 gap-2">
+    <li class="nav-item">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/home" routerLinkActive="active">
+        <i class="bi bi-house me-2"></i> Inicio
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/alumnos" routerLinkActive="active">
+        <i class="bi bi-people me-2"></i> Alumnos
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="BloquearDocente()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/docentes" routerLinkActive="active">
+        <i class="bi bi-person-badge me-2"></i> Docentes
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="BloquearDocente()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/paquetesescolares" routerLinkActive="active">
+        <i class="bi bi-box-seam me-2"></i> Paquetes Escolares
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="BloquearSecretaria()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/asistenciaalumno" routerLinkActive="active">
+        <i class="bi bi-check2-square me-2"></i> Asistencia
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="BloquearSecretaria()">
+      <a class="nav-link text-white d-flex align-items-center" routerLink="/entrega-paquetes-escolares" routerLinkActive="active">
+        <i class="bi bi-truck me-2"></i> Entrega de Paquetes
+      </a>
+    </li>
+  </ul>
+
+  <!-- Bloque fijo abajo -->
+  <div class="mt-auto p-3 border-top border-secondary">
+    <div class="d-flex justify-content-between align-items-center text-white">
+      <span class="small">{{ usuarioCorreo }}</span>
+      <button class="btn btn-sm btn-outline-light" (click)="abrirModal()">
+        <i class="bi bi-gear"></i>
+      </button>
+    </div>
+  </div>
 </div>
-
-<ul class="nav nav-pills flex-column p-2">
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/home" routerLinkActive="active">Inicio</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/alumnos" routerLinkActive="active">Alumnos</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/docentes" routerLinkActive="active" *ngIf="BloquearDocente()">Docentes</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/paquetesescolares" routerLinkActive="active" *ngIf="BloquearDocente()">Paquetes Escolares</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" routerLink="/asistenciaalumno" routerLinkActive="active" *ngIf="BloquearSecretaria()">Asistencia</a>
-    <a class="nav-link" routerLink="/entrega-paquetes-escolares" routerLinkActive="active" *ngIf="BloquearSecretaria()">Entrega de Paquetes Escolares</a>
-  </li>
-
-</ul>

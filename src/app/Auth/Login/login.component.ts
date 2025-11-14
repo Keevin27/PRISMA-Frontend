@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
+import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-login',
@@ -29,6 +30,7 @@ export class LoginComponent {
     this.auth.login(correo!, password!).subscribe({
       next: res => {
         this.auth.saveToken(res.token);
+        this.auth.resolveUserId();
         this.router.navigate(['/home']);
       },
       error: () => {
@@ -46,7 +48,13 @@ export class LoginComponent {
 
     this.http.post('http://localhost:8080/api/usuarios/recuperar', { correo })
       .subscribe({
-        next: () => alert("Se envió un correo con la nueva contraseña"),
+        next: () => {
+          const modalElement = document.getElementById('recuperarModal');
+          if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+          }
+        },
         error: err => {
           console.error(err);
           this.error = err.error?.message || err.message || "Error al recuperar contraseña";
