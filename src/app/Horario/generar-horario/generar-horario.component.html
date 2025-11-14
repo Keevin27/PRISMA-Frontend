@@ -1,0 +1,157 @@
+<style>
+  .container {
+  padding: 20px;
+}
+
+.alert {
+  margin-top: 15px;
+  font-size: 1rem;
+  padding: 12px;
+  animation: fadein 0.3s ease-in-out;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 10px;
+}
+
+.table td {
+  background-color: #f8f9fa;
+}
+
+.table th {
+  background-color: #343a40;
+  color: white;
+}
+
+pre {
+  white-space: pre-wrap;
+  margin: 0;
+  font-family: inherit;
+}
+
+</style>
+<div class="p-4 mt-5">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+                </li>
+                <li class=" breadcrumb-item active" aria-current="page">Docentes</li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="text-center">Gestión de Horarios</h2>
+</div>
+<div class="container">
+  <div class="card-header text-center">
+        <h5>CENTRO ESCOLAR GUSTAVO VIDES VALDES</h5>
+        <h5>LOURDES COLON</h5>
+        <h5>Generacion de Horarios</h5>
+    </div>
+  <div class="acciones">
+    <button  *ngIf="BloquearSecretaria()" (click)="abrirModalConfirmacion()" class="btn btn-primary">
+  Generar horarios automáticos
+    </button>
+
+    <div *ngIf="mensaje" 
+      class="alert"
+      [ngClass]="{
+        'alert-success': mensajeTipo === 'success',
+        'alert-danger': mensajeTipo === 'error'
+      }"
+      role="alert">
+    {{ mensaje }}
+    </div>
+  </div>
+
+  <hr>
+
+    <div class="filtros">
+      <label>
+        <input type="radio" [(ngModel)]="modo" value="grado"> Ver por grado
+      </label>
+      <label>
+        <input type="radio" [(ngModel)]="modo" value="docente"> Ver por docente
+      </label>
+
+      <div *ngIf="modo === 'grado'" class="mt-2">
+        <label>Seleccione un grado:</label>
+        <select [(ngModel)]="idGradoSeleccionado" class="form-select">
+          <option [ngValue]="null">-- Seleccionar --</option>
+          <option *ngFor="let g of grados" [ngValue]="g.id_grado">{{ g.nombre_grado }} {{ g.seccion }}</option>
+        </select>
+      </div>
+
+      <div *ngIf="modo === 'docente'" class="mt-2">
+        <label>Seleccione un docente:</label>
+        <select [(ngModel)]="duiDocenteSeleccionado" class="form-select">
+          <option [ngValue]="null">-- Seleccionar --</option>
+          <option *ngFor="let d of docentes" [ngValue]="d.duiDocente">{{ d.nombre_Docente }}</option>
+        </select>
+      </div>
+
+      <button (click)="verHorarios()" class="btn btn-success mt-3">Ver horario</button>
+      <button *ngIf="matriz.length > 0" 
+        (click)="imprimirHorario()" 
+        class="btn btn-outline-primary mt-3 ms-2">
+  Imprimir horario
+</button>
+
+    </div>
+
+  <hr>
+
+  <div *ngIf="matriz.length > 0" class="tabla-horario">
+    <table class="table table-bordered text-center align-middle">
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th *ngFor="let dia of dias">{{ dia }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hora of horas; let i = index">
+          <td class="fw-bold">{{ hora }}</td>
+          <td *ngFor="let dia of dias; let j = index">
+            <pre>{{ matriz[i][j] }}</pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- Modal de confirmación -->
+<div class="modal fade" id="modalConfirmarGeneracion" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">Confirmar generación de horarios</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Esto eliminará los horarios existentes y generará uno nuevo.
+        ¿Desea continuar?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger" id="btnConfirmarGeneracion">Generar</button>
+      </div>
+    </div>
+  </div>
+</div>
