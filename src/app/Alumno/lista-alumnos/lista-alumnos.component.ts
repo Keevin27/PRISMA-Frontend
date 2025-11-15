@@ -46,7 +46,7 @@ export class ListaAlumnosComponent implements OnInit {
   private private_alertTimer: any = null;
   mensajeModalError: string | null = null;
 
-  totalAlumnosDelAnio: number = 0; // Contador total
+  totalAlumnosDelAnio: number = 0;
 
   constructor(
     private alumnoServicio: AlumnoService,
@@ -65,7 +65,8 @@ export class ListaAlumnosComponent implements OnInit {
 
   ngOnInit(): void {
     this.rolesUsuario = this.authService.getUserRoles();
-    this.obtenerAlumnos(); 
+    this.obtenerAlumnos();
+    this.limpiarBackdropsHuerfanos();
   }
 
   BloquearDocente(): boolean {
@@ -92,15 +93,55 @@ export class ListaAlumnosComponent implements OnInit {
       this.limpiarMensajes();
     }, duracion);
   }
+
+  // Limpieza
+  private limpiarBackdropsHuerfanos(): void {
+    // Remover todos los backdrops
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+    
+    // Remover todos los modales ocultos
+    const modales = document.querySelectorAll('.modal');
+    modales.forEach(modal => {
+      modal.classList.remove('show');
+      modal.removeAttribute('aria-modal');
+      modal.removeAttribute('role');
+      modal.setAttribute('aria-hidden', 'true');
+      (modal as HTMLElement).style.display = 'none';
+    });
+    
+    // Limpiar clases del body
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  }
+
+  // Forzar cierre completo del modal
+  private cerrarModalCompletamente(modalId: string): void {
+    const modalElement = document.getElementById(modalId);
+    
+    if (modalElement) {
+      // Intentar cerrar con Bootstrap
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+      
+      // Forzar limpieza después de un momento
+      setTimeout(() => {
+        this.limpiarBackdropsHuerfanos();
+      }, 350);
+    }
+  }
+
   // ========================================================
 
   obtenerAlumnos(): void {
     this.limpiarMensajes();
     
-    // 1. Cargar AÑOS
     this.anioAcademicoService.obtenerAniosAcademicos().subscribe({
       next: (dataAnios: AnioAcademico[]) => {
-        this.aniosDisponibles = dataAnios.sort((a, b) => b.anio - a.anio); // Ordenar años
+        this.aniosDisponibles = dataAnios.sort((a, b) => b.anio - a.anio);
         this.anioActivo = this.aniosDisponibles.find(a => a.anio_activo) || null;
         
         if (this.anioActivo) {
@@ -111,21 +152,18 @@ export class ListaAlumnosComponent implements OnInit {
           this.mostrarMensaje('advertencia', 'No se encontró un año académico activo. El modal de matrícula no funcionará.');
         }
 
-        // 2. Cargar TODAS las matrículas
         this.matriculaService.obtenerMatriculas().subscribe({
           next: (matriculas: Matricula[]) => {
             this.todasLasMatriculas = matriculas || [];
             
-            // 3. Cargar TODOS los alumnos
             this.alumnoServicio.obtenerListaDeAlumnos().subscribe({
               next: (alumnos: Alumno[]) => {
                 this.todosLosAlumnos = alumnos || [];
                 
-                // 4. Cargar grados del año (activo por defecto) y FILTRAR
                 if (this.filtroAnio) {
-                  this.cargarGradosPorAnio(parseInt(this.filtroAnio), true); // true = auto-filtrar
+                  this.cargarGradosPorAnio(parseInt(this.filtroAnio), true);
                 } else {
-                  this.filtrarAlumnos(); // Filtrar sin año (mostrará todo)
+                  this.filtrarAlumnos();
                 }
               },
               error: (error) => this.mostrarMensaje('error', 'No se pudieron cargar los alumnos.')
@@ -168,64 +206,43 @@ export class ListaAlumnosComponent implements OnInit {
     }
   }
 
-  /**
-   * Lógica de filtrado principal.
-   * Decide qué alumnos mostrar (matriculados vs. candidatos) 
-   * basándose en si el año seleccionado es el activo.
-   */
   filtrarAlumnos(): void {
-    // Limpiar listas
     this.matriculas = [];
     this.alumnosSinMatricula = [];
     this.totalAlumnosDelAnio = 0;
 
     if (!this.filtroAnio) {
-        // Si no hay año seleccionado, no mostrar nada
         return;
     }
 
-    // Encontrar todas las matrículas del AÑO seleccionado
     const matDelAnio = this.todasLasMatriculas.filter(matricula => 
         matricula.grado?.anioAcademico?.anio?.toString() === this.filtroAnio
     );
     
-    // Obtener IDs de alumnos matriculados ESE AÑO
     const alumnosMatriculadosEnAnioIds = new Set(matDelAnio.map(m => m.alumno.idAlumno));
 
-    // Obtener "Candidatos" (Todos los alumnos - los matriculados en ESE año)
-    // Esta lista se usará si el año es el activo
     const candidatosDelAnio = this.todosLosAlumnos.filter(
         alumno => !alumnosMatriculadosEnAnioIds.has(alumno.idAlumno)
     );
 
-    // Asignar el TOTAL de alumnos de ese año
     this.totalAlumnosDelAnio = matDelAnio.length + candidatosDelAnio.length;
     
-    // Si el año seleccionado ES EL ACTIVO Y NO HAY FILTRO DE GRADO
     if (this.esAnioActivoSeleccionado() && !this.filtroGrado) {
-        // Mostrar AMBOS: matriculados y candidatos
         this.matriculas = matDelAnio;
         this.alumnosSinMatricula = candidatosDelAnio;
     
-    // Si hay filtro de GRADO (en cualquier año)
     } else if (this.filtroGrado) {
-        // Mostrar SOLO los matriculados de ESE GRADO
         this.matriculas = matDelAnio.filter(matricula => 
             matricula.grado?.id_grado?.toString() === this.filtroGrado
         );
-        // Ocultar candidatos (porque ya filtramos por grado)
         this.alumnosSinMatricula = [];
 
-    // Si es un año PASADO (no activo) y SIN filtro de grado
     } else {
-        // Mostrar SOLO los que estuvieron matriculados ese año
         this.matriculas = matDelAnio;
-        // Ocultar candidatos
         this.alumnosSinMatricula = [];
     }
   }
 
-  // Revisa si el filtroAnio es el anioActivo
   esAnioActivoSeleccionado(): boolean {
     return this.anioActivo?.anio.toString() === this.filtroAnio;
   }
@@ -235,10 +252,10 @@ export class ListaAlumnosComponent implements OnInit {
     
     if (this.anioActivo) {
       this.filtroAnio = this.anioActivo.anio.toString();
-      this.onAnioChange(); // Carga grados y filtra
+      this.onAnioChange();
     } else {
       this.filtroAnio = '';
-      this.filtrarAlumnos(); // Recalcular todo
+      this.filtrarAlumnos();
     }
   }
 
@@ -286,6 +303,7 @@ export class ListaAlumnosComponent implements OnInit {
     return this.cuposDisponibles.get(idGrado) ?? 45;
   }
 
+  // Confirmar la matricula
   confirmarMatricula(): void {
     this.limpiarMensajes();
 
@@ -301,22 +319,36 @@ export class ListaAlumnosComponent implements OnInit {
     const gradoSeleccionadoObj = this.gradosParaMatricula.find(g => g.id_grado.toString() === this.gradoMatriculaSeleccionado);
     const nombreGrado = gradoSeleccionadoObj ? this.obtenerNombreCompletoGrado(gradoSeleccionadoObj) : 'ese grado';
 
-    Swal.fire({
-      title: '¿Confirmar Matrícula?',
-      text: `Se matriculará a ${this.alumnoAMatricular.nombre_alumno} ${this.alumnoAMatricular.apellido_alumno} en ${nombreGrado}.`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#198754', // Verde
-      cancelButtonColor: '#6c757d',  // Gris
-      confirmButtonText: 'Sí, matricular',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.procesarMatricula(); 
-      }
-    });
+    // CERRAR MODAL COMPLETAMENTE Y FORZAR LIMPIEZA
+    this.cerrarModalCompletamente('modalMatricular');
+
+    // ESPERAR MÁS TIEMPO PARA ASEGURAR QUE TODO SE LIMPIÓ
+    setTimeout(() => {
+      Swal.fire({
+        title: '¿Confirmar Matrícula?',
+        text: `Se matriculará a ${this.alumnoAMatricular!.nombre_alumno} ${this.alumnoAMatricular!.apellido_alumno} en ${nombreGrado}.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, matricular',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.procesarMatricula(); 
+        } else if (result.isDismissed) {
+          // Si cancela, volver a abrir el modal
+          const modalElement = document.getElementById('modalMatricular');
+          if (modalElement) {
+            const nuevoModal = new bootstrap.Modal(modalElement);
+            nuevoModal.show();
+          }
+        }
+      });
+    }, 400); // Aumentado a 400ms
   }
 
+  // Procesar la Matricula
   procesarMatricula(): void {
     if (!this.alumnoAMatricular || !this.gradoMatriculaSeleccionado) return;
 
@@ -327,12 +359,9 @@ export class ListaAlumnosComponent implements OnInit {
 
     this.matriculaService.crearMatricula(payload).subscribe({
       next: (response: any) => {
-        const modalElement = document.getElementById('modalMatricular');
-        if (modalElement) {
-          const modal = bootstrap.Modal.getInstance(modalElement);
-          if (modal) modal.hide();
-        }
-
+        //FORZAR LIMPIEZA DESPUÉS DEL ÉXITO
+        this.limpiarBackdropsHuerfanos();
+        
         this.mostrarMensaje('exito', `Alumno ${this.alumnoAMatricular?.nombre_alumno} ${this.alumnoAMatricular?.apellido_alumno} matriculado exitosamente`);
         this.obtenerAlumnos();
         
@@ -347,6 +376,16 @@ export class ListaAlumnosComponent implements OnInit {
         } else {
           this.mensajeModalError = 'Error al crear la matrícula. Por favor intente nuevamente.';
         }
+        
+        // Si hay error, mostrar el modal nuevamente
+        this.limpiarBackdropsHuerfanos();
+        setTimeout(() => {
+          const modalElement = document.getElementById('modalMatricular');
+          if (modalElement) {
+            const nuevoModal = new bootstrap.Modal(modalElement);
+            nuevoModal.show();
+          }
+        }, 100);
       }
     });
   }
@@ -368,12 +407,15 @@ export class ListaAlumnosComponent implements OnInit {
   confirmarEliminacionAlumno(): void {
     if (this.idAlumnoAEliminar != null) {
       const id = this.idAlumnoAEliminar;
-      this.idAlumnoAEliminar = null; // Limpiar antes de la llamada
+      this.idAlumnoAEliminar = null;
+      
+      //CERRAR MODAL Y LIMPIAR
+      this.cerrarModalCompletamente('modalEliminar');
       
       this.alumnoServicio.eliminarAlumno(id).subscribe({
         next: () => {
           this.mostrarMensaje('exito', 'Se eliminó el alumno exitosamente.');
-          this.obtenerAlumnos(); // Recargamos todos los datos
+          this.obtenerAlumnos();
         },
         error: (error: any) => {
           this.mostrarMensaje('error', 'Error al eliminar el alumno. Puede que esté asociado a otros registros.');
@@ -473,7 +515,6 @@ export class ListaAlumnosComponent implements OnInit {
     }
   }
 
-  // Total de alumnos mostrados DESPUÉS de aplicar el filtro de grado
   get alumnosFiltrados(): number {
     return this.matriculas.length + this.alumnosSinMatricula.length;
   }
