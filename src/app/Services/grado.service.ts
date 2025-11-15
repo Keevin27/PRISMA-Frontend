@@ -24,5 +24,11 @@ export class GradoService {
   eliminarGrado(id: number): Observable<any> {
     return this.httpClient.delete(`${this.baseURL}/eliminar/${id}`)
   }
-  
+  obtenerGrados(): Observable<Grado[]> {
+    return this.httpClient.get<Grado[]>(`${this.baseURL}/grados`);
+  }
+
+  obtenerGradoPorId(id: number): Observable<Grado> {
+    return this.httpClient.get<Grado>(`${this.baseURL}/${id}`);
+  }
 }

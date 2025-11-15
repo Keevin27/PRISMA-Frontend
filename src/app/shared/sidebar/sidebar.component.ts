@@ -12,14 +12,14 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
 })
-export class SidebarComponent implements OnInit{
+export class SidebarComponent implements OnInit {
   rolesUsuario: string[] = [];//PARA RESTRINGIR
   usuarioCorreo: string = '';
   nuevaPassword: string = '';
   private readonly _open = signal(false);
   constructor(
     private authService: AuthService, //PARA RESTRINGIR
-    private http: HttpClient 
+    private http: HttpClient
   ) { }
   ngOnInit(): void {
     this.rolesUsuario = this.authService.getUserRoles(); //PARA RESTRINGIR
@@ -55,5 +55,17 @@ export class SidebarComponent implements OnInit{
       bsModal.show();
     }
   }
+
+  sections: { [key: string]: boolean } = {
+    estudiantes: false,
+    academica: false,
+    programas: false,
+    reportes: false
+  };
+
+  toggleSection(section: string) {
+    this.sections[section] = !this.sections[section];
+  }
+
 
 }

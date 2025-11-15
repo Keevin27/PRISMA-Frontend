@@ -35,6 +35,7 @@ import { CrearAlimentoComponent } from './Alimentos/crear-alimento/crear-aliment
 import { CrearMenuComponent } from './Alimentos/crear-menu/crear-menu.component';
 import { ListarMenuComponent } from './Alimentos/listar-menu/listar-menu.component';
 import { EditarMenuComponent } from './Alimentos/editar-menu/editar-menu.component';
+import { EntregaAlimentosComponent } from './Alimentos/entrega-alimentos/entrega-alimentos.component';
 
 export const routes: Routes = [
   {
@@ -47,7 +48,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./home/home.component').then((m) => m.HomeComponent),
       },
-      
+
       {
         path: 'paquetesescolares',
         component: PaqueteEscolarComponent,
@@ -74,8 +75,8 @@ export const routes: Routes = [
       {
         path: 'gestion-ano-academico',
         loadComponent: () =>
-        import('./Administracion/gestion-anio-academico/gestion-anio-academico.component').then(
-        (m) => m.GestionAnioAcademicoComponent
+          import('./Administracion/gestion-anio-academico/gestion-anio-academico.component').then(
+            (m) => m.GestionAnioAcademicoComponent
           ),
         canActivate: [AuthGuard],
         data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
@@ -217,8 +218,8 @@ export const routes: Routes = [
           import('./Materia/lista-materias/lista-materias.component').then(
             (m) => m.ListaMateriasComponent
           ),
-          canActivate: [AuthGuard],
-          data: {roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA']}
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DIRECTOR', 'ROLE_SECRETARIA'] }
       },
       {
         path: 'materias/agregarMaterias',
@@ -271,18 +272,25 @@ export const routes: Routes = [
         data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
       },
       {
-  path: 'reporte-anual-alumno',
-  component: ReporteAnualAlumnoComponent,
-  canActivate: [AuthGuard],
-  data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
-},
-{
-    path: 'administracion/asig-orientadores',
-    component: AsigOrientadoresComponent
-  },
+        path: 'reporte-anual-alumno',
+        component: ReporteAnualAlumnoComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+      {
+        path: 'administracion/asig-orientadores',
+        component: AsigOrientadoresComponent
+      },
 
 
       { path: 'generar-horarios', component: GenerarHorarioComponent },
+      {
+        path: 'entrega-alimento',
+        component: EntregaAlimentosComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['ROLE_DOCENTE', 'ROLE_DIRECTOR'] }
+      },
+
     ],
   },
 

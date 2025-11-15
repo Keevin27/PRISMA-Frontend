@@ -3,6 +3,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Coordinacion } from '../Models/coordinacion';
 
 @Injectable({
   providedIn: 'root'
@@ -42,5 +43,13 @@ export class CoordinacionService {
 
   eliminarAsignacion(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/eliminar/${id}`);
+  }
+
+  //Metodos de Eduardo para la parte de control de menus
+  obtenerCoordinaciones(): Observable<Coordinacion[]> {
+    return this.http.get<Coordinacion[]>(`${this.apiUrl}/`);
+  }
+  obtenerPorGrado(idGrado: number): Observable<Coordinacion> {
+    return this.http.get<Coordinacion>(`${this.apiUrl}/grado/${idGrado}`);
   }
 }
