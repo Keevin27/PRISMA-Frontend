@@ -313,6 +313,41 @@ export class AgregarAlumnoComponent implements OnInit {
     //   return false;
     // }
 
+    // 1. Validación de Sexo (usando 'sexo_a' como está en tu HTML)
+    if (!this.alumno.sexo_a || (this.alumno.sexo_a as any) === '') {
+      this.mensaje = 'Debe seleccionar el genero del alumno';
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { this.mensaje = ''; }, 3000);
+      }, 100);
+      return false;
+    }
+
+    //Validación de Fecha de Nacimiento (que exista)
+    if (!this.alumno.fecha_nacimiento_alumno) {
+      this.mensaje = 'Debe seleccionar la fecha de nacimiento';
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { this.mensaje = ''; }, 3000);
+      }, 100);
+      return false;
+    }
+
+    //Validación de Edad > 5 años
+    const hoy = new Date();
+    const fechaMinima = new Date(hoy.getFullYear() - 5, hoy.getMonth(), hoy.getDate());
+    
+    const fechaNacimiento = new Date(this.alumno.fecha_nacimiento_alumno + 'T00:00:00');
+
+    if (fechaNacimiento > fechaMinima) {
+      this.mensaje = 'El alumno debe tener al menos 5 años de edad';
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { this.mensaje = ''; }, 3000);
+      }, 100);
+      return false;
+    }
+
     // Valido formato del NIE (7 dígitos)
     const nieRegex = /^\d{7}$/;
     if (!nieRegex.test(this.alumno.nie.toString())) {
