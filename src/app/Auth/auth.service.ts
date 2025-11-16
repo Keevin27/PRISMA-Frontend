@@ -10,8 +10,8 @@ interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiAuth = 'http://localhost:8080/auth';
-  private apiUsuarios = 'http://localhost:8080/api/usuarios';
+  private apiAuth = 'https://prisma-backend-9dd71ec0c985.herokuapp.com/auth';
+  private apiUsuarios = 'https://prisma-backend-9dd71ec0c985.herokuapp.com/api/usuarios';
 
   constructor(private http: HttpClient, private router: Router) {}
 

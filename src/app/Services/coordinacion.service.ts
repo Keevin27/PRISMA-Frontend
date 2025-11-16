@@ -10,7 +10,7 @@ import { Coordinacion } from '../Models/coordinacion';
 })
 export class CoordinacionService {
 
-  private apiUrl = 'http://localhost:8080/coordinacion';
+  private apiUrl = 'https://prisma-backend-9dd71ec0c985.herokuapp.com/coordinacion';
 
   constructor(private http: HttpClient) { }
 

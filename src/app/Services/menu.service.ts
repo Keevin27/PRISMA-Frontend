@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MenuService {
-  private baseURL = "http://localhost:8080/Menu"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Menu"
 
   constructor(private httpClient: HttpClient) { }
 

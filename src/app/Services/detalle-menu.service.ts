@@ -10,7 +10,7 @@ import { DetalleMenu } from '../Models/detalle-menu';
 })
 export class DetalleMenuService {
 
-  private baseURL = "http://localhost:8080/DetalleMenu"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/DetalleMenu"
 
   constructor(private httpClient: HttpClient) { }
 

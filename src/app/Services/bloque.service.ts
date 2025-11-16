@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class BloqueService {
-  private baseURL = "http://localhost:8080/asignarDocenteAMateria";
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/asignarDocenteAMateria";
 
   constructor(private httpClient: HttpClient) { }
 

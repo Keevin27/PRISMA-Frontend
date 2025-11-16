@@ -8,7 +8,7 @@ import { Sancion } from '../Models/sancion';
 })
 export class SancionService {
 
-  private baseURL = "http://localhost:8080/Sancion";
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Sancion";
 
   constructor(private httpClient: HttpClient) {}
 

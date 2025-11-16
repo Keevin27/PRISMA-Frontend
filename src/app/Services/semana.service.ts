@@ -9,7 +9,7 @@ import { Semana } from '../Models/semana';
 })
 export class SemanaService {
 
-  private baseURL = "http://localhost:8080/Semana"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Semana"
 
   constructor(private httpClient: HttpClient) { }
 

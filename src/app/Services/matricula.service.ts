@@ -8,7 +8,7 @@ import { Matricula } from '../Models/matricula';
 })
 export class MatriculaService {
 
-  private baseURL = "http://localhost:8080/Matricula"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Matricula"
   constructor(private httpClient: HttpClient) { }
 
   // Obtener todas las matriculas

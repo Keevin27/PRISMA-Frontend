@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class DiaService {
 
-  private baseURL = "http://localhost:8080/Dia"
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/Dia"
   
     constructor(private httpClient: HttpClient) { }
   
