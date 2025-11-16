@@ -10,10 +10,10 @@ import { Grado } from '../Models/grado';
 })
 export class MateriaService {
   //obtener listados de materias desde el backend
-  private baseURL="http://localhost:8080/gestionarMaterias/materias"
-  private baseURLbloques="http://localhost:8080/asignarDocenteAMateria/bloques"
-  private baseURLDocente="http://localhost:8080/expedienteDocente/docentes"
-  private baseURLGrado="http://localhost:8080/Grado/grados"
+  private baseURL="https://prisma-backend-9dd71ec0c985.herokuapp.com/gestionarMaterias/materias"
+  private baseURLbloques="https://prisma-backend-9dd71ec0c985.herokuapp.com/asignarDocenteAMateria/bloques"
+  private baseURLDocente="https://prisma-backend-9dd71ec0c985.herokuapp.com/expedienteDocente/docentes"
+  private baseURLGrado="https://prisma-backend-9dd71ec0c985.herokuapp.com/Grado/grados"
 
   constructor(private httpClient: HttpClient) { 
   }

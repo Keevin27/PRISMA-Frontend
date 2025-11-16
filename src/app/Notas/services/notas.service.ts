@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class NotasService {
-  private baseURL = "http://localhost:8080/notas";
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/notas";
 
   constructor(private httpClient: HttpClient) { }
 

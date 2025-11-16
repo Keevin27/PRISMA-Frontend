@@ -6,7 +6,7 @@ import { Actividad } from '../models/actividad.model'
   providedIn: 'root'
 })
 export class ActividadesService {
-  private baseURL = "http://localhost:8080/actividades";
+  private baseURL = "https://prisma-backend-9dd71ec0c985.herokuapp.com/actividades";
 
   constructor(private httpClient: HttpClient) { }
 

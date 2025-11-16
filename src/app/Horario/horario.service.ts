@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class HorarioService {
 
-   private baseURL = 'http://localhost:8080/Horarios';
+   private baseURL = 'https://prisma-backend-9dd71ec0c985.herokuapp.com/Horarios';
 
   constructor(private httpClient: HttpClient) { }
 
