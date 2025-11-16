@@ -68,7 +68,7 @@ export class EntregaAlimentosComponent {
     forkJoin({
       semanas: this.semanaService.obtenerSemanas(),
       dias: this.diaService.obtenerDias(),
-      grados: this.gradoService.obtenerGrados(),
+      grados: this.gradoService.obtenerGradosActivos(),
       coordinaciones: this.coordinacionService.obtenerCoordinaciones()
     }).subscribe({
       next: (data) => {

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradoService {
-  private baseURL = "http://localhost:8080/Grado"  
+  private baseURL = "http://localhost:8080/Grado"
 
   constructor(private httpClient: HttpClient) { }
 
@@ -17,7 +17,7 @@ export class GradoService {
   obtenerTodosLosGrados(): Observable<Grado[]> {
     return this.httpClient.get<Grado[]>(`${this.baseURL}/grados`)
   }
-   crearOferta(oferta: any): Observable<Grado[]> {
+  crearOferta(oferta: any): Observable<Grado[]> {
     return this.httpClient.post<Grado[]>(`${this.baseURL}/crear-oferta`, oferta)
   }
 
@@ -27,7 +27,9 @@ export class GradoService {
   obtenerGrados(): Observable<Grado[]> {
     return this.httpClient.get<Grado[]>(`${this.baseURL}/grados`);
   }
-
+  obtenerGradosActivos(): Observable<Grado[]> {
+    return this.httpClient.get<Grado[]>(`${this.baseURL}/grados/activos`);
+  }
   obtenerGradoPorId(id: number): Observable<Grado> {
     return this.httpClient.get<Grado>(`${this.baseURL}/${id}`);
   }
