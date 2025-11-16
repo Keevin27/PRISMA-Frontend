@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "postinstall": "ng build --configuration production",
-    "start": "ng serve",
+    "start": "node server.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
