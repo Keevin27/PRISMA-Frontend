@@ -1,1 +1,230 @@
-<p>entrega-alimentos works!</p>
+<div class="p-4 mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a routerLink="/home" class="text-decoration-none text-secondary">Inicio</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Control de Entrega de Alimentos</li>
+        </ol>
+    </nav>
+    <div class="container">
+    <div *ngIf="mensaje" 
+         [class]="'alert alert-' + (mensajeTipo === 'success' ? 'success' : mensajeTipo === 'danger' ? 'danger' : 'info')" 
+         class="alert-dismissible fade show" role="alert">
+        {{ mensaje }}
+        <button type="button" class="btn-close" (click)="mensaje = ''"></button>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body align-items-center">
+            <div class="row align-items-center">
+                <div class="text-center">
+                    <h4 class="mb-1"><strong>CONTROL DE ASISTENCIA DIARIA</strong></h4>
+                    <h5 class="mb-1">CENTRO ESCOLAR GUSTAVO VIDES VALDÉS</h5>
+                    <p class="mb-0 text-muted">Programa de Alimentación y Salud Escolar</p>
+                    
+                    <p class="mb-0" *ngIf="!cargando && gradosConDatos.length > 0">
+                        <strong>TURNO {{ turnoSeleccionado.toUpperCase() }}</strong>
+                    </p>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3 no-print">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label"><strong>Fecha:</strong></label>
+                    <input type="date" 
+                           class="form-control" 
+                           [(ngModel)]="fechaSeleccionada"
+                           (change)="onFechaCambio()">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label"><strong>Semana (calculada automáticamente):</strong></label>
+                    <input type="text" 
+                           class="form-control" 
+                           [value]="semanaCalculada ? 'Semana ' + semanaCalculada.numero_semana : 'Seleccione fecha'" 
+                           readonly>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label"><strong>Día (calculado automáticamente):</strong></label>
+                    <input type="text" 
+                           class="form-control" 
+                           [value]="diaCalculado?.nombre_dia || 'Seleccione fecha'" 
+                           readonly>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                    <label class="form-label"><strong>Menú del día:</strong></label>
+                    <input type="text" 
+                           class="form-control" 
+                           [value]="menuDelDia?.nombre_menu || 'Sin menú asignado'" 
+                           readonly>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2" *ngIf="!cargando && obtenerTurnosDisponibles().length > 1">
+                <div class="col-md-12">
+                    <label class="form-label"><strong>Seleccione el Turno:</strong></label>
+                    <div>
+                        <div class="form-check form-check-inline" 
+                             *ngFor="let turno of obtenerTurnosDisponibles()">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   name="turnoRadio"
+                                   [id]="'radio-' + turno" 
+                                   [value]="turno" 
+                                   [(ngModel)]="turnoSeleccionado">
+                            <label class="form-check-label" [for]="'radio-' + turno">
+                                <b>{{ turno }}</b>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+    </div>
+
+    <div class="row g-3 mb-3 no-print" *ngIf="!cargando && obtenerTotalAsistenciaTurno() > 0">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>TOTAL ASISTENCIA ({{ turnoSeleccionado }})</h6>
+                    <h3 class="mb-0">{{ obtenerTotalAsistenciaTurno() }}</h3>
+                    <small>estudiantes</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3" *ngFor="let alimento of obtenerNombresAlimentos().slice(0, 3)">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>{{ alimento.toUpperCase() }}</h6>
+                    <h3 class="mb-0">{{ obtenerTotalesRacionesTurno()[alimento]?.toFixed(2) || '0.00' }}</h3>
+                    <small>{{ alimento.toLowerCase().includes('aceite') ? 'ml' : 'lb' }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="cargando" class="text-center my-5">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-2">Cargando datos...</p>
+    </div>
+
+    <div *ngIf="!cargando && obtenerTotalAsistenciaTurno() > 0" class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th rowspan="2" class="text-center">DÍA</th>
+                            <th rowspan="2" class="text-center">FECHA</th>
+                            <th rowspan="2" class="text-center">ORIENTADOR</th>
+                            <th rowspan="2" class="text-center">GRADO</th>
+                            <th rowspan="2" class="text-center">ASIST.</th>
+                            <th [attr.colspan]="obtenerNombresAlimentos().length" class="text-center">RACIÓN</th>
+                            <th rowspan="2" class="text-center">TOTAL<br>CICLO</th>
+                        </tr>
+                        <tr>
+                            <th *ngFor="let alimento of obtenerNombresAlimentos()" class="text-center small">
+                                {{ alimento }}<br>
+                                <small>({{ alimento.toLowerCase().includes('aceite') ? 'ML' : 'LB' }})</small>
+                            </th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        <ng-container *ngIf="obtenerGradosPorCiclo(1).length > 0">
+                            <tr *ngFor="let registro of obtenerGradosPorCiclo(1); let first = first">
+                                <td class="text-center">{{ diaCalculado?.nombre_dia?.toUpperCase() }}</td>
+                                <td class="text-center">{{ fechaSeleccionada | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ registro.nombreOrientador }}</td>
+                                <td class="text-center">
+                                    {{ registro.grado.nombre_grado }} "{{ registro.grado.seccion }}"
+                                </td>
+                                <td class="text-center">{{ registro.totalAsistencia }}</td>
+                                <td *ngFor="let alimento of obtenerNombresAlimentos()" class="text-center">
+                                    {{ registro.raciones[alimento]?.toFixed(2) || '0.00' }}
+                                </td>
+                                <td *ngIf="first" [attr.rowspan]="obtenerGradosPorCiclo(1).length" 
+                                    class="text-center bg-light align-middle">
+                                    <strong style="font-size: 18px;">{{ obtenerTotalPorCiclo(1) }}</strong>
+                                    <div class="small mt-1">I CICLO</div>
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <ng-container *ngIf="obtenerGradosPorCiclo(2).length > 0">
+                            <tr *ngFor="let registro of obtenerGradosPorCiclo(2); let first = first">
+                                <td class="text-center">{{ diaCalculado?.nombre_dia?.toUpperCase() }}</td>
+                                <td class="text-center">{{ fechaSeleccionada | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ registro.nombreOrientador }}</td>
+                                <td class="text-center">
+                                    {{ registro.grado.nombre_grado }} "{{ registro.grado.seccion }}"
+                                </td>
+                                <td class="text-center">{{ registro.totalAsistencia }}</td>
+                                <td *ngFor="let alimento of obtenerNombresAlimentos()" class="text-center">
+                                    {{ registro.raciones[alimento]?.toFixed(2) || '0.00' }}
+                                </td>
+                                <td *ngIf="first" [attr.rowspan]="obtenerGradosPorCiclo(2).length" 
+                                    class="text-center bg-light align-middle">
+                                    <strong style="font-size: 18px;">{{ obtenerTotalPorCiclo(2) }}</strong>
+                                    <div class="small mt-1">II CICLO</div>
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <ng-container *ngIf="obtenerGradosPorCiclo(3).length > 0">
+                            <tr *ngFor="let registro of obtenerGradosPorCiclo(3); let first = first">
+                                <td class="text-center">{{ diaCalculado?.nombre_dia?.toUpperCase() }}</td>
+                                <td class="text-center">{{ fechaSeleccionada | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ registro.nombreOrientador }}</td>
+                                <td class="text-center">
+                                    {{ registro.grado.nombre_grado }} "{{ registro.grado.seccion }}"
+                                </td>
+                                <td class="text-center">{{ registro.totalAsistencia }}</td>
+                                <td *ngFor="let alimento of obtenerNombresAlimentos()" class="text-center">
+                                    {{ registro.raciones[alimento]?.toFixed(2) || '0.00' }}
+                                </td>
+                                <td *ngIf="first" [attr.rowspan]="obtenerGradosPorCiclo(3).length" 
+                                    class="text-center bg-light align-middle">
+                                    <strong style="font-size: 18px;">{{ obtenerTotalPorCiclo(3) }}</strong>
+                                    <div class="small mt-1">III CICLO</div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                    <tfoot class="table-dark">
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>TOTAL ASISTENCIA</strong></td>
+                            <td class="text-center"><strong>{{ obtenerTotalAsistenciaTurno() }}</strong></td>
+                            
+                            <td *ngFor="let alimento of obtenerNombresAlimentos()" class="text-center">
+                                <strong>{{ obtenerTotalesRacionesTurno()[alimento]?.toFixed(2) || '0.00' }}</strong>
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!cargando && gradosConDatos.length === 0 && fechaSeleccionada" class="alert alert-info text-center">
+        No hay datos de asistencia registrados para la fecha seleccionada.
+    </div>
+
+    <div *ngIf="!cargando && gradosConDatos.length > 0 && obtenerTotalAsistenciaTurno() === 0" class="alert alert-warning text-center">
+        No se encontraron registros de asistencia para el turno <b>{{ turnoSeleccionado }}</b> en esta fecha.
+        <span *ngIf="obtenerTurnosDisponibles().length > 1">Por favor, revise el otro turno.</span>
+    </div>
+
+    </div>
+</div>

@@ -26,4 +26,7 @@ export class MenuService {
   actualizarMenu(id: number, menu: Menu): Observable<Menu> {
     return this.httpClient.put<Menu>(`${this.baseURL}/${id}`, menu);
   }
+  obtenerMenuPorSemanaDia(idSemana: number, idDia: number): Observable<Menu> {
+    return this.httpClient.get<Menu>(`${this.baseURL}/semana/${idSemana}/dia/${idDia}`);
+  }
 }
